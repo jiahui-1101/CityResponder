@@ -26,6 +26,17 @@ from app.sensors.handlers import handle_sensor_message
 from app.sensors.projection import get_latest_sensor_states
 from app.sensors.schemas import LatestSensorState
 from app.system.health import SystemHealthResponse, get_system_health
+from app.vision.handlers import handle_detection_message, handle_road_message
+from app.vision.freshness import get_perception_freshness
+from app.vision.projection import get_latest_vision_state
+from app.vision.schemas import (
+    LatestVisionResponse,
+    PerceptionFreshnessResponse,
+    PerceptionSnapshot,
+    RoadIRSyncEvidence,
+)
+from app.vision.snapshot import get_perception_snapshot
+from app.vision.sync import get_road_ir_sync
 
 
 settings = get_settings()
@@ -40,6 +51,8 @@ async def lifespan(_: FastAPI):
     seed_development_users()
     set_live_event_loop(asyncio.get_running_loop())
     mqtt_client.subscribe("city/sensors/#", handle_sensor_message)
+    mqtt_client.subscribe("city/vision/detection", handle_detection_message)
+    mqtt_client.subscribe("city/vision/road", handle_road_message)
     mqtt_client.subscribe("city/acks/#", handle_ack_message)
     mqtt_client.start()
     try:
@@ -125,6 +138,46 @@ def system_health(
     """Return observational health for current backend components."""
 
     return get_system_health(db)
+
+
+@app.get("/api/vision/latest", response_model=LatestVisionResponse)
+def latest_vision(
+    db: Session = Depends(get_db),
+    _current_user: User = Depends(require_authenticated_role),
+) -> LatestVisionResponse:
+    """Return the latest read-only vision projection from immutable events."""
+
+    return get_latest_vision_state(db)
+
+
+@app.get("/api/perception/freshness", response_model=PerceptionFreshnessResponse)
+def perception_freshness(
+    db: Session = Depends(get_db),
+    _current_user: User = Depends(require_authenticated_role),
+) -> PerceptionFreshnessResponse:
+    """Return read-only freshness evaluation for sensors and vision sources."""
+
+    return get_perception_freshness(db)
+
+
+@app.get("/api/perception/road-sync", response_model=list[RoadIRSyncEvidence])
+def road_ir_sync(
+    db: Session = Depends(get_db),
+    _current_user: User = Depends(require_authenticated_role),
+) -> list[RoadIRSyncEvidence]:
+    """Return read-only camera/IR synchronization evidence per road ROI."""
+
+    return get_road_ir_sync(db)
+
+
+@app.get("/api/perception/snapshot", response_model=PerceptionSnapshot)
+def perception_snapshot(
+    db: Session = Depends(get_db),
+    _current_user: User = Depends(require_authenticated_role),
+) -> PerceptionSnapshot:
+    """Return a read-only combined perception snapshot."""
+
+    return get_perception_snapshot(db)
 
 
 @app.websocket("/ws/live")
