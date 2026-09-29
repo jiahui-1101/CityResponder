@@ -26,6 +26,7 @@ from app.sensors.handlers import handle_sensor_message
 from app.sensors.projection import get_latest_sensor_states
 from app.sensors.schemas import LatestSensorState
 from app.system.health import SystemHealthResponse, get_system_health
+from app.routing.router import router as routing_router
 from app.severity.router import router as severity_router
 from app.vision.handlers import handle_detection_message, handle_road_message
 from app.vision.freshness import get_perception_freshness
@@ -71,6 +72,7 @@ app = FastAPI(
 app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(severity_router)
+app.include_router(routing_router)
 
 
 @app.get("/health")

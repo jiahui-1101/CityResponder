@@ -10,6 +10,7 @@ from app.core.database import SessionLocal
 from app.events.repository import append_event
 from app.live.service import publish_live_update_from_thread
 from app.actuators.schemas import ActuatorAckMessage
+from app.actuators.ack_waiter import notify_actuator_ack
 
 
 logger = logging.getLogger(__name__)
@@ -28,6 +29,13 @@ def handle_ack_message(topic: str, payload: Any) -> None:
     except ValidationError as exc:
         logger.warning("Invalid actuator ACK on %s: %s", topic, exc.errors())
         return
+
+    notify_actuator_ack(
+        ack.command_id,
+        ack.node_id,
+        dict(payload),
+        ack.timestamp,
+    )
 
     db = SessionLocal()
     try:
