@@ -1,4 +1,11 @@
 .env
+**/.venv/
 data/*.db
+**/*.db
 **/__pycache__/
 *.py[cod]
+# Vision runtime artifacts and downloaded weights
+.ultralytics/
+**/runs/
+*.pt
+*.onnx
