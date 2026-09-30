@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AppShell } from "./components/AppShell";
-import { AreaPage, RoleHomeRedirect } from "./pages";
+import { RoleHomeRedirect } from "./pages";
 import { LoginPage } from "./pages/LoginPage";
 import { OperatorOverviewPage } from "./pages/OperatorOverviewPage";
 import { IncidentsPage } from "./pages/IncidentsPage";

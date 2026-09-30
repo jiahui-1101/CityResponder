@@ -1,6 +1,6 @@
 {
   "report_type": "controlled_software_integration_validation",
-  "generated_at": "2026-09-30T15:54:36.301619+00:00",
+  "generated_at": "2026-09-30T17:01:06.879299+00:00",
   "hardware": "mock ACK / isolated SQLite fixtures; no real hardware actuation",
   "not_a_benchmark": [
     "not a real-hardware reliability benchmark",
@@ -12,14 +12,14 @@
       "trace": {
         "scenario_id": "A_CONFIRMED_ROUTABLE_INCIDENT",
         "result": "completed",
-        "incident_decision_id": "78e9a176-6791-427c-a24b-84a032c70005",
-        "route_id": "e6543d38-055e-4728-b020-f9a77459b8f9",
+        "incident_decision_id": "60e142f2-cabe-4424-bbe0-946131eba7df",
+        "route_id": "72408e05-53af-47fc-bcb8-9bcb91b15767",
         "route_version": 1,
         "command_ids": [
-          "bed05fe2-3993-4f42-875b-22c9cce2e830",
-          "47d1b3be-1aa7-40a7-9b79-9de9e7c1faa7",
-          "77c5134d-6fdc-40e5-9ba7-aeb69266faf4",
-          "7e04f123-0cd2-404b-a2e7-5ff4734ecd41"
+          "290abf9e-4819-4d37-8b9b-e71784714cc0",
+          "eaeaab57-e8a9-415d-970f-adec8fcdacb6",
+          "bc789b7b-b67a-46bc-9aff-40641b6618a3",
+          "4ef13fd5-e743-4c48-b8aa-edf0370b8609"
         ],
         "ack_outcomes": [
           "acknowledged",
@@ -76,7 +76,7 @@
       },
       "respond_result": {
         "status": "completed",
-        "incident_decision_id": "78e9a176-6791-427c-a24b-84a032c70005",
+        "incident_decision_id": "60e142f2-cabe-4424-bbe0-946131eba7df",
         "routing_factor_evaluations": {
           "edge-1": {
             "status": "available",
@@ -87,7 +87,7 @@
               "road_edge_id": "edge-1",
               "road_roi_name": "road-1",
               "frame_id": "fixture-frame",
-              "frame_timestamp": "2026-09-30T15:54:34.174821Z",
+              "frame_timestamp": "2026-09-30T17:01:04.768171Z",
               "frame_source": "CAMERA",
               "occupancy_ratio": 0.1,
               "occupied_pixels": 10,
@@ -109,7 +109,7 @@
                 "available": true,
                 "stale": false,
                 "age_seconds": 0.0,
-                "timestamp": "2026-09-30T15:54:34.174821Z"
+                "timestamp": "2026-09-30T17:01:04.768171Z"
               },
               "available": true,
               "stale": false,
@@ -124,7 +124,7 @@
               "controlled integration fixture"
             ],
             "audit_references": [],
-            "evaluated_at": "2026-09-30T15:54:34.174978Z"
+            "evaluated_at": "2026-09-30T17:01:04.768433Z"
           }
         },
         "edge_safety_decisions": {
@@ -143,7 +143,7 @@
             "time_matched": null,
             "reasons": [],
             "audit_references": [],
-            "evaluated_at": "2026-09-30T15:54:34.175034Z"
+            "evaluated_at": "2026-09-30T17:01:04.768484Z"
           }
         },
         "edge_cost_results": {
@@ -165,7 +165,7 @@
             "excluded_from_active_graph": false,
             "reasons": [],
             "audit_references": [],
-            "calculated_at": "2026-09-30T15:54:34.175080Z"
+            "calculated_at": "2026-09-30T17:01:04.768519Z"
           }
         },
         "active_graph_summary": {
@@ -194,12 +194,12 @@
           "no_safe_route": false,
           "reasons": [],
           "warnings": [],
-          "calculation_duration_ms": 0.577000027988106,
-          "calculated_at": "2026-09-30T15:54:34.176171Z",
+          "calculation_duration_ms": 0.5670000100508332,
+          "calculated_at": "2026-09-30T17:01:04.769531Z",
           "audit_references": []
         },
         "versioned_route": {
-          "route_id": "e6543d38-055e-4728-b020-f9a77459b8f9",
+          "route_id": "72408e05-53af-47fc-bcb8-9bcb91b15767",
           "version": 1,
           "previous_version": null,
           "route_status": "route_found",
@@ -217,14 +217,14 @@
           "no_safe_route": false,
           "route_changed": true,
           "invalidates_prior_commands": false,
-          "created_at": "2026-09-30T15:54:34.176303Z",
+          "created_at": "2026-09-30T17:01:04.769673Z",
           "reasons": [],
           "warnings": [],
           "audit_references": []
         },
         "route_persisted": true,
         "dispatch_recommendation": {
-          "recommendation_id": "00d1c53b-45f5-4a16-875e-ef7867c577a9",
+          "recommendation_id": "c2295730-03c4-4526-b80d-1360ad258889",
           "status": "recommended",
           "dispatch_actions": [],
           "traffic_actions": [
@@ -256,54 +256,54 @@
           "reasons": [],
           "warnings": [],
           "audit_references": [],
-          "generated_at": "2026-09-30T15:54:34.178832Z"
+          "generated_at": "2026-09-30T17:01:04.772970Z"
         },
         "physical_action_plan": {
           "status": "mapped",
           "command_specs": [
             {
-              "spec_id": "bd413ea1-3060-45f1-97df-525049cf8e76",
+              "spec_id": "6d4ffbfa-63e2-491a-ada6-290908fdf5f0",
               "action_id": null,
               "safe_default": false,
               "action_category": "TRAFFIC",
               "action_type": "GREEN_CORRIDOR",
               "target_node_id": "AC1",
-              "route_id": "e6543d38-055e-4728-b020-f9a77459b8f9",
+              "route_id": "72408e05-53af-47fc-bcb8-9bcb91b15767",
               "route_version": 1,
               "parameters": {},
-              "source_recommendation_id": "00d1c53b-45f5-4a16-875e-ef7867c577a9",
+              "source_recommendation_id": "c2295730-03c4-4526-b80d-1360ad258889",
               "reasons": [
                 "controlled integration fixture"
               ],
               "audit_references": []
             },
             {
-              "spec_id": "69c54df8-ace8-4506-ba61-37c452f36f90",
+              "spec_id": "d23e1f64-e2ba-42be-ba34-5de55660c8c7",
               "action_id": null,
               "safe_default": false,
               "action_category": "GATE",
               "action_type": "OPEN",
               "target_node_id": "AC1",
-              "route_id": "e6543d38-055e-4728-b020-f9a77459b8f9",
+              "route_id": "72408e05-53af-47fc-bcb8-9bcb91b15767",
               "route_version": 1,
               "parameters": {},
-              "source_recommendation_id": "00d1c53b-45f5-4a16-875e-ef7867c577a9",
+              "source_recommendation_id": "c2295730-03c4-4526-b80d-1360ad258889",
               "reasons": [
                 "controlled integration fixture"
               ],
               "audit_references": []
             },
             {
-              "spec_id": "ea0a4cb4-3a2c-4ac4-92c3-9a21ec65d1b3",
+              "spec_id": "82e3f18d-bb19-4ba4-b1b4-c5d7ce316451",
               "action_id": null,
               "safe_default": false,
               "action_category": "BUZZER",
               "action_type": "ON",
               "target_node_id": "AC1",
-              "route_id": "e6543d38-055e-4728-b020-f9a77459b8f9",
+              "route_id": "72408e05-53af-47fc-bcb8-9bcb91b15767",
               "route_version": 1,
               "parameters": {},
-              "source_recommendation_id": "00d1c53b-45f5-4a16-875e-ef7867c577a9",
+              "source_recommendation_id": "c2295730-03c4-4526-b80d-1360ad258889",
               "reasons": [
                 "controlled integration fixture"
               ],
@@ -313,32 +313,32 @@
           "skipped_actions": [],
           "reasons": [],
           "warnings": [],
-          "source_recommendation_reference": "00d1c53b-45f5-4a16-875e-ef7867c577a9",
-          "route_id": "e6543d38-055e-4728-b020-f9a77459b8f9",
+          "source_recommendation_reference": "c2295730-03c4-4526-b80d-1360ad258889",
+          "route_id": "72408e05-53af-47fc-bcb8-9bcb91b15767",
           "route_version": 1,
-          "generated_at": "2026-09-30T15:54:34.178895Z",
+          "generated_at": "2026-09-30T17:01:04.773052Z",
           "audit_references": []
         },
         "physical_command_sequence": {
-          "sequence_id": "253c3c98-c1ca-4ebd-8a2c-ed581a60264b",
+          "sequence_id": "2bb928ca-3da2-40cd-a4fe-a359bb21582c",
           "status": "planned",
-          "route_id": "e6543d38-055e-4728-b020-f9a77459b8f9",
+          "route_id": "72408e05-53af-47fc-bcb8-9bcb91b15767",
           "route_version": 1,
           "phases": [
             {
               "phase": "SAFETY_TRANSITION",
               "command_specs": [
                 {
-                  "spec_id": "f9a87625-dfba-4dae-870c-cef0af28160c",
+                  "spec_id": "54b99b1e-b1d7-46f0-a263-6f8c792e8799",
                   "action_id": null,
                   "safe_default": false,
                   "action_category": "TRAFFIC",
                   "action_type": "ALL_RED",
                   "target_node_id": "AC1",
-                  "route_id": "e6543d38-055e-4728-b020-f9a77459b8f9",
+                  "route_id": "72408e05-53af-47fc-bcb8-9bcb91b15767",
                   "route_version": 1,
                   "parameters": {},
-                  "source_recommendation_id": "00d1c53b-45f5-4a16-875e-ef7867c577a9",
+                  "source_recommendation_id": "c2295730-03c4-4526-b80d-1360ad258889",
                   "reasons": [
                     "required before GREEN_CORRIDOR"
                   ],
@@ -352,16 +352,16 @@
               "phase": "TRAFFIC_CORRIDOR",
               "command_specs": [
                 {
-                  "spec_id": "bd413ea1-3060-45f1-97df-525049cf8e76",
+                  "spec_id": "6d4ffbfa-63e2-491a-ada6-290908fdf5f0",
                   "action_id": null,
                   "safe_default": false,
                   "action_category": "TRAFFIC",
                   "action_type": "GREEN_CORRIDOR",
                   "target_node_id": "AC1",
-                  "route_id": "e6543d38-055e-4728-b020-f9a77459b8f9",
+                  "route_id": "72408e05-53af-47fc-bcb8-9bcb91b15767",
                   "route_version": 1,
                   "parameters": {},
-                  "source_recommendation_id": "00d1c53b-45f5-4a16-875e-ef7867c577a9",
+                  "source_recommendation_id": "c2295730-03c4-4526-b80d-1360ad258889",
                   "reasons": [
                     "controlled integration fixture"
                   ],
@@ -375,32 +375,32 @@
               "phase": "BUILDING_RESPONSE",
               "command_specs": [
                 {
-                  "spec_id": "69c54df8-ace8-4506-ba61-37c452f36f90",
+                  "spec_id": "d23e1f64-e2ba-42be-ba34-5de55660c8c7",
                   "action_id": null,
                   "safe_default": false,
                   "action_category": "GATE",
                   "action_type": "OPEN",
                   "target_node_id": "AC1",
-                  "route_id": "e6543d38-055e-4728-b020-f9a77459b8f9",
+                  "route_id": "72408e05-53af-47fc-bcb8-9bcb91b15767",
                   "route_version": 1,
                   "parameters": {},
-                  "source_recommendation_id": "00d1c53b-45f5-4a16-875e-ef7867c577a9",
+                  "source_recommendation_id": "c2295730-03c4-4526-b80d-1360ad258889",
                   "reasons": [
                     "controlled integration fixture"
                   ],
                   "audit_references": []
                 },
                 {
-                  "spec_id": "ea0a4cb4-3a2c-4ac4-92c3-9a21ec65d1b3",
+                  "spec_id": "82e3f18d-bb19-4ba4-b1b4-c5d7ce316451",
                   "action_id": null,
                   "safe_default": false,
                   "action_category": "BUZZER",
                   "action_type": "ON",
                   "target_node_id": "AC1",
-                  "route_id": "e6543d38-055e-4728-b020-f9a77459b8f9",
+                  "route_id": "72408e05-53af-47fc-bcb8-9bcb91b15767",
                   "route_version": 1,
                   "parameters": {},
-                  "source_recommendation_id": "00d1c53b-45f5-4a16-875e-ef7867c577a9",
+                  "source_recommendation_id": "c2295730-03c4-4526-b80d-1360ad258889",
                   "reasons": [
                     "controlled integration fixture"
                   ],
@@ -413,109 +413,109 @@
           ],
           "ordered_command_specs": [
             {
-              "spec_id": "f9a87625-dfba-4dae-870c-cef0af28160c",
+              "spec_id": "54b99b1e-b1d7-46f0-a263-6f8c792e8799",
               "action_id": null,
               "safe_default": false,
               "action_category": "TRAFFIC",
               "action_type": "ALL_RED",
               "target_node_id": "AC1",
-              "route_id": "e6543d38-055e-4728-b020-f9a77459b8f9",
+              "route_id": "72408e05-53af-47fc-bcb8-9bcb91b15767",
               "route_version": 1,
               "parameters": {},
-              "source_recommendation_id": "00d1c53b-45f5-4a16-875e-ef7867c577a9",
+              "source_recommendation_id": "c2295730-03c4-4526-b80d-1360ad258889",
               "reasons": [
                 "required before GREEN_CORRIDOR"
               ],
               "audit_references": []
             },
             {
-              "spec_id": "bd413ea1-3060-45f1-97df-525049cf8e76",
+              "spec_id": "6d4ffbfa-63e2-491a-ada6-290908fdf5f0",
               "action_id": null,
               "safe_default": false,
               "action_category": "TRAFFIC",
               "action_type": "GREEN_CORRIDOR",
               "target_node_id": "AC1",
-              "route_id": "e6543d38-055e-4728-b020-f9a77459b8f9",
+              "route_id": "72408e05-53af-47fc-bcb8-9bcb91b15767",
               "route_version": 1,
               "parameters": {},
-              "source_recommendation_id": "00d1c53b-45f5-4a16-875e-ef7867c577a9",
+              "source_recommendation_id": "c2295730-03c4-4526-b80d-1360ad258889",
               "reasons": [
                 "controlled integration fixture"
               ],
               "audit_references": []
             },
             {
-              "spec_id": "69c54df8-ace8-4506-ba61-37c452f36f90",
+              "spec_id": "d23e1f64-e2ba-42be-ba34-5de55660c8c7",
               "action_id": null,
               "safe_default": false,
               "action_category": "GATE",
               "action_type": "OPEN",
               "target_node_id": "AC1",
-              "route_id": "e6543d38-055e-4728-b020-f9a77459b8f9",
+              "route_id": "72408e05-53af-47fc-bcb8-9bcb91b15767",
               "route_version": 1,
               "parameters": {},
-              "source_recommendation_id": "00d1c53b-45f5-4a16-875e-ef7867c577a9",
+              "source_recommendation_id": "c2295730-03c4-4526-b80d-1360ad258889",
               "reasons": [
                 "controlled integration fixture"
               ],
               "audit_references": []
             },
             {
-              "spec_id": "ea0a4cb4-3a2c-4ac4-92c3-9a21ec65d1b3",
+              "spec_id": "82e3f18d-bb19-4ba4-b1b4-c5d7ce316451",
               "action_id": null,
               "safe_default": false,
               "action_category": "BUZZER",
               "action_type": "ON",
               "target_node_id": "AC1",
-              "route_id": "e6543d38-055e-4728-b020-f9a77459b8f9",
+              "route_id": "72408e05-53af-47fc-bcb8-9bcb91b15767",
               "route_version": 1,
               "parameters": {},
-              "source_recommendation_id": "00d1c53b-45f5-4a16-875e-ef7867c577a9",
+              "source_recommendation_id": "c2295730-03c4-4526-b80d-1360ad258889",
               "reasons": [
                 "controlled integration fixture"
               ],
               "audit_references": []
             }
           ],
-          "source_plan_reference": "00d1c53b-45f5-4a16-875e-ef7867c577a9",
+          "source_plan_reference": "c2295730-03c4-4526-b80d-1360ad258889",
           "reasons": [],
           "warnings": [
             "ALL_RED inserted as the required GREEN_CORRIDOR safety transition"
           ],
-          "generated_at": "2026-09-30T15:54:34.179083Z",
+          "generated_at": "2026-09-30T17:01:04.773272Z",
           "audit_references": []
         },
         "physical_execution": {
-          "sequence_id": "253c3c98-c1ca-4ebd-8a2c-ed581a60264b",
+          "sequence_id": "2bb928ca-3da2-40cd-a4fe-a359bb21582c",
           "status": "completed",
-          "route_id": "e6543d38-055e-4728-b020-f9a77459b8f9",
+          "route_id": "72408e05-53af-47fc-bcb8-9bcb91b15767",
           "route_version": 1,
           "command_results": [
             {
               "phase": "SAFETY_TRANSITION",
-              "spec_id": "f9a87625-dfba-4dae-870c-cef0af28160c",
+              "spec_id": "54b99b1e-b1d7-46f0-a263-6f8c792e8799",
               "action_category": "TRAFFIC",
               "action_type": "ALL_RED",
               "target_node_id": "AC1",
-              "route_id": "e6543d38-055e-4728-b020-f9a77459b8f9",
+              "route_id": "72408e05-53af-47fc-bcb8-9bcb91b15767",
               "route_version": 1,
-              "command_id": "bed05fe2-3993-4f42-875b-22c9cce2e830",
+              "command_id": "290abf9e-4819-4d37-8b9b-e71784714cc0",
               "status": "acknowledged",
               "error": null,
               "safe_default": false,
               "attempts": [
                 {
                   "phase": "SAFETY_TRANSITION",
-                  "spec_id": "f9a87625-dfba-4dae-870c-cef0af28160c",
+                  "spec_id": "54b99b1e-b1d7-46f0-a263-6f8c792e8799",
                   "attempt_number": 1,
-                  "command_id": "bed05fe2-3993-4f42-875b-22c9cce2e830",
+                  "command_id": "290abf9e-4819-4d37-8b9b-e71784714cc0",
                   "publish_status": "published",
                   "ack_status": "acknowledged",
-                  "ack_latency_ms": 0.011699972674250603,
+                  "ack_latency_ms": 0.02069998299703002,
                   "error": null,
                   "reason": "matching actuator ACK received",
-                  "started_at": "2026-09-30T15:54:34.180374Z",
-                  "completed_at": "2026-09-30T15:54:34.182564Z",
+                  "started_at": "2026-09-30T17:01:04.774948Z",
+                  "completed_at": "2026-09-30T17:01:04.778830Z",
                   "safe_default": false,
                   "route_validity_status": "valid",
                   "latest_route_version": 1,
@@ -530,29 +530,29 @@
             },
             {
               "phase": "TRAFFIC_CORRIDOR",
-              "spec_id": "bd413ea1-3060-45f1-97df-525049cf8e76",
+              "spec_id": "6d4ffbfa-63e2-491a-ada6-290908fdf5f0",
               "action_category": "TRAFFIC",
               "action_type": "GREEN_CORRIDOR",
               "target_node_id": "AC1",
-              "route_id": "e6543d38-055e-4728-b020-f9a77459b8f9",
+              "route_id": "72408e05-53af-47fc-bcb8-9bcb91b15767",
               "route_version": 1,
-              "command_id": "47d1b3be-1aa7-40a7-9b79-9de9e7c1faa7",
+              "command_id": "eaeaab57-e8a9-415d-970f-adec8fcdacb6",
               "status": "acknowledged",
               "error": null,
               "safe_default": false,
               "attempts": [
                 {
                   "phase": "TRAFFIC_CORRIDOR",
-                  "spec_id": "bd413ea1-3060-45f1-97df-525049cf8e76",
+                  "spec_id": "6d4ffbfa-63e2-491a-ada6-290908fdf5f0",
                   "attempt_number": 1,
-                  "command_id": "47d1b3be-1aa7-40a7-9b79-9de9e7c1faa7",
+                  "command_id": "eaeaab57-e8a9-415d-970f-adec8fcdacb6",
                   "publish_status": "published",
                   "ack_status": "acknowledged",
-                  "ack_latency_ms": 0.01680001150816679,
+                  "ack_latency_ms": 0.013299984857439995,
                   "error": null,
                   "reason": "matching actuator ACK received",
-                  "started_at": "2026-09-30T15:54:35.197852Z",
-                  "completed_at": "2026-09-30T15:54:35.201262Z",
+                  "started_at": "2026-09-30T17:01:05.793807Z",
+                  "completed_at": "2026-09-30T17:01:05.796604Z",
                   "safe_default": false,
                   "route_validity_status": "valid",
                   "latest_route_version": 1,
@@ -567,29 +567,29 @@
             },
             {
               "phase": "BUILDING_RESPONSE",
-              "spec_id": "69c54df8-ace8-4506-ba61-37c452f36f90",
+              "spec_id": "d23e1f64-e2ba-42be-ba34-5de55660c8c7",
               "action_category": "GATE",
               "action_type": "OPEN",
               "target_node_id": "AC1",
-              "route_id": "e6543d38-055e-4728-b020-f9a77459b8f9",
+              "route_id": "72408e05-53af-47fc-bcb8-9bcb91b15767",
               "route_version": 1,
-              "command_id": "77c5134d-6fdc-40e5-9ba7-aeb69266faf4",
+              "command_id": "bc789b7b-b67a-46bc-9aff-40641b6618a3",
               "status": "acknowledged",
               "error": null,
               "safe_default": false,
               "attempts": [
                 {
                   "phase": "BUILDING_RESPONSE",
-                  "spec_id": "69c54df8-ace8-4506-ba61-37c452f36f90",
+                  "spec_id": "d23e1f64-e2ba-42be-ba34-5de55660c8c7",
                   "attempt_number": 1,
-                  "command_id": "77c5134d-6fdc-40e5-9ba7-aeb69266faf4",
+                  "command_id": "bc789b7b-b67a-46bc-9aff-40641b6618a3",
                   "publish_status": "published",
                   "ack_status": "acknowledged",
-                  "ack_latency_ms": 0.006099988240748644,
+                  "ack_latency_ms": 0.006199989002197981,
                   "error": null,
                   "reason": "matching actuator ACK received",
-                  "started_at": "2026-09-30T15:54:35.201342Z",
-                  "completed_at": "2026-09-30T15:54:35.202963Z",
+                  "started_at": "2026-09-30T17:01:05.796668Z",
+                  "completed_at": "2026-09-30T17:01:05.798031Z",
                   "safe_default": false,
                   "route_validity_status": null,
                   "latest_route_version": null,
@@ -604,29 +604,29 @@
             },
             {
               "phase": "BUILDING_RESPONSE",
-              "spec_id": "ea0a4cb4-3a2c-4ac4-92c3-9a21ec65d1b3",
+              "spec_id": "82e3f18d-bb19-4ba4-b1b4-c5d7ce316451",
               "action_category": "BUZZER",
               "action_type": "ON",
               "target_node_id": "AC1",
-              "route_id": "e6543d38-055e-4728-b020-f9a77459b8f9",
+              "route_id": "72408e05-53af-47fc-bcb8-9bcb91b15767",
               "route_version": 1,
-              "command_id": "7e04f123-0cd2-404b-a2e7-5ff4734ecd41",
+              "command_id": "4ef13fd5-e743-4c48-b8aa-edf0370b8609",
               "status": "acknowledged",
               "error": null,
               "safe_default": false,
               "attempts": [
                 {
                   "phase": "BUILDING_RESPONSE",
-                  "spec_id": "ea0a4cb4-3a2c-4ac4-92c3-9a21ec65d1b3",
+                  "spec_id": "82e3f18d-bb19-4ba4-b1b4-c5d7ce316451",
                   "attempt_number": 1,
-                  "command_id": "7e04f123-0cd2-404b-a2e7-5ff4734ecd41",
+                  "command_id": "4ef13fd5-e743-4c48-b8aa-edf0370b8609",
                   "publish_status": "published",
                   "ack_status": "acknowledged",
-                  "ack_latency_ms": 0.00589998671784997,
+                  "ack_latency_ms": 0.006299989763647318,
                   "error": null,
                   "reason": "matching actuator ACK received",
-                  "started_at": "2026-09-30T15:54:35.203004Z",
-                  "completed_at": "2026-09-30T15:54:35.204375Z",
+                  "started_at": "2026-09-30T17:01:05.798075Z",
+                  "completed_at": "2026-09-30T17:01:05.799423Z",
                   "safe_default": false,
                   "route_validity_status": null,
                   "latest_route_version": null,
@@ -640,22 +640,22 @@
               "was_not_published": false
             }
           ],
-          "started_at": "2026-09-30T15:54:34.180367Z",
-          "completed_at": "2026-09-30T15:54:35.204423Z",
-          "duration_ms": 1024.0569000015967,
+          "started_at": "2026-09-30T17:01:04.774934Z",
+          "completed_at": "2026-09-30T17:01:05.799479Z",
+          "duration_ms": 1024.5438999845646,
           "reasons": [],
           "warnings": [
             "ALL_RED inserted as the required GREEN_CORRIDOR safety transition"
           ]
         },
         "safe_default_trigger": null,
-        "routing_duration_ms": 1.222599996253848,
-        "total_duration_ms": 1029.98310001567,
+        "routing_duration_ms": 1.123800000641495,
+        "total_duration_ms": 1031.625300005544,
         "reasons": [],
         "warnings": [],
         "audit_references": [],
-        "started_at": "2026-09-30T15:54:34.174965Z",
-        "completed_at": "2026-09-30T15:54:35.204952Z"
+        "started_at": "2026-09-30T17:01:04.768422Z",
+        "completed_at": "2026-09-30T17:01:05.800051Z"
       }
     },
     "B": {
@@ -663,13 +663,13 @@
       "trace": {
         "scenario_id": "B_NO_SAFE_ROUTE",
         "result": "no_safe_route_safe_default",
-        "incident_decision_id": "a1db0207-1273-4bd7-b635-73581d01c339",
-        "route_id": "c902ee99-d445-4877-a0d2-8870a22c644b",
+        "incident_decision_id": "1e7884a2-6c00-4f86-b715-316341afbc37",
+        "route_id": "0709dea7-8e9e-41f5-ba66-04950a71ccd2",
         "route_version": 1,
         "command_ids": [
-          "6dacf0a2-997b-4d6b-befc-d18d307f3bf8",
-          "68104720-af7a-4115-be75-635a75f74b2d",
-          "a771ddd2-f182-426d-ae02-4ef6f4d3f710"
+          "03b1af35-4e43-41a9-b6c3-2edc27b0eec4",
+          "718205d3-4d76-497e-aeb0-2c155f5d8867",
+          "58739105-0737-4710-8e4c-e1a40cbdde6d"
         ],
         "ack_outcomes": [
           "acknowledged",
@@ -717,7 +717,7 @@
       },
       "respond_result": {
         "status": "no_safe_route_safe_default",
-        "incident_decision_id": "a1db0207-1273-4bd7-b635-73581d01c339",
+        "incident_decision_id": "1e7884a2-6c00-4f86-b715-316341afbc37",
         "routing_factor_evaluations": {
           "edge-1": {
             "status": "available",
@@ -728,7 +728,7 @@
               "road_edge_id": "edge-1",
               "road_roi_name": "road-1",
               "frame_id": "fixture-frame",
-              "frame_timestamp": "2026-09-30T15:54:35.213320Z",
+              "frame_timestamp": "2026-09-30T17:01:05.807716Z",
               "frame_source": "CAMERA",
               "occupancy_ratio": 0.9,
               "occupied_pixels": 90,
@@ -738,7 +738,7 @@
               "contributing_classes": [],
               "contributing_detections": [],
               "mapped_ir_sensor": "IR_A",
-              "ir_timestamp": "2026-09-30T15:54:35.213320Z",
+              "ir_timestamp": "2026-09-30T17:01:05.807716Z",
               "ir_value": true,
               "time_delta_ms": 10.0,
               "time_matched": true,
@@ -750,7 +750,7 @@
                 "available": true,
                 "stale": false,
                 "age_seconds": 0.0,
-                "timestamp": "2026-09-30T15:54:35.213320Z"
+                "timestamp": "2026-09-30T17:01:05.807716Z"
               },
               "available": true,
               "stale": false,
@@ -765,7 +765,7 @@
               "controlled integration fixture"
             ],
             "audit_references": [],
-            "evaluated_at": "2026-09-30T15:54:35.213550Z"
+            "evaluated_at": "2026-09-30T17:01:05.807850Z"
           }
         },
         "edge_safety_decisions": {
@@ -783,34 +783,34 @@
             "relevant_ir_samples": [
               {
                 "sensor_type": "IR_A",
-                "timestamp": "2026-09-30T15:54:35.213320Z",
+                "timestamp": "2026-09-30T17:01:05.807716Z",
                 "value": true
               },
               {
                 "sensor_type": "IR_A",
-                "timestamp": "2026-09-30T15:54:35.213320Z",
+                "timestamp": "2026-09-30T17:01:05.807716Z",
                 "value": true
               },
               {
                 "sensor_type": "IR_A",
-                "timestamp": "2026-09-30T15:54:35.213320Z",
+                "timestamp": "2026-09-30T17:01:05.807716Z",
                 "value": true
               },
               {
                 "sensor_type": "IR_A",
-                "timestamp": "2026-09-30T15:54:35.213320Z",
+                "timestamp": "2026-09-30T17:01:05.807716Z",
                 "value": true
               },
               {
                 "sensor_type": "IR_A",
-                "timestamp": "2026-09-30T15:54:35.213320Z",
+                "timestamp": "2026-09-30T17:01:05.807716Z",
                 "value": true
               }
             ],
             "time_matched": true,
             "reasons": [],
             "audit_references": [],
-            "evaluated_at": "2026-09-30T15:54:35.213605Z"
+            "evaluated_at": "2026-09-30T17:01:05.807890Z"
           }
         },
         "edge_cost_results": {
@@ -834,7 +834,7 @@
               "edge is excluded by hard-block or sensor conflict"
             ],
             "audit_references": [],
-            "calculated_at": "2026-09-30T15:54:35.213636Z"
+            "calculated_at": "2026-09-30T17:01:05.807916Z"
           }
         },
         "active_graph_summary": {
@@ -860,12 +860,12 @@
             "no path exists in the active routing graph"
           ],
           "warnings": [],
-          "calculation_duration_ms": 0.09079999290406704,
-          "calculated_at": "2026-09-30T15:54:35.213825Z",
+          "calculation_duration_ms": 0.08339999476447701,
+          "calculated_at": "2026-09-30T17:01:05.808104Z",
           "audit_references": []
         },
         "versioned_route": {
-          "route_id": "c902ee99-d445-4877-a0d2-8870a22c644b",
+          "route_id": "0709dea7-8e9e-41f5-ba66-04950a71ccd2",
           "version": 1,
           "previous_version": null,
           "route_status": "NO_SAFE_ROUTE",
@@ -878,7 +878,7 @@
           "no_safe_route": true,
           "route_changed": true,
           "invalidates_prior_commands": false,
-          "created_at": "2026-09-30T15:54:35.213923Z",
+          "created_at": "2026-09-30T17:01:05.808188Z",
           "reasons": [
             "no path exists in the active routing graph"
           ],
@@ -891,48 +891,48 @@
           "status": "mapped",
           "command_specs": [
             {
-              "spec_id": "cdfbda0b-e38e-49f6-8da6-878094cc3c05",
+              "spec_id": "4c310adf-31b9-4220-98b1-7b2d7c9bf095",
               "action_id": null,
               "safe_default": true,
               "action_category": "TRAFFIC",
               "action_type": "ALL_RED",
               "target_node_id": "AC1",
-              "route_id": "c902ee99-d445-4877-a0d2-8870a22c644b",
+              "route_id": "0709dea7-8e9e-41f5-ba66-04950a71ccd2",
               "route_version": 1,
               "parameters": {},
-              "source_recommendation_id": "a1db0207-1273-4bd7-b635-73581d01c339",
+              "source_recommendation_id": "1e7884a2-6c00-4f86-b715-316341afbc37",
               "reasons": [
                 "NO_SAFE_ROUTE"
               ],
               "audit_references": []
             },
             {
-              "spec_id": "4c46f2aa-8e07-4bf5-b410-8dc8b5585b51",
+              "spec_id": "4978ff1f-bb93-4e30-ad5b-1256e71ee410",
               "action_id": null,
               "safe_default": true,
               "action_category": "GATE",
               "action_type": "CLOSE",
               "target_node_id": "AC1",
-              "route_id": "c902ee99-d445-4877-a0d2-8870a22c644b",
+              "route_id": "0709dea7-8e9e-41f5-ba66-04950a71ccd2",
               "route_version": 1,
               "parameters": {},
-              "source_recommendation_id": "a1db0207-1273-4bd7-b635-73581d01c339",
+              "source_recommendation_id": "1e7884a2-6c00-4f86-b715-316341afbc37",
               "reasons": [
                 "NO_SAFE_ROUTE"
               ],
               "audit_references": []
             },
             {
-              "spec_id": "e958580e-9872-48b6-9302-fe536872739e",
+              "spec_id": "4abcff41-b126-4010-a218-3f1d997f545f",
               "action_id": null,
               "safe_default": true,
               "action_category": "BUZZER",
               "action_type": "ON",
               "target_node_id": "AC1",
-              "route_id": "c902ee99-d445-4877-a0d2-8870a22c644b",
+              "route_id": "0709dea7-8e9e-41f5-ba66-04950a71ccd2",
               "route_version": 1,
               "parameters": {},
-              "source_recommendation_id": "a1db0207-1273-4bd7-b635-73581d01c339",
+              "source_recommendation_id": "1e7884a2-6c00-4f86-b715-316341afbc37",
               "reasons": [
                 "NO_SAFE_ROUTE"
               ],
@@ -944,32 +944,32 @@
             "normal automated dispatch halted: NO_SAFE_ROUTE"
           ],
           "warnings": [],
-          "source_recommendation_reference": "a1db0207-1273-4bd7-b635-73581d01c339",
-          "route_id": "c902ee99-d445-4877-a0d2-8870a22c644b",
+          "source_recommendation_reference": "1e7884a2-6c00-4f86-b715-316341afbc37",
+          "route_id": "0709dea7-8e9e-41f5-ba66-04950a71ccd2",
           "route_version": 1,
-          "generated_at": "2026-09-30T15:54:35.216902Z",
+          "generated_at": "2026-09-30T17:01:05.811171Z",
           "audit_references": []
         },
         "physical_command_sequence": {
-          "sequence_id": "d9132b6a-ae86-44a2-926c-f799eb6b9068",
+          "sequence_id": "a1645f69-9086-4fdc-8bc3-f20caf32cc02",
           "status": "planned",
-          "route_id": "c902ee99-d445-4877-a0d2-8870a22c644b",
+          "route_id": "0709dea7-8e9e-41f5-ba66-04950a71ccd2",
           "route_version": 1,
           "phases": [
             {
               "phase": "SAFETY_TRANSITION",
               "command_specs": [
                 {
-                  "spec_id": "cdfbda0b-e38e-49f6-8da6-878094cc3c05",
+                  "spec_id": "4c310adf-31b9-4220-98b1-7b2d7c9bf095",
                   "action_id": null,
                   "safe_default": true,
                   "action_category": "TRAFFIC",
                   "action_type": "ALL_RED",
                   "target_node_id": "AC1",
-                  "route_id": "c902ee99-d445-4877-a0d2-8870a22c644b",
+                  "route_id": "0709dea7-8e9e-41f5-ba66-04950a71ccd2",
                   "route_version": 1,
                   "parameters": {},
-                  "source_recommendation_id": "a1db0207-1273-4bd7-b635-73581d01c339",
+                  "source_recommendation_id": "1e7884a2-6c00-4f86-b715-316341afbc37",
                   "reasons": [
                     "NO_SAFE_ROUTE"
                   ],
@@ -983,32 +983,32 @@
               "phase": "BUILDING_RESPONSE",
               "command_specs": [
                 {
-                  "spec_id": "4c46f2aa-8e07-4bf5-b410-8dc8b5585b51",
+                  "spec_id": "4978ff1f-bb93-4e30-ad5b-1256e71ee410",
                   "action_id": null,
                   "safe_default": true,
                   "action_category": "GATE",
                   "action_type": "CLOSE",
                   "target_node_id": "AC1",
-                  "route_id": "c902ee99-d445-4877-a0d2-8870a22c644b",
+                  "route_id": "0709dea7-8e9e-41f5-ba66-04950a71ccd2",
                   "route_version": 1,
                   "parameters": {},
-                  "source_recommendation_id": "a1db0207-1273-4bd7-b635-73581d01c339",
+                  "source_recommendation_id": "1e7884a2-6c00-4f86-b715-316341afbc37",
                   "reasons": [
                     "NO_SAFE_ROUTE"
                   ],
                   "audit_references": []
                 },
                 {
-                  "spec_id": "e958580e-9872-48b6-9302-fe536872739e",
+                  "spec_id": "4abcff41-b126-4010-a218-3f1d997f545f",
                   "action_id": null,
                   "safe_default": true,
                   "action_category": "BUZZER",
                   "action_type": "ON",
                   "target_node_id": "AC1",
-                  "route_id": "c902ee99-d445-4877-a0d2-8870a22c644b",
+                  "route_id": "0709dea7-8e9e-41f5-ba66-04950a71ccd2",
                   "route_version": 1,
                   "parameters": {},
-                  "source_recommendation_id": "a1db0207-1273-4bd7-b635-73581d01c339",
+                  "source_recommendation_id": "1e7884a2-6c00-4f86-b715-316341afbc37",
                   "reasons": [
                     "NO_SAFE_ROUTE"
                   ],
@@ -1021,93 +1021,93 @@
           ],
           "ordered_command_specs": [
             {
-              "spec_id": "cdfbda0b-e38e-49f6-8da6-878094cc3c05",
+              "spec_id": "4c310adf-31b9-4220-98b1-7b2d7c9bf095",
               "action_id": null,
               "safe_default": true,
               "action_category": "TRAFFIC",
               "action_type": "ALL_RED",
               "target_node_id": "AC1",
-              "route_id": "c902ee99-d445-4877-a0d2-8870a22c644b",
+              "route_id": "0709dea7-8e9e-41f5-ba66-04950a71ccd2",
               "route_version": 1,
               "parameters": {},
-              "source_recommendation_id": "a1db0207-1273-4bd7-b635-73581d01c339",
+              "source_recommendation_id": "1e7884a2-6c00-4f86-b715-316341afbc37",
               "reasons": [
                 "NO_SAFE_ROUTE"
               ],
               "audit_references": []
             },
             {
-              "spec_id": "4c46f2aa-8e07-4bf5-b410-8dc8b5585b51",
+              "spec_id": "4978ff1f-bb93-4e30-ad5b-1256e71ee410",
               "action_id": null,
               "safe_default": true,
               "action_category": "GATE",
               "action_type": "CLOSE",
               "target_node_id": "AC1",
-              "route_id": "c902ee99-d445-4877-a0d2-8870a22c644b",
+              "route_id": "0709dea7-8e9e-41f5-ba66-04950a71ccd2",
               "route_version": 1,
               "parameters": {},
-              "source_recommendation_id": "a1db0207-1273-4bd7-b635-73581d01c339",
+              "source_recommendation_id": "1e7884a2-6c00-4f86-b715-316341afbc37",
               "reasons": [
                 "NO_SAFE_ROUTE"
               ],
               "audit_references": []
             },
             {
-              "spec_id": "e958580e-9872-48b6-9302-fe536872739e",
+              "spec_id": "4abcff41-b126-4010-a218-3f1d997f545f",
               "action_id": null,
               "safe_default": true,
               "action_category": "BUZZER",
               "action_type": "ON",
               "target_node_id": "AC1",
-              "route_id": "c902ee99-d445-4877-a0d2-8870a22c644b",
+              "route_id": "0709dea7-8e9e-41f5-ba66-04950a71ccd2",
               "route_version": 1,
               "parameters": {},
-              "source_recommendation_id": "a1db0207-1273-4bd7-b635-73581d01c339",
+              "source_recommendation_id": "1e7884a2-6c00-4f86-b715-316341afbc37",
               "reasons": [
                 "NO_SAFE_ROUTE"
               ],
               "audit_references": []
             }
           ],
-          "source_plan_reference": "a1db0207-1273-4bd7-b635-73581d01c339",
+          "source_plan_reference": "1e7884a2-6c00-4f86-b715-316341afbc37",
           "reasons": [
             "normal automated dispatch halted: NO_SAFE_ROUTE"
           ],
           "warnings": [],
-          "generated_at": "2026-09-30T15:54:35.216935Z",
+          "generated_at": "2026-09-30T17:01:05.811193Z",
           "audit_references": []
         },
         "physical_execution": {
-          "sequence_id": "d9132b6a-ae86-44a2-926c-f799eb6b9068",
+          "sequence_id": "a1645f69-9086-4fdc-8bc3-f20caf32cc02",
           "status": "safe_default_applied",
-          "route_id": "c902ee99-d445-4877-a0d2-8870a22c644b",
+          "route_id": "0709dea7-8e9e-41f5-ba66-04950a71ccd2",
           "route_version": 1,
           "command_results": [
             {
               "phase": "SAFETY_TRANSITION",
-              "spec_id": "cdfbda0b-e38e-49f6-8da6-878094cc3c05",
+              "spec_id": "4c310adf-31b9-4220-98b1-7b2d7c9bf095",
               "action_category": "TRAFFIC",
               "action_type": "ALL_RED",
               "target_node_id": "AC1",
-              "route_id": "c902ee99-d445-4877-a0d2-8870a22c644b",
+              "route_id": "0709dea7-8e9e-41f5-ba66-04950a71ccd2",
               "route_version": 1,
-              "command_id": "6dacf0a2-997b-4d6b-befc-d18d307f3bf8",
+              "command_id": "03b1af35-4e43-41a9-b6c3-2edc27b0eec4",
               "status": "acknowledged",
               "error": null,
               "safe_default": true,
               "attempts": [
                 {
                   "phase": "SAFETY_TRANSITION",
-                  "spec_id": "cdfbda0b-e38e-49f6-8da6-878094cc3c05",
+                  "spec_id": "4c310adf-31b9-4220-98b1-7b2d7c9bf095",
                   "attempt_number": 1,
-                  "command_id": "6dacf0a2-997b-4d6b-befc-d18d307f3bf8",
+                  "command_id": "03b1af35-4e43-41a9-b6c3-2edc27b0eec4",
                   "publish_status": "published",
                   "ack_status": "acknowledged",
-                  "ack_latency_ms": 0.010800024028867483,
+                  "ack_latency_ms": 0.008500006515532732,
                   "error": null,
                   "reason": "safe default; no retry permitted",
-                  "started_at": "2026-09-30T15:54:35.218081Z",
-                  "completed_at": "2026-09-30T15:54:35.220452Z",
+                  "started_at": "2026-09-30T17:01:05.812282Z",
+                  "completed_at": "2026-09-30T17:01:05.813950Z",
                   "safe_default": true,
                   "route_validity_status": null,
                   "latest_route_version": null,
@@ -1122,29 +1122,29 @@
             },
             {
               "phase": "SAFETY_TRANSITION",
-              "spec_id": "4c46f2aa-8e07-4bf5-b410-8dc8b5585b51",
+              "spec_id": "4978ff1f-bb93-4e30-ad5b-1256e71ee410",
               "action_category": "GATE",
               "action_type": "CLOSE",
               "target_node_id": "AC1",
-              "route_id": "c902ee99-d445-4877-a0d2-8870a22c644b",
+              "route_id": "0709dea7-8e9e-41f5-ba66-04950a71ccd2",
               "route_version": 1,
-              "command_id": "68104720-af7a-4115-be75-635a75f74b2d",
+              "command_id": "718205d3-4d76-497e-aeb0-2c155f5d8867",
               "status": "acknowledged",
               "error": null,
               "safe_default": true,
               "attempts": [
                 {
                   "phase": "SAFETY_TRANSITION",
-                  "spec_id": "4c46f2aa-8e07-4bf5-b410-8dc8b5585b51",
+                  "spec_id": "4978ff1f-bb93-4e30-ad5b-1256e71ee410",
                   "attempt_number": 1,
-                  "command_id": "68104720-af7a-4115-be75-635a75f74b2d",
+                  "command_id": "718205d3-4d76-497e-aeb0-2c155f5d8867",
                   "publish_status": "published",
                   "ack_status": "acknowledged",
-                  "ack_latency_ms": 0.007800001185387373,
+                  "ack_latency_ms": 0.006300047971308231,
                   "error": null,
                   "reason": "safe default; no retry permitted",
-                  "started_at": "2026-09-30T15:54:35.220533Z",
-                  "completed_at": "2026-09-30T15:54:35.222450Z",
+                  "started_at": "2026-09-30T17:01:05.814007Z",
+                  "completed_at": "2026-09-30T17:01:05.815398Z",
                   "safe_default": true,
                   "route_validity_status": null,
                   "latest_route_version": null,
@@ -1159,29 +1159,29 @@
             },
             {
               "phase": "SAFETY_TRANSITION",
-              "spec_id": "e958580e-9872-48b6-9302-fe536872739e",
+              "spec_id": "4abcff41-b126-4010-a218-3f1d997f545f",
               "action_category": "BUZZER",
               "action_type": "ON",
               "target_node_id": "AC1",
-              "route_id": "c902ee99-d445-4877-a0d2-8870a22c644b",
+              "route_id": "0709dea7-8e9e-41f5-ba66-04950a71ccd2",
               "route_version": 1,
-              "command_id": "a771ddd2-f182-426d-ae02-4ef6f4d3f710",
+              "command_id": "58739105-0737-4710-8e4c-e1a40cbdde6d",
               "status": "acknowledged",
               "error": null,
               "safe_default": true,
               "attempts": [
                 {
                   "phase": "SAFETY_TRANSITION",
-                  "spec_id": "e958580e-9872-48b6-9302-fe536872739e",
+                  "spec_id": "4abcff41-b126-4010-a218-3f1d997f545f",
                   "attempt_number": 1,
-                  "command_id": "a771ddd2-f182-426d-ae02-4ef6f4d3f710",
+                  "command_id": "58739105-0737-4710-8e4c-e1a40cbdde6d",
                   "publish_status": "published",
                   "ack_status": "acknowledged",
-                  "ack_latency_ms": 0.04339998122304678,
+                  "ack_latency_ms": 0.005599984433501959,
                   "error": null,
                   "reason": "safe default; no retry permitted",
-                  "started_at": "2026-09-30T15:54:35.222499Z",
-                  "completed_at": "2026-09-30T15:54:35.224016Z",
+                  "started_at": "2026-09-30T17:01:05.815441Z",
+                  "completed_at": "2026-09-30T17:01:05.816752Z",
                   "safe_default": true,
                   "route_validity_status": null,
                   "latest_route_version": null,
@@ -1195,24 +1195,24 @@
               "was_not_published": false
             }
           ],
-          "started_at": "2026-09-30T15:54:35.218075Z",
-          "completed_at": "2026-09-30T15:54:35.224078Z",
-          "duration_ms": 6.001400004606694,
+          "started_at": "2026-09-30T17:01:05.812277Z",
+          "completed_at": "2026-09-30T17:01:05.816814Z",
+          "duration_ms": 4.536799970082939,
           "reasons": [
             "safe defaults executed once; no retry permitted"
           ],
           "warnings": []
         },
         "safe_default_trigger": "NO_SAFE_ROUTE",
-        "routing_duration_ms": 0.3024999750778079,
-        "total_duration_ms": 11.11370004946366,
+        "routing_duration_ms": 0.2790999715216458,
+        "total_duration_ms": 9.411500010173768,
         "reasons": [
           "normal automated dispatch halted"
         ],
         "warnings": [],
         "audit_references": [],
-        "started_at": "2026-09-30T15:54:35.213536Z",
-        "completed_at": "2026-09-30T15:54:35.224656Z"
+        "started_at": "2026-09-30T17:01:05.807841Z",
+        "completed_at": "2026-09-30T17:01:05.817256Z"
       }
     },
     "C": {
@@ -1220,15 +1220,15 @@
       "trace": {
         "scenario_id": "C_ACTUATOR_ACK_TIMEOUT",
         "result": "safe_default_applied",
-        "incident_decision_id": "54f364bf-9e37-4c94-9540-706f07d5e072",
-        "route_id": "3b6ccd28-0c30-487a-9055-b2b5d5445719",
+        "incident_decision_id": "af9698d0-b5a0-46d9-a1f7-d6381d76956b",
+        "route_id": "0ff89ec2-443b-47a1-8030-3440e6bdbf3d",
         "route_version": 1,
         "command_ids": [
-          "8bb35b6f-ae41-4fdc-91b4-4c753cf0a64f",
-          "d2e174ac-7aa4-436a-a2ae-93957b249178",
-          "e9b13c2f-20d4-4d58-8b01-d3116a8bbd32",
-          "cfb1d3a3-037c-4669-a8eb-78f495f8dfc3",
-          "3d8b7cad-0926-4298-a5fd-2ea923be0509"
+          "783b26eb-37bf-4c1b-84b1-657887c8e2f1",
+          "7916078d-7ce4-4c8f-998a-aef3397f58c4",
+          "6f02a9e1-46bf-4cbc-a2f7-deb5ed1ba9de",
+          "64fc024e-1350-42f0-837b-982e30117b1b",
+          "f1b56c23-93b9-4e97-b9a7-c68eaa1374a0"
         ],
         "ack_outcomes": [
           "ack_timeout_exhausted",
@@ -1285,7 +1285,7 @@
       },
       "respond_result": {
         "status": "safe_default_applied",
-        "incident_decision_id": "54f364bf-9e37-4c94-9540-706f07d5e072",
+        "incident_decision_id": "af9698d0-b5a0-46d9-a1f7-d6381d76956b",
         "routing_factor_evaluations": {
           "edge-1": {
             "status": "available",
@@ -1296,7 +1296,7 @@
               "road_edge_id": "edge-1",
               "road_roi_name": "road-1",
               "frame_id": "fixture-frame",
-              "frame_timestamp": "2026-09-30T15:54:35.234010Z",
+              "frame_timestamp": "2026-09-30T17:01:05.824602Z",
               "frame_source": "CAMERA",
               "occupancy_ratio": 0.1,
               "occupied_pixels": 10,
@@ -1318,7 +1318,7 @@
                 "available": true,
                 "stale": false,
                 "age_seconds": 0.0,
-                "timestamp": "2026-09-30T15:54:35.234010Z"
+                "timestamp": "2026-09-30T17:01:05.824602Z"
               },
               "available": true,
               "stale": false,
@@ -1333,7 +1333,7 @@
               "controlled integration fixture"
             ],
             "audit_references": [],
-            "evaluated_at": "2026-09-30T15:54:35.234208Z"
+            "evaluated_at": "2026-09-30T17:01:05.824739Z"
           }
         },
         "edge_safety_decisions": {
@@ -1352,7 +1352,7 @@
             "time_matched": null,
             "reasons": [],
             "audit_references": [],
-            "evaluated_at": "2026-09-30T15:54:35.234260Z"
+            "evaluated_at": "2026-09-30T17:01:05.824780Z"
           }
         },
         "edge_cost_results": {
@@ -1374,7 +1374,7 @@
             "excluded_from_active_graph": false,
             "reasons": [],
             "audit_references": [],
-            "calculated_at": "2026-09-30T15:54:35.234298Z"
+            "calculated_at": "2026-09-30T17:01:05.824810Z"
           }
         },
         "active_graph_summary": {
@@ -1403,12 +1403,12 @@
           "no_safe_route": false,
           "reasons": [],
           "warnings": [],
-          "calculation_duration_ms": 0.11959997937083244,
-          "calculated_at": "2026-09-30T15:54:35.234745Z",
+          "calculation_duration_ms": 0.08239998714998364,
+          "calculated_at": "2026-09-30T17:01:05.825024Z",
           "audit_references": []
         },
         "versioned_route": {
-          "route_id": "3b6ccd28-0c30-487a-9055-b2b5d5445719",
+          "route_id": "0ff89ec2-443b-47a1-8030-3440e6bdbf3d",
           "version": 1,
           "previous_version": null,
           "route_status": "route_found",
@@ -1426,14 +1426,14 @@
           "no_safe_route": false,
           "route_changed": true,
           "invalidates_prior_commands": false,
-          "created_at": "2026-09-30T15:54:35.234843Z",
+          "created_at": "2026-09-30T17:01:05.825094Z",
           "reasons": [],
           "warnings": [],
           "audit_references": []
         },
         "route_persisted": true,
         "dispatch_recommendation": {
-          "recommendation_id": "4d6d04f0-9233-4155-a726-1d380e898c73",
+          "recommendation_id": "dd33023c-7c67-4ca0-8190-d7989b165b2b",
           "status": "recommended",
           "dispatch_actions": [],
           "traffic_actions": [
@@ -1465,54 +1465,54 @@
           "reasons": [],
           "warnings": [],
           "audit_references": [],
-          "generated_at": "2026-09-30T15:54:35.237855Z"
+          "generated_at": "2026-09-30T17:01:05.827494Z"
         },
         "physical_action_plan": {
           "status": "mapped",
           "command_specs": [
             {
-              "spec_id": "da1b3d15-0830-480c-b995-03a8dff814ff",
+              "spec_id": "b81e7ce7-6e0d-4bd7-870c-5ea55cc8fe80",
               "action_id": null,
               "safe_default": false,
               "action_category": "TRAFFIC",
               "action_type": "GREEN_CORRIDOR",
               "target_node_id": "AC1",
-              "route_id": "3b6ccd28-0c30-487a-9055-b2b5d5445719",
+              "route_id": "0ff89ec2-443b-47a1-8030-3440e6bdbf3d",
               "route_version": 1,
               "parameters": {},
-              "source_recommendation_id": "4d6d04f0-9233-4155-a726-1d380e898c73",
+              "source_recommendation_id": "dd33023c-7c67-4ca0-8190-d7989b165b2b",
               "reasons": [
                 "controlled integration fixture"
               ],
               "audit_references": []
             },
             {
-              "spec_id": "9b82c2af-5028-4fdb-a03c-d24221b5c18f",
+              "spec_id": "c0f59a83-350b-4a59-aff3-86e994d20f10",
               "action_id": null,
               "safe_default": false,
               "action_category": "GATE",
               "action_type": "OPEN",
               "target_node_id": "AC1",
-              "route_id": "3b6ccd28-0c30-487a-9055-b2b5d5445719",
+              "route_id": "0ff89ec2-443b-47a1-8030-3440e6bdbf3d",
               "route_version": 1,
               "parameters": {},
-              "source_recommendation_id": "4d6d04f0-9233-4155-a726-1d380e898c73",
+              "source_recommendation_id": "dd33023c-7c67-4ca0-8190-d7989b165b2b",
               "reasons": [
                 "controlled integration fixture"
               ],
               "audit_references": []
             },
             {
-              "spec_id": "0e8f55fd-da8c-4b23-a2a0-8a721684f99a",
+              "spec_id": "6773e325-a8ff-4dad-b228-5a2600ee266e",
               "action_id": null,
               "safe_default": false,
               "action_category": "BUZZER",
               "action_type": "ON",
               "target_node_id": "AC1",
-              "route_id": "3b6ccd28-0c30-487a-9055-b2b5d5445719",
+              "route_id": "0ff89ec2-443b-47a1-8030-3440e6bdbf3d",
               "route_version": 1,
               "parameters": {},
-              "source_recommendation_id": "4d6d04f0-9233-4155-a726-1d380e898c73",
+              "source_recommendation_id": "dd33023c-7c67-4ca0-8190-d7989b165b2b",
               "reasons": [
                 "controlled integration fixture"
               ],
@@ -1522,32 +1522,32 @@
           "skipped_actions": [],
           "reasons": [],
           "warnings": [],
-          "source_recommendation_reference": "4d6d04f0-9233-4155-a726-1d380e898c73",
-          "route_id": "3b6ccd28-0c30-487a-9055-b2b5d5445719",
+          "source_recommendation_reference": "dd33023c-7c67-4ca0-8190-d7989b165b2b",
+          "route_id": "0ff89ec2-443b-47a1-8030-3440e6bdbf3d",
           "route_version": 1,
-          "generated_at": "2026-09-30T15:54:35.237943Z",
+          "generated_at": "2026-09-30T17:01:05.827553Z",
           "audit_references": []
         },
         "physical_command_sequence": {
-          "sequence_id": "84bb96fe-dd90-4403-b3d7-5de26b5735bd",
+          "sequence_id": "e3549980-d6a6-4944-877f-c97ac5d040d9",
           "status": "planned",
-          "route_id": "3b6ccd28-0c30-487a-9055-b2b5d5445719",
+          "route_id": "0ff89ec2-443b-47a1-8030-3440e6bdbf3d",
           "route_version": 1,
           "phases": [
             {
               "phase": "SAFETY_TRANSITION",
               "command_specs": [
                 {
-                  "spec_id": "52b400e8-a138-4cb4-93c6-56984473881c",
+                  "spec_id": "5f3d0fa5-2b86-4ddf-998d-cabdc09ca6d4",
                   "action_id": null,
                   "safe_default": false,
                   "action_category": "TRAFFIC",
                   "action_type": "ALL_RED",
                   "target_node_id": "AC1",
-                  "route_id": "3b6ccd28-0c30-487a-9055-b2b5d5445719",
+                  "route_id": "0ff89ec2-443b-47a1-8030-3440e6bdbf3d",
                   "route_version": 1,
                   "parameters": {},
-                  "source_recommendation_id": "4d6d04f0-9233-4155-a726-1d380e898c73",
+                  "source_recommendation_id": "dd33023c-7c67-4ca0-8190-d7989b165b2b",
                   "reasons": [
                     "required before GREEN_CORRIDOR"
                   ],
@@ -1561,16 +1561,16 @@
               "phase": "TRAFFIC_CORRIDOR",
               "command_specs": [
                 {
-                  "spec_id": "da1b3d15-0830-480c-b995-03a8dff814ff",
+                  "spec_id": "b81e7ce7-6e0d-4bd7-870c-5ea55cc8fe80",
                   "action_id": null,
                   "safe_default": false,
                   "action_category": "TRAFFIC",
                   "action_type": "GREEN_CORRIDOR",
                   "target_node_id": "AC1",
-                  "route_id": "3b6ccd28-0c30-487a-9055-b2b5d5445719",
+                  "route_id": "0ff89ec2-443b-47a1-8030-3440e6bdbf3d",
                   "route_version": 1,
                   "parameters": {},
-                  "source_recommendation_id": "4d6d04f0-9233-4155-a726-1d380e898c73",
+                  "source_recommendation_id": "dd33023c-7c67-4ca0-8190-d7989b165b2b",
                   "reasons": [
                     "controlled integration fixture"
                   ],
@@ -1584,32 +1584,32 @@
               "phase": "BUILDING_RESPONSE",
               "command_specs": [
                 {
-                  "spec_id": "9b82c2af-5028-4fdb-a03c-d24221b5c18f",
+                  "spec_id": "c0f59a83-350b-4a59-aff3-86e994d20f10",
                   "action_id": null,
                   "safe_default": false,
                   "action_category": "GATE",
                   "action_type": "OPEN",
                   "target_node_id": "AC1",
-                  "route_id": "3b6ccd28-0c30-487a-9055-b2b5d5445719",
+                  "route_id": "0ff89ec2-443b-47a1-8030-3440e6bdbf3d",
                   "route_version": 1,
                   "parameters": {},
-                  "source_recommendation_id": "4d6d04f0-9233-4155-a726-1d380e898c73",
+                  "source_recommendation_id": "dd33023c-7c67-4ca0-8190-d7989b165b2b",
                   "reasons": [
                     "controlled integration fixture"
                   ],
                   "audit_references": []
                 },
                 {
-                  "spec_id": "0e8f55fd-da8c-4b23-a2a0-8a721684f99a",
+                  "spec_id": "6773e325-a8ff-4dad-b228-5a2600ee266e",
                   "action_id": null,
                   "safe_default": false,
                   "action_category": "BUZZER",
                   "action_type": "ON",
                   "target_node_id": "AC1",
-                  "route_id": "3b6ccd28-0c30-487a-9055-b2b5d5445719",
+                  "route_id": "0ff89ec2-443b-47a1-8030-3440e6bdbf3d",
                   "route_version": 1,
                   "parameters": {},
-                  "source_recommendation_id": "4d6d04f0-9233-4155-a726-1d380e898c73",
+                  "source_recommendation_id": "dd33023c-7c67-4ca0-8190-d7989b165b2b",
                   "reasons": [
                     "controlled integration fixture"
                   ],
@@ -1622,109 +1622,109 @@
           ],
           "ordered_command_specs": [
             {
-              "spec_id": "52b400e8-a138-4cb4-93c6-56984473881c",
+              "spec_id": "5f3d0fa5-2b86-4ddf-998d-cabdc09ca6d4",
               "action_id": null,
               "safe_default": false,
               "action_category": "TRAFFIC",
               "action_type": "ALL_RED",
               "target_node_id": "AC1",
-              "route_id": "3b6ccd28-0c30-487a-9055-b2b5d5445719",
+              "route_id": "0ff89ec2-443b-47a1-8030-3440e6bdbf3d",
               "route_version": 1,
               "parameters": {},
-              "source_recommendation_id": "4d6d04f0-9233-4155-a726-1d380e898c73",
+              "source_recommendation_id": "dd33023c-7c67-4ca0-8190-d7989b165b2b",
               "reasons": [
                 "required before GREEN_CORRIDOR"
               ],
               "audit_references": []
             },
             {
-              "spec_id": "da1b3d15-0830-480c-b995-03a8dff814ff",
+              "spec_id": "b81e7ce7-6e0d-4bd7-870c-5ea55cc8fe80",
               "action_id": null,
               "safe_default": false,
               "action_category": "TRAFFIC",
               "action_type": "GREEN_CORRIDOR",
               "target_node_id": "AC1",
-              "route_id": "3b6ccd28-0c30-487a-9055-b2b5d5445719",
+              "route_id": "0ff89ec2-443b-47a1-8030-3440e6bdbf3d",
               "route_version": 1,
               "parameters": {},
-              "source_recommendation_id": "4d6d04f0-9233-4155-a726-1d380e898c73",
+              "source_recommendation_id": "dd33023c-7c67-4ca0-8190-d7989b165b2b",
               "reasons": [
                 "controlled integration fixture"
               ],
               "audit_references": []
             },
             {
-              "spec_id": "9b82c2af-5028-4fdb-a03c-d24221b5c18f",
+              "spec_id": "c0f59a83-350b-4a59-aff3-86e994d20f10",
               "action_id": null,
               "safe_default": false,
               "action_category": "GATE",
               "action_type": "OPEN",
               "target_node_id": "AC1",
-              "route_id": "3b6ccd28-0c30-487a-9055-b2b5d5445719",
+              "route_id": "0ff89ec2-443b-47a1-8030-3440e6bdbf3d",
               "route_version": 1,
               "parameters": {},
-              "source_recommendation_id": "4d6d04f0-9233-4155-a726-1d380e898c73",
+              "source_recommendation_id": "dd33023c-7c67-4ca0-8190-d7989b165b2b",
               "reasons": [
                 "controlled integration fixture"
               ],
               "audit_references": []
             },
             {
-              "spec_id": "0e8f55fd-da8c-4b23-a2a0-8a721684f99a",
+              "spec_id": "6773e325-a8ff-4dad-b228-5a2600ee266e",
               "action_id": null,
               "safe_default": false,
               "action_category": "BUZZER",
               "action_type": "ON",
               "target_node_id": "AC1",
-              "route_id": "3b6ccd28-0c30-487a-9055-b2b5d5445719",
+              "route_id": "0ff89ec2-443b-47a1-8030-3440e6bdbf3d",
               "route_version": 1,
               "parameters": {},
-              "source_recommendation_id": "4d6d04f0-9233-4155-a726-1d380e898c73",
+              "source_recommendation_id": "dd33023c-7c67-4ca0-8190-d7989b165b2b",
               "reasons": [
                 "controlled integration fixture"
               ],
               "audit_references": []
             }
           ],
-          "source_plan_reference": "4d6d04f0-9233-4155-a726-1d380e898c73",
+          "source_plan_reference": "dd33023c-7c67-4ca0-8190-d7989b165b2b",
           "reasons": [],
           "warnings": [
             "ALL_RED inserted as the required GREEN_CORRIDOR safety transition"
           ],
-          "generated_at": "2026-09-30T15:54:35.238133Z",
+          "generated_at": "2026-09-30T17:01:05.827736Z",
           "audit_references": []
         },
         "physical_execution": {
-          "sequence_id": "84bb96fe-dd90-4403-b3d7-5de26b5735bd",
+          "sequence_id": "e3549980-d6a6-4944-877f-c97ac5d040d9",
           "status": "safe_default_applied",
-          "route_id": "3b6ccd28-0c30-487a-9055-b2b5d5445719",
+          "route_id": "0ff89ec2-443b-47a1-8030-3440e6bdbf3d",
           "route_version": 1,
           "command_results": [
             {
               "phase": "SAFETY_TRANSITION",
-              "spec_id": "52b400e8-a138-4cb4-93c6-56984473881c",
+              "spec_id": "5f3d0fa5-2b86-4ddf-998d-cabdc09ca6d4",
               "action_category": "TRAFFIC",
               "action_type": "ALL_RED",
               "target_node_id": "AC1",
-              "route_id": "3b6ccd28-0c30-487a-9055-b2b5d5445719",
+              "route_id": "0ff89ec2-443b-47a1-8030-3440e6bdbf3d",
               "route_version": 1,
-              "command_id": "d2e174ac-7aa4-436a-a2ae-93957b249178",
+              "command_id": "7916078d-7ce4-4c8f-998a-aef3397f58c4",
               "status": "ack_timeout_exhausted",
               "error": "no actuator ACK after two attempts",
               "safe_default": false,
               "attempts": [
                 {
                   "phase": "SAFETY_TRANSITION",
-                  "spec_id": "52b400e8-a138-4cb4-93c6-56984473881c",
+                  "spec_id": "5f3d0fa5-2b86-4ddf-998d-cabdc09ca6d4",
                   "attempt_number": 1,
-                  "command_id": "8bb35b6f-ae41-4fdc-91b4-4c753cf0a64f",
+                  "command_id": "783b26eb-37bf-4c1b-84b1-657887c8e2f1",
                   "publish_status": "published",
                   "ack_status": "timeout",
                   "ack_latency_ms": null,
                   "error": "actuator ACK timeout",
                   "reason": "ACTUATOR_ACK_TIMEOUT",
-                  "started_at": "2026-09-30T15:54:35.240081Z",
-                  "completed_at": "2026-09-30T15:54:35.756358Z",
+                  "started_at": "2026-09-30T17:01:05.828714Z",
+                  "completed_at": "2026-09-30T17:01:06.340727Z",
                   "safe_default": false,
                   "route_validity_status": "valid",
                   "latest_route_version": 1,
@@ -1732,16 +1732,16 @@
                 },
                 {
                   "phase": "SAFETY_TRANSITION",
-                  "spec_id": "52b400e8-a138-4cb4-93c6-56984473881c",
+                  "spec_id": "5f3d0fa5-2b86-4ddf-998d-cabdc09ca6d4",
                   "attempt_number": 2,
-                  "command_id": "d2e174ac-7aa4-436a-a2ae-93957b249178",
+                  "command_id": "7916078d-7ce4-4c8f-998a-aef3397f58c4",
                   "publish_status": "published",
                   "ack_status": "timeout",
                   "ack_latency_ms": null,
                   "error": "actuator ACK timeout",
                   "reason": "ACTUATOR_ACK_TIMEOUT",
-                  "started_at": "2026-09-30T15:54:35.756470Z",
-                  "completed_at": "2026-09-30T15:54:36.272201Z",
+                  "started_at": "2026-09-30T17:01:06.340815Z",
+                  "completed_at": "2026-09-30T17:01:06.854165Z",
                   "safe_default": false,
                   "route_validity_status": "valid",
                   "latest_route_version": 1,
@@ -1756,29 +1756,29 @@
             },
             {
               "phase": "SAFETY_TRANSITION",
-              "spec_id": "e50d6a30-ed49-4b86-8f64-d2db145ebba6",
+              "spec_id": "c2b3a484-8c63-4c9b-bd0f-dc369413befc",
               "action_category": "TRAFFIC",
               "action_type": "ALL_RED",
               "target_node_id": "AC1",
-              "route_id": "3b6ccd28-0c30-487a-9055-b2b5d5445719",
+              "route_id": "0ff89ec2-443b-47a1-8030-3440e6bdbf3d",
               "route_version": 1,
-              "command_id": "e9b13c2f-20d4-4d58-8b01-d3116a8bbd32",
+              "command_id": "6f02a9e1-46bf-4cbc-a2f7-deb5ed1ba9de",
               "status": "acknowledged",
               "error": null,
               "safe_default": true,
               "attempts": [
                 {
                   "phase": "SAFETY_TRANSITION",
-                  "spec_id": "e50d6a30-ed49-4b86-8f64-d2db145ebba6",
+                  "spec_id": "c2b3a484-8c63-4c9b-bd0f-dc369413befc",
                   "attempt_number": 1,
-                  "command_id": "e9b13c2f-20d4-4d58-8b01-d3116a8bbd32",
+                  "command_id": "6f02a9e1-46bf-4cbc-a2f7-deb5ed1ba9de",
                   "publish_status": "published",
                   "ack_status": "acknowledged",
-                  "ack_latency_ms": 0.01580000389367342,
+                  "ack_latency_ms": 0.012999982573091984,
                   "error": null,
                   "reason": "safe default; no retry permitted",
-                  "started_at": "2026-09-30T15:54:36.272612Z",
-                  "completed_at": "2026-09-30T15:54:36.276133Z",
+                  "started_at": "2026-09-30T17:01:06.854412Z",
+                  "completed_at": "2026-09-30T17:01:06.857286Z",
                   "safe_default": true,
                   "route_validity_status": null,
                   "latest_route_version": null,
@@ -1793,29 +1793,29 @@
             },
             {
               "phase": "SAFETY_TRANSITION",
-              "spec_id": "9b0c1722-4a8f-42b5-86a4-81a1cdaa660b",
+              "spec_id": "2157088b-9bbe-4d65-9d95-1f682fc2e25c",
               "action_category": "GATE",
               "action_type": "CLOSE",
               "target_node_id": "AC1",
-              "route_id": "3b6ccd28-0c30-487a-9055-b2b5d5445719",
+              "route_id": "0ff89ec2-443b-47a1-8030-3440e6bdbf3d",
               "route_version": 1,
-              "command_id": "cfb1d3a3-037c-4669-a8eb-78f495f8dfc3",
+              "command_id": "64fc024e-1350-42f0-837b-982e30117b1b",
               "status": "acknowledged",
               "error": null,
               "safe_default": true,
               "attempts": [
                 {
                   "phase": "SAFETY_TRANSITION",
-                  "spec_id": "9b0c1722-4a8f-42b5-86a4-81a1cdaa660b",
+                  "spec_id": "2157088b-9bbe-4d65-9d95-1f682fc2e25c",
                   "attempt_number": 1,
-                  "command_id": "cfb1d3a3-037c-4669-a8eb-78f495f8dfc3",
+                  "command_id": "64fc024e-1350-42f0-837b-982e30117b1b",
                   "publish_status": "published",
                   "ack_status": "acknowledged",
-                  "ack_latency_ms": 0.010199961252510548,
+                  "ack_latency_ms": 0.012500036973506212,
                   "error": null,
                   "reason": "safe default; no retry permitted",
-                  "started_at": "2026-09-30T15:54:36.276223Z",
-                  "completed_at": "2026-09-30T15:54:36.278172Z",
+                  "started_at": "2026-09-30T17:01:06.857365Z",
+                  "completed_at": "2026-09-30T17:01:06.859535Z",
                   "safe_default": true,
                   "route_validity_status": null,
                   "latest_route_version": null,
@@ -1830,29 +1830,29 @@
             },
             {
               "phase": "SAFETY_TRANSITION",
-              "spec_id": "163fe92f-20c2-4d56-9f49-5f1b540253ab",
+              "spec_id": "83ee4b84-55bf-413d-b309-81c19b4a984a",
               "action_category": "BUZZER",
               "action_type": "ON",
               "target_node_id": "AC1",
-              "route_id": "3b6ccd28-0c30-487a-9055-b2b5d5445719",
+              "route_id": "0ff89ec2-443b-47a1-8030-3440e6bdbf3d",
               "route_version": 1,
-              "command_id": "3d8b7cad-0926-4298-a5fd-2ea923be0509",
+              "command_id": "f1b56c23-93b9-4e97-b9a7-c68eaa1374a0",
               "status": "acknowledged",
               "error": null,
               "safe_default": true,
               "attempts": [
                 {
                   "phase": "SAFETY_TRANSITION",
-                  "spec_id": "163fe92f-20c2-4d56-9f49-5f1b540253ab",
+                  "spec_id": "83ee4b84-55bf-413d-b309-81c19b4a984a",
                   "attempt_number": 1,
-                  "command_id": "3d8b7cad-0926-4298-a5fd-2ea923be0509",
+                  "command_id": "f1b56c23-93b9-4e97-b9a7-c68eaa1374a0",
                   "publish_status": "published",
                   "ack_status": "acknowledged",
-                  "ack_latency_ms": 0.009400013368576765,
+                  "ack_latency_ms": 0.010500021744519472,
                   "error": null,
                   "reason": "safe default; no retry permitted",
-                  "started_at": "2026-09-30T15:54:36.278231Z",
-                  "completed_at": "2026-09-30T15:54:36.280275Z",
+                  "started_at": "2026-09-30T17:01:06.859614Z",
+                  "completed_at": "2026-09-30T17:01:06.862112Z",
                   "safe_default": true,
                   "route_validity_status": null,
                   "latest_route_version": null,
@@ -1866,9 +1866,9 @@
               "was_not_published": false
             }
           ],
-          "started_at": "2026-09-30T15:54:35.240066Z",
-          "completed_at": "2026-09-30T15:54:36.280360Z",
-          "duration_ms": 1040.2957999613136,
+          "started_at": "2026-09-30T17:01:05.828707Z",
+          "completed_at": "2026-09-30T17:01:06.862180Z",
+          "duration_ms": 1033.4752000053413,
           "reasons": [
             "normal command failed after two attempts"
           ],
@@ -1877,13 +1877,13 @@
           ]
         },
         "safe_default_trigger": null,
-        "routing_duration_ms": 0.563700043130666,
-        "total_duration_ms": 1046.9354999950156,
+        "routing_duration_ms": 0.3027999773621559,
+        "total_duration_ms": 1038.163400022313,
         "reasons": [],
         "warnings": [],
         "audit_references": [],
-        "started_at": "2026-09-30T15:54:35.234196Z",
-        "completed_at": "2026-09-30T15:54:36.281135Z"
+        "started_at": "2026-09-30T17:01:05.824731Z",
+        "completed_at": "2026-09-30T17:01:06.862898Z"
       }
     }
   },

@@ -262,6 +262,12 @@ button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: no
 .risk-helper, .risk-history p, .risk-history li { color: var(--color-grey-500); font-size: 11px; }
 .risk-helper { margin-top: 12px; }
 .risk-history ul { margin: 10px 0 0; padding-left: 18px; }
+.risk-history-list { padding: 8px 16px; }
+.risk-history-row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(120px, .7fr) minmax(140px, .7fr); gap: 14px; align-items: center; padding: 12px 4px; border-bottom: 1px solid rgba(18,18,18,.07); color: var(--color-grey-700); font-size: 11px; }
+.risk-history-row:last-child { border-bottom: 0; }
+.risk-history-row > div { display: grid; gap: 3px; min-width: 0; }
+.risk-history-row strong { color: var(--color-grey-900); font-size: 11px; }
+.risk-history-row span { color: var(--color-grey-500); }
 .route-selector { display: flex; align-items: center; gap: 10px; width: min(100%, 480px); }
 .route-selector label { color: var(--color-grey-700); font-size: 11px; font-weight: var(--weight-semibold); }
 .route-selector select { min-width: 0; flex: 1; min-height: 36px; padding: 0 10px; border: 1px solid var(--color-grey-300); border-radius: var(--radius-md); background: var(--color-white); color: var(--color-grey-900); font-size: 12px; }
@@ -354,7 +360,12 @@ button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: no
   .sidebar-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sidebar-footer { display: none; }
   .main-shell { padding: 4px 2px 24px; }
-  .topbar { align-items: flex-start; }
+  .topbar { align-items: flex-start; flex-wrap: wrap; }
+  .topbar-actions { justify-content: flex-end; width: 100%; min-width: 0; }
+  .role-chip { min-width: 0; }
+  .role-chip span, .role-chip small { max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .page-header { align-items: flex-start; flex-direction: column; }
+  .page-header .overview-refresh { width: 100%; justify-content: space-between; }
   .overview-heading { align-items: flex-start; flex-direction: column; }
   .overview-refresh { width: 100%; justify-content: space-between; }
   .sensor-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -365,8 +376,11 @@ button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: no
   .incident-state { justify-items: start; }
   .route-facts, .actuator-detail { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .risk-overview-grid { grid-template-columns: 1fr; }
+  .risk-history-row { grid-template-columns: 1fr; gap: 4px; }
   .admin-candidate-layout, .admin-facts { grid-template-columns: 1fr; }
   .admin-create-form, .access-role-grid { grid-template-columns: 1fr; }
+  .admin-tabs { max-width: 100%; overflow-x: auto; }
+  .admin-tab { flex: 0 0 auto; }
   .evidence-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .evidence-modal-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .audit-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -379,6 +393,10 @@ button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: no
 
 @media (min-width: 761px) and (max-width: 1050px) {
   .sensor-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 380px) {
+  .sensor-grid, .audit-filters { grid-template-columns: 1fr; }
 }
 
 .mobile-sidebar-backdrop { position: fixed; inset: 0; z-index: 20; background: rgba(17,17,17,.34); backdrop-filter: blur(2px); }

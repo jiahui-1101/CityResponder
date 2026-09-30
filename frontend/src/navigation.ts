@@ -10,6 +10,13 @@ import {
 
 export type SystemRole = "OPERATOR" | "FIREFIGHTER" | "RISK_PLANNER" | "ADMIN";
 
+export const ROLE_LABELS: Record<SystemRole, string> = {
+  OPERATOR: "Emergency Operator",
+  FIREFIGHTER: "Firefighter",
+  RISK_PLANNER: "City Risk Planner",
+  ADMIN: "System Administrator",
+};
+
 export type NavigationItem = {
   label: string;
   path: string;
@@ -22,10 +29,11 @@ export type NavigationItem = {
 const operationalRoles: SystemRole[] = ["OPERATOR", "FIREFIGHTER", "ADMIN"];
 const riskRoles: SystemRole[] = ["RISK_PLANNER", "ADMIN"];
 const historyRoles: SystemRole[] = ["OPERATOR", "FIREFIGHTER", "RISK_PLANNER", "ADMIN"];
+const overviewRoles: SystemRole[] = ["OPERATOR", "ADMIN"];
 
-// Visibility metadata only; Step 3 will connect real authentication and RBAC.
+// Navigation visibility mirrors the role-aware frontend routes; backend RBAC remains authoritative.
 export const navigationItems: NavigationItem[] = [
-  { label: "Overview", path: "/", icon: LayoutDashboard, allowedRoles: historyRoles, activeMatch: "exact", section: "main" },
+  { label: "Overview", path: "/", icon: LayoutDashboard, allowedRoles: overviewRoles, activeMatch: "exact", section: "main" },
   { label: "Incidents", path: "/incidents", icon: Activity, allowedRoles: operationalRoles, activeMatch: "section", section: "main" },
   { label: "Response / Routing", path: "/response", icon: Route, allowedRoles: operationalRoles, activeMatch: "section", section: "main" },
   { label: "Risk Intelligence", path: "/risk", icon: Building2, allowedRoles: riskRoles, activeMatch: "section", section: "main" },

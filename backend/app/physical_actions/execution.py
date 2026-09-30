@@ -222,6 +222,15 @@ async def execute_ack_gated_sequence(
                     started_clock,
                     ["stale traffic command was not published"],
                 )
+            if result.status != "ack_timeout_exhausted":
+                return _sequence_result(
+                    sequence,
+                    "execution_failed",
+                    results,
+                    started_at,
+                    started_clock,
+                    [result.error or "normal command execution failed before ACK timeout"],
+                )
             fallback_results = await _execute_safe_defaults(
                 db,
                 failed_spec=spec,

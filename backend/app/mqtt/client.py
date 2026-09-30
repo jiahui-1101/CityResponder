@@ -115,6 +115,7 @@ class MQTTClient:
         result = self._client.publish(topic, message, qos=qos)
         if result.rc != mqtt.MQTT_ERR_SUCCESS:
             logger.warning("MQTT publish failed for topic %s: rc=%s", topic, result.rc)
+            raise RuntimeError(f"MQTT publish failed for topic {topic}: rc={result.rc}")
 
     def _on_connect(
         self,

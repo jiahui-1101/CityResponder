@@ -7,6 +7,7 @@ import { useCalibrationGovernance } from "../hooks/useCalibrationGovernance";
 import { useLiveRefresh } from "../live/useLiveRefresh";
 import { AdminUsersPanel } from "./AdminUsersPanel";
 import { LiveDiagnosticsPanel } from "./LiveDiagnosticsPanel";
+import { useEscapeDismiss } from "../hooks/useEscapeDismiss";
 
 const formatTime = (value: string | null | undefined) => value ? new Date(value).toLocaleString() : "Unavailable";
 const tone = (status: string): "success" | "warning" | "danger" | "neutral" => ["approved", "active", "passed"].includes(status) ? "success" : ["failed", "blocked"].includes(status) ? "danger" : status === "not_evaluated" ? "neutral" : "warning";
@@ -19,6 +20,7 @@ export function AdminCalibrationPage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionBusy, setActionBusy] = useState(false);
   const [section, setSection] = useState<"calibration" | "users" | "live">("calibration");
+  useEscapeDismiss(confirmation !== null, () => setConfirmation(null));
   useLiveRefresh(["calibration_candidate", "calibration_validation", "calibration_version_approved", "calibration_version_activated", "calibration_version_rollback"], () => state.refresh(), true, "admin-calibration");
   const selected = state.candidates.find((item) => item.candidate.candidate_id === selectedId) ?? state.candidates[0] ?? null;
   const active = state.governance?.active_version ?? null;

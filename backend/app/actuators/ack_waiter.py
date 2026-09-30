@@ -93,6 +93,7 @@ async def wait_for_actuator_ack(
     except asyncio.CancelledError:
         _remove_waiter(command_id, future)
         raise
+    _complete_waiter(command_id, future)
     return _acknowledged_result(
         command_id,
         target_node_id,
@@ -157,6 +158,16 @@ def _remove_waiter(command_id: str, future: asyncio.Future[dict[str, Any]]) -> N
         pending = _pending.get(command_id)
         if pending is not None and pending.future is future:
             _pending.pop(command_id, None)
+
+
+def _complete_waiter(command_id: str, future: asyncio.Future[dict[str, Any]]) -> None:
+    """Release a satisfied waiter and its already-consumed ACK cache entry."""
+
+    with _lock:
+        pending = _pending.get(command_id)
+        if pending is not None and pending.future is future:
+            _pending.pop(command_id, None)
+        _cached.pop(command_id, None)
 
 
 def _acknowledged_result(

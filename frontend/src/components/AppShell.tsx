@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Bell, LogOut, Menu, ShieldCheck, X } from "lucide-react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { navigationItems, type SystemRole } from "../navigation";
+import { navigationItems, ROLE_LABELS, type SystemRole } from "../navigation";
 import { StatusBadge } from "./ui";
 import { useAuth } from "../auth/AuthContext";
 import { useLiveConnection } from "../live/LiveConnectionContext";
@@ -35,7 +35,7 @@ export function Topbar({ user, onMenu, onLogout }: { user: ShellUser; onMenu: ()
   const title = navigationItems.find((item) => item.path === location.pathname)?.label ?? "CityResponder";
   const liveLabel = live.status === "connected" ? "Live updates connected" : live.status === "connecting" ? "Connecting live updates" : live.status === "error" ? "Live updates unavailable" : "Live updates offline";
   const liveTone = live.status === "connected" ? "success" : live.status === "error" ? "danger" : live.status === "connecting" ? "warning" : "neutral";
-  return <header className="topbar"><div className="topbar-heading"><button className="mobile-menu-button icon-button" type="button" aria-label="Open navigation menu" onClick={onMenu}><Menu size={18} /></button><div><p className="eyebrow">Emergency response platform</p><h1>{title}</h1></div></div><div className="topbar-actions"><StatusBadge tone={liveTone}>{liveLabel}</StatusBadge><div className="role-chip"><span>{user.role}</span><small>{user.email}</small></div><button className="icon-button" type="button" aria-label="Sign out" onClick={onLogout}><LogOut size={17} /></button></div></header>;
+  return <header className="topbar"><div className="topbar-heading"><button className="mobile-menu-button icon-button" type="button" aria-label="Open navigation menu" onClick={onMenu}><Menu size={18} /></button><div><p className="eyebrow">Emergency response platform</p><h1>{title}</h1></div></div><div className="topbar-actions"><StatusBadge tone={liveTone}>{liveLabel}</StatusBadge><div className="role-chip"><span>{ROLE_LABELS[user.role]}</span><small>{user.email}</small></div><button className="icon-button" type="button" aria-label="Sign out" onClick={onLogout}><LogOut size={17} /></button></div></header>;
 }
 
 export function MobileNavigation({ open, onClose, role }: { open: boolean; onClose: () => void; role?: SystemRole | null }) {

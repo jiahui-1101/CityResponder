@@ -39,7 +39,35 @@ def publish_actuator_command(
         entity_id=command.command_id,
         payload=command_data,
     )
-    mqtt_client.publish(topic, command_data, qos=1)
+    publish_error: Exception | None = None
+    try:
+        mqtt_client.publish(topic, command_data, qos=1)
+    except Exception as exc:
+        publish_error = exc
+        failure_event = append_event(
+            db,
+            event_type="actuator_command_publish_failed",
+            entity_type="command",
+            entity_id=command.command_id,
+            reason_code="MQTT_PUBLISH_FAILED",
+            human_readable_reason="Actuator command could not be published to MQTT",
+            payload={
+                "command_id": command.command_id,
+                "node_id": command.node_id,
+                "topic": topic,
+                "publish_status": "failed",
+            },
+        )
+        publish_live_update_from_thread(
+            {
+                "event_type": failure_event.event_type,
+                "entity_type": failure_event.entity_type,
+                "entity_id": failure_event.entity_id,
+                "event_id": failure_event.id,
+                "backend_event_at": failure_event.created_at.isoformat(),
+                "payload": failure_event.payload,
+            }
+        )
     publish_live_update_from_thread(
         {
             "event_type": "actuator_command",
@@ -49,4 +77,6 @@ def publish_actuator_command(
             "payload": command_data,
         }
     )
+    if publish_error is not None:
+        raise publish_error
     return command_data

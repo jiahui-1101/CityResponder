@@ -22,6 +22,7 @@ run; it must not be interpreted as a general benchmark.
 - Step 18 Response Timing: `backend/scripts/benchmark_response_timing.py` and `step18_response_timing.*`
 - Step 19 Vision/Hardware Acceptance: `step19/` templates and acceptance report
 - Final Validation Summary: `final_validation_summary.*`
+- Final Deep System Audit: `final_deep_audit.json` and `final_deep_audit.md`
 
 Step 16 is software/API evidence with one manually observed latency run. Steps
 17–18 are controlled software/mock integration evidence. Step 19 awaits real
@@ -31,3 +32,8 @@ mock ACKs.
 Final status: `SOFTWARE_IMPLEMENTATION_FROZEN`. Software FAIL count is 0;
 Step 19 external/manual acceptance remains separate and is not represented as
 software PASS.
+
+The final deep audit contains the complete 328-item requirements matrix. It
+keeps real camera/model and ESP32 acceptance as `NOT_RUN_EXTERNAL`, and leaves
+undefined production policies as `TBD_SOURCE`; neither is converted into a
+software PASS or FAIL.
