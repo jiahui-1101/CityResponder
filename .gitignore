@@ -4,6 +4,9 @@ data/*.db
 **/*.db
 **/__pycache__/
 *.py[cod]
+**/data/incident_evidence/
+**/node_modules/
+**/dist/
 # Vision runtime artifacts and downloaded weights
 .ultralytics/
 **/runs/

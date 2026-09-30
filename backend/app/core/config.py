@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     host: str = "127.0.0.1"
     port: int = 8010
+    cors_allowed_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
     database_url: str = "sqlite:///./data/cityresponder.db"
     mqtt_host: str = "127.0.0.1"
     mqtt_port: int = 1883
@@ -49,6 +50,8 @@ class Settings(BaseSettings):
     vision_ir_conflict_value_threshold: float | None = None
     vision_detection_confidence_threshold: float | None = None
     vision_segmentation_confidence_threshold: float | None = None
+    evidence_storage_dir: str = "./data/incident_evidence"
+    evidence_max_file_size_bytes: int = 10_000_000
 
     model_config = SettingsConfigDict(
         env_file=".env",

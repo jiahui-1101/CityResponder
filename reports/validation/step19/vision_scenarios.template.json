@@ -1,0 +1,33 @@
+{
+  "model_availability": "BLOCKED_EXTERNAL",
+  "observations": [],
+  "performance": {
+    "object_inference_per_second": [],
+    "segmentation_inference_per_second": []
+  },
+  "coverage": {
+    "full_model_area_verified": null,
+    "building_a": {"width_px": null, "height_px": null, "coverage_verified": null},
+    "road_width_px": null,
+    "notes": []
+  },
+  "observation_schema": {
+    "scenario_id": "string",
+    "frame_source": "string",
+    "expected_labels": ["FIRE", "SMOKE", "PERSON", "ROAD_OBSTACLE", "POTHOLE"],
+    "detected_labels": [],
+    "ground_truth_fire": null,
+    "expected_confirmation_outcome": null,
+    "actual_system_outcome": null,
+    "false_positive": null,
+    "false_negative": null,
+    "inference_duration_ms": null,
+    "object_inference_per_second": null,
+    "segmentation_inference_per_second": null,
+    "known_dimension_cm": null,
+    "estimated_dimension_cm": null,
+    "absolute_error_cm": null,
+    "notes": [],
+    "evidence_reference": null
+  }
+}

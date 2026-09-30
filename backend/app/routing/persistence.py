@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.events.models import Event
 from app.events.repository import append_event, get_events_for_entity
+from app.live.service import publish_live_update_from_thread
 from app.routing.versioning import VersionedRoute
 
 
@@ -28,7 +29,7 @@ def persist_versioned_route(db: Session, route: VersionedRoute) -> Event:
             *(f"warning: {warning}" for warning in route.warnings),
         ]
     ) or None
-    return append_event(
+    event = append_event(
         db,
         event_type="route_version",
         entity_type="route",
@@ -37,3 +38,5 @@ def persist_versioned_route(db: Session, route: VersionedRoute) -> Event:
         reason_code="route_version",
         human_readable_reason=human_reason,
     )
+    publish_live_update_from_thread({"event_type": "route_version", "entity_type": "route", "entity_id": route.route_id, "event_id": event.id, "backend_event_at": event.created_at.isoformat(), "payload": payload})
+    return event

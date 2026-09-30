@@ -1,0 +1,9 @@
+{
+  "run_type": "manual_controlled_run",
+  "sample_count": 10,
+  "within_1000ms": 10,
+  "local_ms": {"median": 612.0, "p95": 636.1, "max": 636.1},
+  "backend_event_to_refresh_ms": {"median": 627.0, "p95": 671.0, "max": 671.0},
+  "scope": "MQ2 sensor -> Operator Overview authoritative REST refresh",
+  "note": "Recorded evidence only; not a production benchmark or generated test result."
+}

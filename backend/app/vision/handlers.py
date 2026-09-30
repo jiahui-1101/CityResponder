@@ -72,7 +72,7 @@ def _store_and_publish(
 ) -> None:
     db = SessionLocal()
     try:
-        append_event(
+        event = append_event(
             db,
             event_type=event_type,
             entity_type=entity_type,
@@ -89,6 +89,8 @@ def _store_and_publish(
     publish_live_update_from_thread(
         {
             "event_type": event_type,
+            "event_id": event.id,
+            "backend_event_at": event.created_at.isoformat(),
             "topic": topic,
             "payload": payload,
         }

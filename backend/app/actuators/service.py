@@ -32,7 +32,7 @@ def publish_actuator_command(
     command_data = command.model_dump(mode="json")
     topic = f"city/commands/{command.node_id}"
 
-    append_event(
+    event = append_event(
         db,
         event_type="actuator_command",
         entity_type="command",
@@ -43,6 +43,8 @@ def publish_actuator_command(
     publish_live_update_from_thread(
         {
             "event_type": "actuator_command",
+            "event_id": event.id,
+            "backend_event_at": event.created_at.isoformat(),
             "topic": topic,
             "payload": command_data,
         }

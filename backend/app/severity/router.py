@@ -1,6 +1,6 @@
 """Authenticated REST API for Operator manual decisions."""
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field, field_validator
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
@@ -21,7 +21,9 @@ from app.severity.operator import (
 from app.severity.persistence import persist_operator_decision
 from app.severity.projection import (
     IncidentHistoryProjection,
+    IncidentIndexItem,
     get_incident_event_history,
+    get_incident_index,
     get_incident_history_projection,
 )
 
@@ -36,6 +38,18 @@ incident_read_dependency = Depends(
         UserRole.ADMIN,
     )
 )
+
+
+@router.get("", response_model=list[IncidentIndexItem])
+def list_incidents(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=20, ge=1, le=100),
+    db: Session = Depends(get_db),
+    _current_user: User = incident_read_dependency,
+) -> list[IncidentIndexItem]:
+    """Return newest immutable incident projections."""
+
+    return get_incident_index(db, skip=skip, limit=limit)
 
 
 class OperatorDecisionApiRequest(BaseModel):
@@ -119,7 +133,7 @@ def submit_operator_decision(
     )
     result = create_operator_decision(automatic_decision, operator_request)
     try:
-        persist_operator_decision(db, result)
+        persisted_event = persist_operator_decision(db, result)
     except ValueError as exc:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
@@ -127,6 +141,8 @@ def submit_operator_decision(
     publish_live_update_from_thread(
         {
             "event_type": "operator_decision",
+            "event_id": persisted_event.id,
+            "backend_event_at": persisted_event.created_at.isoformat(),
             "entity_type": "incident",
             "entity_id": decision_id,
             "payload": result.model_dump(mode="json"),

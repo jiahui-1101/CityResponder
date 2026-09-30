@@ -1,0 +1,23 @@
+{
+  "real_esp32_connected": "NOT_RUN",
+  "required_cycle_count": 20,
+  "cycles": [],
+  "cycle_schema": {
+    "cycle_number": 1,
+    "incident_or_command_context": null,
+    "command_id": null,
+    "actuator_node": "AC1",
+    "traffic_action_observed": null,
+    "gate_action_observed": null,
+    "buzzer_action_observed": null,
+    "mqtt_command_published": null,
+    "ack_received": null,
+    "ack_latency_ms": null,
+    "retry_occurred": null,
+    "safe_default_occurred": null,
+    "physical_behavior_confirmed": null,
+    "final_result": null,
+    "operator_or_tester_notes": null,
+    "evidence_reference": null
+  }
+}

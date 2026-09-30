@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.events.models import Event
 from app.events.repository import append_event
+from app.live.service import publish_live_update_from_thread
 from app.fusion.schemas import FusionSourceReference
 from app.physical_actions.schemas import ActionCategory, PhysicalActionCommandSpec
 from app.routing.projection import get_route_projection
@@ -155,7 +156,7 @@ def _append_invalidation_event(
         for event in existing
     ):
         return
-    append_event(
+    event = append_event(
         db,
         event_type="traffic_command_invalidated",
         entity_type="route",
@@ -172,3 +173,4 @@ def _append_invalidation_event(
         reason_code="traffic_command_invalidated",
         human_readable_reason=reason,
     )
+    publish_live_update_from_thread({"event_type": "traffic_command_invalidated", "entity_type": "route", "entity_id": command_spec.route_id, "event_id": event.id, "backend_event_at": event.created_at.isoformat(), "payload": {"route_id": command_spec.route_id, "stale_version": command_spec.route_version, "latest_version": latest_version, "spec_id": command_spec.spec_id, "command_id": command_id, "reason": reason, "timestamp": checked_at.isoformat()}})

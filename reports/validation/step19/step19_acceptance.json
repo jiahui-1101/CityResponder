@@ -1,0 +1,96 @@
+{
+  "report_type": "vision_and_physical_hardware_acceptance",
+  "evidence_mode": "real_observations_only",
+  "vision": {
+    "model_availability": "BLOCKED_EXTERNAL",
+    "inference_throughput": {
+      "object": {
+        "status": "NOT_RUN",
+        "n": 0,
+        "median_inference_per_second": null,
+        "target": 5.0
+      },
+      "segmentation": {
+        "status": "NOT_RUN",
+        "n": 0,
+        "median_inference_per_second": null,
+        "target": 2.0
+      }
+    },
+    "fire_verification": {
+      "status": "NOT_RUN",
+      "total_scenarios": 0,
+      "required_scenarios": 40,
+      "correct_outcomes": 0,
+      "correctness": null,
+      "target": 0.85
+    },
+    "false_dispatch": {
+      "status": "NOT_RUN",
+      "non_fire_scenarios": 0,
+      "false_dispatch_count": 0,
+      "rate": null,
+      "target": 0.1
+    },
+    "dimension_mae": {
+      "status": "NOT_RUN",
+      "n": 0,
+      "mae_cm": null,
+      "target_cm": 1.0
+    },
+    "camera_coverage": {
+      "status": "NOT_RUN",
+      "full_model_area_verified": null,
+      "building_a": {
+        "width_px": null,
+        "height_px": null,
+        "coverage_verified": null
+      },
+      "road_width_px": null,
+      "notes": []
+    }
+  },
+  "physical": {
+    "real_esp32_connected": "NOT_RUN",
+    "cycle_status": "NOT_RUN",
+    "completed_cycles": 0,
+    "required_cycles": 20,
+    "ack_success": {
+      "status": "NOT_RUN",
+      "cycles": 0,
+      "ack_success_cycles": 0,
+      "success_rate": null,
+      "target": 0.95
+    },
+    "timeout_count": 0,
+    "retry_count": 0,
+    "safe_default_count": 0,
+    "physical_confirmation_count": 0,
+    "distinguishes_publish_ack_physical": true
+  },
+  "software_evidence": {
+    "step16": "REFERENCE_ONLY",
+    "step17": "REFERENCE_ONLY",
+    "step18": "REFERENCE_ONLY"
+  },
+  "status_policy": [
+    "PASS",
+    "FAIL",
+    "BLOCKED_EXTERNAL",
+    "TBD_SOURCE",
+    "NOT_RUN"
+  ],
+  "tbd_source": [
+    "production S/T/V/H normalization",
+    "severity normalization/boundaries",
+    "F/R/E/A/M semantics",
+    "area mapping",
+    "calibration gradient/loss/gate",
+    "production topology"
+  ],
+  "limitations": [
+    "No synthetic detections or hardware cycles are counted.",
+    "Mock ACKs are not hardware ACK evidence.",
+    "This is not a 40-scenario fire accuracy benchmark unless 40 real records are supplied."
+  ]
+}

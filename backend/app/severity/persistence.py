@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.events.models import Event
 from app.events.repository import append_event, get_events_for_entity
+from app.live.service import publish_live_update_from_thread
 from app.severity.decision import IncidentDecision
 from app.severity.operator import OperatorDecisionResult
 
@@ -31,7 +32,7 @@ def persist_incident_decision(
         )
 
     payload = decision.model_dump(mode="json")
-    return append_event(
+    event = append_event(
         db,
         event_type="incident_decision",
         entity_type=INCIDENT_ENTITY_TYPE,
@@ -40,6 +41,8 @@ def persist_incident_decision(
         reason_code="incident_decision",
         human_readable_reason=_join_reasons(decision.reasons, decision.warnings),
     )
+    publish_live_update_from_thread({"event_type": "incident_decision", "entity_type": INCIDENT_ENTITY_TYPE, "entity_id": decision.decision_id, "event_id": event.id, "backend_event_at": event.created_at.isoformat(), "payload": payload})
+    return event
 
 
 def persist_operator_decision(

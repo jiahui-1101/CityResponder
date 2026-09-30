@@ -4,7 +4,9 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 
+from app.events.models import Event
 from app.events.repository import get_events_for_entity
 from app.events.schemas import EventRead
 from app.fusion.schemas import FusionSourceReference
@@ -32,6 +34,25 @@ class RouteProjection(BaseModel):
     warnings: list[str] = Field(default_factory=list)
     version_count: int
     audit_references: list[FusionSourceReference] = Field(default_factory=list)
+
+
+class RouteIndexItem(BaseModel):
+    """Compact latest route projection for route discovery."""
+
+    route_id: str
+    latest_version: int
+    status: str
+    source_node_id: str
+    destination_node_id: str
+    node_path: list[str] = Field(default_factory=list)
+    edge_path: list[str] = Field(default_factory=list)
+    total_edge_cost: float | None
+    total_distance_cm: float | None
+    no_safe_route: bool
+    route_changed: bool
+    created_at: datetime
+    reasons: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
 
 
 def get_route_projection(
@@ -80,6 +101,49 @@ def get_route_history(db: Session, route_id: str) -> list[EventRead] | None:
         return None
     _parse_versions(events, route_id)
     return [EventRead.model_validate(event) for event in events]
+
+
+def get_route_index(db: Session, *, skip: int = 0, limit: int = 20) -> list[RouteIndexItem]:
+    """Return one latest read-only projection per route from immutable events."""
+
+    events = list(
+        db.scalars(
+            select(Event)
+            .where(Event.entity_type == "route", Event.event_type == "route_version")
+            .order_by(Event.created_at.desc(), Event.id.desc())
+        ).all()
+    )
+    route_order: list[str] = []
+    seen: set[str] = set()
+    for event in events:
+        if event.entity_id not in seen:
+            seen.add(event.entity_id)
+            route_order.append(event.entity_id)
+
+    result: list[RouteIndexItem] = []
+    for route_id in route_order[skip : skip + limit]:
+        projection = get_route_projection(db, route_id)
+        if projection is None:
+            continue
+        result.append(
+            RouteIndexItem(
+                route_id=projection.route_id,
+                latest_version=projection.latest_version,
+                status=projection.status,
+                source_node_id=projection.source_node_id,
+                destination_node_id=projection.destination_node_id,
+                node_path=list(projection.node_path),
+                edge_path=list(projection.edge_path),
+                total_edge_cost=projection.total_edge_cost,
+                total_distance_cm=projection.total_distance_cm,
+                no_safe_route=projection.no_safe_route,
+                route_changed=projection.route_changed,
+                created_at=projection.created_at,
+                reasons=list(projection.reasons),
+                warnings=list(projection.warnings),
+            )
+        )
+    return result
 
 
 def _route_events(db: Session, route_id: str):

@@ -3,7 +3,10 @@
 import asyncio
 from contextlib import asynccontextmanager
 
+from datetime import datetime
+
 from fastapi import Depends, FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from app.auth.admin_router import router as admin_router
@@ -27,6 +30,9 @@ from app.sensors.projection import get_latest_sensor_states
 from app.sensors.schemas import LatestSensorState
 from app.system.health import SystemHealthResponse, get_system_health
 from app.routing.router import router as routing_router
+from app.area_risk.router import router as area_risk_router
+from app.calibration.router import router as calibration_router
+from app.evidence.router import router as evidence_router
 from app.severity.router import router as severity_router
 from app.vision.handlers import handle_detection_message, handle_road_message
 from app.vision.freshness import get_perception_freshness
@@ -69,10 +75,20 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[origin.strip() for origin in settings.cors_allowed_origins.split(",") if origin.strip()],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(severity_router)
 app.include_router(routing_router)
+app.include_router(area_risk_router)
+app.include_router(calibration_router)
+app.include_router(evidence_router)
 
 
 @app.get("/health")
@@ -85,13 +101,18 @@ def health() -> dict[str, str]:
 @app.get("/api/events", response_model=list[EventRead])
 def list_events(
     event_type: str | None = None,
+    entity_type: str | None = None,
+    entity_id: str | None = None,
+    start_at: datetime | None = None,
+    end_at: datetime | None = None,
+    skip: int = Query(default=0, ge=0),
     limit: int = Query(default=20, ge=1, le=100),
     db: Session = Depends(get_db),
     _current_user: User = Depends(require_authenticated_role),
 ) -> list[EventRead]:
     """Return recent immutable events without mutating the event store."""
 
-    return get_recent_events(db, limit=limit, event_type=event_type)
+    return get_recent_events(db, limit=limit, event_type=event_type, entity_type=entity_type, entity_id=entity_id, start_at=start_at, end_at=end_at, skip=skip)
 
 
 @app.get("/api/events/{entity_type}/{entity_id}", response_model=list[EventRead])

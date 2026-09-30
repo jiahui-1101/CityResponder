@@ -29,7 +29,7 @@ def handle_sensor_message(topic: str, payload: Any) -> None:
 
     db = SessionLocal()
     try:
-        append_event(
+        event = append_event(
             db,
             event_type="sensor_reading",
             entity_type="sensor",
@@ -46,6 +46,8 @@ def handle_sensor_message(topic: str, payload: Any) -> None:
     publish_live_update_from_thread(
         {
             "event_type": "sensor_reading",
+            "event_id": event.id,
+            "backend_event_at": event.created_at.isoformat(),
             "topic": topic,
             "payload": payload,
         }

@@ -27,6 +27,22 @@ class IncidentHistoryProjection(BaseModel):
     warnings: list[str] = Field(default_factory=list)
 
 
+class IncidentIndexItem(BaseModel):
+    """Compact incident index item derived from immutable decision events."""
+
+    decision_id: str
+    created_at: datetime
+    evaluated_at: datetime
+    automatic_decision_status: str
+    incident_confirmed: bool | None
+    final_severity: str | None
+    severity_score: float | None
+    latest_operator_action: OperatorDecisionResult | None
+    projected_outcome: str
+    reasons: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+
+
 def get_incident_history_projection(
     db: Session,
     decision_id: str,
@@ -88,6 +104,55 @@ def get_incident_event_history(db: Session, decision_id: str) -> list[EventRead]
     if not any(event.event_type == "incident_decision" for event in events):
         return None
     return [EventRead.model_validate(event) for event in events]
+
+
+def get_incident_index(
+    db: Session,
+    *,
+    skip: int = 0,
+    limit: int = 20,
+) -> list[IncidentIndexItem]:
+    """Return newest incident projections without introducing mutable state."""
+
+    # The repository helper is entity-scoped, so query all immutable incident decisions here.
+    from sqlalchemy import select
+
+    decision_events = list(
+        db.scalars(
+            select(Event)
+            .where(Event.entity_type == "incident", Event.event_type == "incident_decision")
+            .order_by(Event.created_at.desc(), Event.id.desc())
+        ).all()
+    )
+    seen: set[str] = set()
+    unique_events: list[Event] = []
+    for event in decision_events:
+        if event.entity_id not in seen:
+            seen.add(event.entity_id)
+            unique_events.append(event)
+
+    selected = unique_events[skip : skip + limit]
+    result: list[IncidentIndexItem] = []
+    for event in selected:
+        projection = get_incident_history_projection(db, event.entity_id)
+        if projection is None:
+            continue
+        result.append(
+            IncidentIndexItem(
+                decision_id=projection.incident_id,
+                created_at=projection.created_at,
+                evaluated_at=projection.evaluated_at,
+                automatic_decision_status=projection.automatic_decision.decision_status,
+                incident_confirmed=projection.automatic_decision.incident_confirmed,
+                final_severity=projection.final_severity,
+                severity_score=projection.automatic_decision.severity_score,
+                latest_operator_action=projection.latest_operator_action,
+                projected_outcome=projection.projected_outcome,
+                reasons=list(projection.automatic_decision.reasons),
+                warnings=list(projection.warnings) + list(projection.automatic_decision.warnings),
+            )
+        )
+    return result
 
 
 def _incident_events(db: Session, decision_id: str) -> list[Event]:

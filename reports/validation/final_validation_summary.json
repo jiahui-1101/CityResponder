@@ -1,0 +1,40 @@
+{
+  "status": "SOFTWARE_IMPLEMENTATION_FROZEN",
+  "categories": {
+    "SOFTWARE_VERIFIED": [
+      {"requirement": "auth and RBAC", "status": "PASS", "evidence": "Step 16 harness/API smoke evidence", "scope": "controlled software only"},
+      {"requirement": "immutable history and operator decisions", "status": "PASS", "evidence": "Step 16 harness and Step 17 event traces", "scope": "isolated SQLite fixtures"},
+      {"requirement": "routing safety, NO_SAFE_ROUTE, versioning/invalidation", "status": "PASS", "evidence": "Step 16/17 controlled reports", "scope": "controlled graph fixtures"},
+      {"requirement": "ACK correlation, 500ms timeout, one retry, safe defaults", "status": "PASS", "evidence": "Step 17 controlled E2E report", "scope": "mock ACK transport, not ESP32"},
+      {"requirement": "privacy max-five evidence rule", "status": "PASS", "evidence": "Step 16 harness", "scope": "isolated filesystem fixture"},
+      {"requirement": "area-risk and calibration governance contracts", "status": "PASS", "evidence": "Step 16 harness", "scope": "contract validation; policy semantics remain unresolved"},
+      {"requirement": "controlled dashboard live latency", "status": "PASS", "evidence": "step16_manual_live_latency.json", "measured": "10/10 under 1000ms; MQ2 -> Operator Overview authoritative REST refresh", "scope": "one manual controlled run"},
+      {"requirement": "controlled E2E orchestration", "status": "PASS", "evidence": "step17_e2e_cycle.json", "scope": "mock ACK / isolated fixtures"},
+      {"requirement": "controlled routing timing", "status": "PASS", "evidence": "step18_response_timing.json", "measured": "150 samples; all within 1000ms", "scope": "deterministic software graph fixtures"}
+    ],
+    "CONTROLLED_SOFTWARE_BENCHMARK": [
+      {"requirement": "initial safe route", "status": "PASS", "evidence": "step18_response_timing.json", "measured": "n=50; median 0.05315ms; p95 0.07020ms; max 0.10450ms; 50/50 within 1000ms"},
+      {"requirement": "reroute timing and version-increment correctness", "status": "PASS", "evidence": "step18_response_timing.json and corrected benchmark_response_timing.py", "measured": "n=50; median 0.04610ms; p95 0.05550ms; max 0.18110ms; 50/50 within 1000ms; route version increments to 2 and blocked edge is excluded"},
+      {"requirement": "NO_SAFE_ROUTE", "status": "PASS", "evidence": "step18_response_timing.json", "measured": "n=50; median 0.02000ms; p95 0.03190ms; max 0.05690ms; 50/50 within 1000ms"}
+    ],
+    "NOT_RUN_EXTERNAL": [
+      {"requirement": "real model/camera throughput", "status": "BLOCKED_EXTERNAL", "evidence": "step19/step19_acceptance.json", "scope": "no real weights/camera evidence supplied"},
+      {"requirement": "40 fire scenarios and correctness >=85%", "status": "NOT_RUN", "evidence": "step19/step19_acceptance.json"},
+      {"requirement": "false dispatch <=10%", "status": "NOT_RUN", "evidence": "step19/step19_acceptance.json"},
+      {"requirement": "dimension MAE <=1cm and physical coverage", "status": "NOT_RUN", "evidence": "step19/step19_acceptance.json"},
+      {"requirement": "20 real AC1 cycles and >=95% physical ACK success", "status": "NOT_RUN", "evidence": "step19/step19_acceptance.json", "scope": "mock ACKs explicitly excluded"},
+      {"requirement": "visible physical actuator behavior", "status": "NOT_RUN", "evidence": "step19/step19_acceptance.json"}
+    ],
+    "TBD_SOURCE": ["production S/T/V/H normalization/support", "severity normalization/boundaries", "F/R/E/A/M semantics", "area mapping and unresolved risk thresholds", "calibration loss/gradient and validation metric semantics", "final production adaptive-weight integration", "production topology/scalability"],
+    "FAIL": []
+  },
+  "regression_execution": {
+    "backend_compileall_import_openapi": "PASS",
+    "openapi_smoke": "PASS",
+    "frontend_typecheck": "PASS",
+    "frontend_build": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "software_fail_count": 0,
+  "limitations": ["1000ms ALL_RED delay is excluded from routing-compute latency.", "Step 17/18 ACKs are mock software evidence, not hardware evidence.", "No real camera, ESP32, or 40-scenario accuracy claim is made."]
+}
