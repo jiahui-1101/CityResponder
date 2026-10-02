@@ -36,7 +36,7 @@ def evaluate_person_in_hazard(
     person_detections = [
         detection
         for detection in detection_result.detections
-        if detection.class_name.upper() == "PERSON"
+        if detection.class_name.upper() == "PERSON" and detection.confidence >= 0.50
     ]
     matched_indexes: list[int] = []
     matched_boxes: list[BoundingBox] = []
