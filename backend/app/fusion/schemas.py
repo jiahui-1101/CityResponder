@@ -71,7 +71,9 @@ class AuxiliaryFusionEvidence(BaseModel):
     ir_a: LatestSensorState
     ir_b: LatestSensorState
     road_evidence: list[VisionRoadMessage]
-    button_fusion_role: Literal["TBD"] = "TBD"
+    # TBD-FUSION-06 resolved: button press = 1 supporting channel (score=1.0),
+    # does NOT skip the 3-window rule, does NOT change the C formula.
+    button_fusion_role: Literal["supporting_channel"] = "supporting_channel"
     ir_fusion_role: Literal["road_infrastructure_only"] = "road_infrastructure_only"
 
 
@@ -200,7 +202,9 @@ class FusionConfidenceResult(BaseModel):
 class SupportingChannelDecision(BaseModel):
     """Policy decision for one channel without changing its evaluation."""
 
-    channel: Literal["S", "T", "V", "H"]
+    # TBD-FUSION-05: 4 independent evidence channels (MQ2, DHT22, Camera, Button)
+    # plus original STVH for backward compatibility with existing evaluation.
+    channel: Literal["S", "T", "V", "H", "MQ2", "DHT22", "Camera", "Button"]
     decision: Literal["supporting", "not_supporting", "not_evaluated"]
     score: float | None = Field(default=None, ge=0.0, le=1.0)
     reason: str

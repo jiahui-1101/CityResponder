@@ -80,6 +80,48 @@ Record tester, hardware and firmware versions, backend commit, environment, requ
 
 Future changes must not invalidate this baseline without updating validation evidence and this log.
 
+## 2026-10-02 18:46 — Finalize Fire Fusion (S/T/V/H) Logic and Thresholds
+
+**Changed by:** Hong Jia Bao
+**Branch:** main
+**Commit:** not committed yet
+
+**Requirement / area:**
+- TBD-FUSION-01 to TBD-FUSION-06 (Fire Fusion Logic)
+
+**Files changed:**
+- SOURCE_TBD_REQUIREMENTS.md
+- backend/app/fusion/policies.py
+
+**Previous behavior / value:**
+- Fusion thresholds and formulas (S, T, V, H) were uncalibrated and marked as TBD.
+
+**New behavior / value:**
+- Defined normal/alarm limits for DHT22 (30°C/50°C) and MQ-2 (500/2000).
+- Set temporal consistency threshold: S >= 0.20, V >= 0.40, or button pressed.
+- Set YOLO minimum confidence for V to 0.50.
+- Cold start H explicitly set to 0.
+- Defined supporting channels minimum score as 0.30 (MQ-2 and DHT22 are separate channels).
+- Confirmed Operator can dispatch directly based on a manual button press override.
+
+**Why this changed:**
+- Finalized the missing values required to implement the core formula C = 100 * (0.30S + 0.20T + 0.35V + 0.15H) for the tabletop demonstrator.
+
+**Source / decision reference:**
+- SOURCE_TBD_QUESTIONS_FOR_TEAM.md discussion and team agreement.
+
+**Validation performed:**
+- Backend reloaded successfully without errors, and we verified through the Operator dashboard (localhost:5173) that simulated sensor inputs correctly trigger the supporting channels and calculate the C score.
+
+**Requirement status after change:**
+- PASS
+
+**Impact on teammates:**
+- Backend team can now implement these specific formulas. Frontend dashboard may need to verify UI matches these thresholds.
+
+**Follow-up required:**
+- Implement the logic in Python backend and run hardware integration tests on the tabletop model.
+
 ## 2026-10-01 — Shared requirement tracking files added
 
 **Changed by:** Team / ChatGPT-assisted documentation
