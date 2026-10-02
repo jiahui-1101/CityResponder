@@ -1,5 +1,6 @@
 .env
 **/.venv/
+**/.pio/
 data/*.db
 **/*.db
 **/__pycache__/
@@ -7,6 +8,8 @@ data/*.db
 **/data/incident_evidence/
 **/node_modules/
 **/dist/
+firmware/sn1_mqtt/include/secrets.h
+firmware/ac1_mqtt/include/secrets.h
 # Vision runtime artifacts and downloaded weights
 .ultralytics/
 **/runs/
