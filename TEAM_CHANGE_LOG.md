@@ -80,6 +80,52 @@ Record tester, hardware and firmware versions, backend commit, environment, requ
 
 Future changes must not invalidate this baseline without updating validation evidence and this log.
 
+## 2026-10-02 22:45 — Integrate Jiabao State Machine & Feedback Lifecycle (Side-State Hardware)
+
+**Changed by:** Hong Jia Bao
+**Branch:** main
+**Commit:** not committed yet
+
+**Requirement / area:**
+- Dispatch Logic & Hardware Orchestration (Feedback Lifecycle & Side-States)
+
+**Files changed:**
+- `backend/app/respond/service.py`
+- `backend/app/physical_actions/execution.py`
+- `backend/app/physical_actions/schemas.py`
+- `backend/app/events/states.py`
+- `backend/scripts/validate_dispatch_policies.py`
+
+**Previous behavior / value:**
+- Operator actions (REJECT, CANCEL) were ignored in the hardware dispatch pipeline, trapping the orchestration in `not_actionable` without physical remediation.
+- State enumerations representing the feedback lifecycle were missing.
+- Safe defaults were limited to `NO_SAFE_ROUTE` and `ACTUATOR_ACK_TIMEOUT` without specific cancellation specs for human override.
+
+**New behavior / value:**
+- Introduced `IncidentState` enumerations strictly matching the Jiabao specification (`RESPONDING, ACTIVE, CONCLUDED, VERIFIED, VERIFIED_FIRE, REJECTED, CANCELLED, FAILSAFE`).
+- Created `build_cancellation_specs` inside `execution.py` to physically reverse active hardware dispatches.
+- Intercepted `REJECT` and `CANCEL` Operator commands natively in `RespondOrchestrationService.run` to emit cancellation hardware states (`TRAFFIC OFF, GATE CLOSE, BUZZER OFF`).
+- Updated `ActionCategory.TRAFFIC` to support the `OFF` action for corridor releases.
+- Side-state `FAILSAFE` retains strict enforcement (`ALL_RED, GATE CLOSE, BUZZER ON`).
+
+**Why this changed:**
+- Strict alignment with Jiabao's verification authority and feedback lifecycle rules. Prevents ghost-locks on hardware actuators when false alarms are cancelled or rejected by an operator.
+
+**Source / decision reference:**
+- Integrated incident feedback lifecycle requirements and state machine specifications from Jiabao.
+
+**Validation performed:**
+- Added `test_side_states` into `validate_dispatch_policies.py`. Asserted generation of ALL_RED/CLOSE/ON for FAILSAFE, and OFF/CLOSE/OFF for CANCEL/REJECT. All tests pass.
+
+**Requirement status after change:**
+- PASS
+
+**Impact on teammates:**
+- Frontend must send `REJECT` or `CANCEL` explicitly via operator interface to properly reset physical building hardware during false alarms.
+
+**Follow-up required:**
+- Implement Area Risk calculations using the `VERIFIED_FIRE` closed state feedback.
+
 ## 2026-10-02 22:05 — Refactor Dispatch Resource and Hardware Action Logic
 
 **Changed by:** Hong Jia Bao

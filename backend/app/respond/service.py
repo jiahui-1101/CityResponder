@@ -112,24 +112,56 @@ class RespondOrchestrationService:
         effective_confirmed = request.incident_decision.incident_confirmed
         effective_severity = request.incident_decision.final_severity
         
-        latest_action = None
-        if request.operator_actions:
-            # Assumes operator actions are provided chronologically or we find the latest CONFIRM
-            for action in request.operator_actions:
-                if getattr(action, "action", None) == "CONFIRM" or getattr(action, "resulting_operator_outcome", None) == "CONFIRM":
-                    latest_action = action
-                    
+        latest_action = request.operator_actions[-1] if request.operator_actions else None
+        
         if latest_action is not None:
-            effective_confirmed = True
-            if effective_severity is None:
-                effective_severity = "MEDIUM"
+            if getattr(latest_action, "action", None) == "CONFIRM" or getattr(latest_action, "resulting_operator_outcome", None) == "CONFIRM":
+                effective_confirmed = True
+                if effective_severity is None:
+                    effective_severity = "MEDIUM"
+            elif getattr(latest_action, "action", None) in ("REJECT", "CANCEL") or getattr(latest_action, "resulting_operator_outcome", None) in ("REJECT", "CANCEL"):
+                effective_confirmed = False
 
         if effective_confirmed is not True:
+            # If manually rejected or cancelled, trigger cancellation hardware specs
+            safe_default_trigger = None
+            if latest_action is not None and getattr(latest_action, "action", None) in ("REJECT", "CANCEL"):
+                safe_default_trigger = getattr(latest_action, "action", "REJECTED")
+                
+            execution = None
+            sequence = None
+            if safe_default_trigger and request.execute_physical and request.db:
+                from app.physical_actions.execution import build_cancellation_specs
+                from app.physical_actions.schemas import DEFAULT_ACTUATOR_NODE_ID
+                from app.physical_actions.sequence import PhysicalCommandSequence
+                from uuid import uuid4
+                specs = build_cancellation_specs(
+                    target_node_id=DEFAULT_ACTUATOR_NODE_ID,
+                    source_recommendation_id=request.incident_decision.decision_id,
+                    audit_references=request.audit_references,
+                    trigger_reason=safe_default_trigger,
+                )
+                sequence = PhysicalCommandSequence(
+                    sequence_id=str(uuid4()),
+                    route_id=None,
+                    route_version=None,
+                    recommendation_id=request.incident_decision.decision_id,
+                    commands=[], # Handled purely by the specs runner
+                )
+                execution = _run_safe_defaults(request.db, specs, sequence.sequence_id, None)
+
+            actor = "User" if latest_action else "System"
+            reason_code = safe_default_trigger if safe_default_trigger else "NOT_CONFIRMED"
+            timestamp_str = datetime.now(timezone.utc).isoformat()
+            
             return self._finish(
-                status="not_actionable",
+                status="not_actionable" if not safe_default_trigger else safe_default_trigger.lower(),
                 base=base,
                 started_clock=started_clock,
-                reasons=["incident is not explicitly confirmed or manually overridden"],
+                reasons=[f"[{timestamp_str}] | [Actor: {actor}] | [{reason_code}]"],
+                safe_default_trigger=safe_default_trigger,
+                execution=execution,
+                sequence=sequence,
             )
 
         routing_started = perf_counter()
@@ -437,7 +469,7 @@ def _run_ack_sequence(db: Session, sequence: PhysicalCommandSequence) -> Physica
     return asyncio.run(execute_ack_gated_sequence(db, sequence))
 
 
-def _run_safe_defaults(db: Session, specs: list[Any], sequence_id: str, route: VersionedRoute) -> PhysicalSequenceExecutionResult:
+def _run_safe_defaults(db: Session, specs: list[Any], sequence_id: str, route: VersionedRoute | None = None) -> PhysicalSequenceExecutionResult:
     import asyncio
 
     return asyncio.run(
@@ -445,8 +477,8 @@ def _run_safe_defaults(db: Session, specs: list[Any], sequence_id: str, route: V
             db,
             specs,
             sequence_id=sequence_id,
-            route_id=route.route_id,
-            route_version=route.version,
+            route_id=route.route_id if route else None,
+            route_version=route.version if route else None,
         )
     )
 

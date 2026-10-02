@@ -468,6 +468,36 @@ def build_safe_default_specs(
     ]
 
 
+def build_cancellation_specs(
+    *,
+    target_node_id: str,
+    route_id: str | None = None,
+    route_version: int | None = None,
+    source_recommendation_id: str | None = None,
+    audit_references: list[Any] | None = None,
+    trigger_reason: str,
+) -> list[PhysicalActionCommandSpec]:
+    """Build exactly the action set to reverse/cancel dispatch."""
+    return [
+        PhysicalActionCommandSpec(
+            action_category=category,
+            action_type=action_type,
+            target_node_id=target_node_id,
+            route_id=route_id,
+            route_version=route_version,
+            source_recommendation_id=source_recommendation_id,
+            reasons=[trigger_reason],
+            audit_references=list(audit_references or []),
+            safe_default=True,
+        )
+        for category, action_type in (
+            (ActionCategory.TRAFFIC, ActionType.OFF),
+            (ActionCategory.GATE, ActionType.CLOSE),
+            (ActionCategory.BUZZER, ActionType.OFF),
+        )
+    ]
+
+
 async def execute_safe_default_specs_once(
     db: Session,
     specs: list[PhysicalActionCommandSpec],

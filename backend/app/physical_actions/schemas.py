@@ -31,6 +31,7 @@ _CATEGORY_TYPES: dict[ActionCategory, set[ActionType]] = {
     ActionCategory.TRAFFIC: {
         ActionType.ALL_RED,
         ActionType.GREEN_CORRIDOR,
+        ActionType.OFF,
     },
     ActionCategory.GATE: {ActionType.OPEN, ActionType.CLOSE},
     ActionCategory.BUZZER: {ActionType.ON, ActionType.OFF},

@@ -93,10 +93,22 @@ class DefaultDispatchMatrixPolicy:
             )
             
         reasons = []
+        timestamp_str = datetime.now(timezone.utc).isoformat()
+        
         if dispatch_input.person_in_hazard:
             reasons.append("Trigger: P=1 (YOLO >= 0.50, inside polygon, 1 frame) -> CRITICAL -> 2 Fire + 1 Amb + 1 Rescue.")
+            reasons.append(f"[{timestamp_str}] | [Actor: System] | [PERSON_ESCALATION]")
         else:
-            reasons.append(f"Applied resources and hardware rules for severity: {severity}")
+            if severity == "LOW":
+                reasons.append("Trigger: LOW -> 1 Fire Unit, Buzzer ON, No Gate, No Traffic")
+            elif severity == "MEDIUM":
+                reasons.append("Trigger: MEDIUM -> 2 Fire Units, Buzzer ON, Gate OPEN, GREEN_CORRIDOR")
+            elif severity == "HIGH":
+                reasons.append("Trigger: HIGH -> 2 Fire, 1 Ambulance, Buzzer ON, Gate OPEN, GREEN_CORRIDOR")
+            elif severity == "CRITICAL":
+                reasons.append("Trigger: CRITICAL -> 2 Fire, 1 Ambulance, 1 Rescue, Buzzer ON, Gate OPEN, GREEN_CORRIDOR")
+                
+            reasons.append(f"[{timestamp_str}] | [Actor: System] | [{severity}_DISPATCH]")
             
         return DispatchRecommendation(
             status="recommended",

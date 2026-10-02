@@ -32,6 +32,8 @@ def test_dispatch_matrix():
     hardware_actions = [(a.action_category, a.action_type) for a in rec_low.building_actions]
     assert (ActionCategory.BUZZER, "ON") in hardware_actions
     assert len(rec_low.traffic_actions) == 0
+    assert any("Trigger: LOW -> 1 Fire Unit, Buzzer ON, No Gate, No Traffic" in r for r in rec_low.reasons)
+    assert any("[Actor: System] | [LOW_DISPATCH]" in r for r in rec_low.reasons)
     print("  [PASS] LOW -> 1 Fire Unit, Buzzer ON, No Gate, No Traffic")
     
     # 2. MEDIUM
@@ -51,6 +53,8 @@ def test_dispatch_matrix():
     assert (ActionCategory.BUZZER, "ON") in hardware_actions
     assert len(rec_medium.traffic_actions) == 1
     assert rec_medium.traffic_actions[0].action_type == "GREEN_CORRIDOR"
+    assert any("Trigger: MEDIUM -> 2 Fire Units, Buzzer ON, Gate OPEN, GREEN_CORRIDOR" in r for r in rec_medium.reasons)
+    assert any("[Actor: System] | [MEDIUM_DISPATCH]" in r for r in rec_medium.reasons)
     print("  [PASS] MEDIUM -> 2 Fire Units, Buzzer ON, Gate OPEN, GREEN_CORRIDOR")
     
     # 3. HIGH
@@ -71,6 +75,8 @@ def test_dispatch_matrix():
     assert (ActionCategory.BUZZER, "ON") in hardware_actions
     assert len(rec_high.traffic_actions) == 1
     assert rec_high.traffic_actions[0].action_type == "GREEN_CORRIDOR"
+    assert any("Trigger: HIGH -> 2 Fire, 1 Ambulance, Buzzer ON, Gate OPEN, GREEN_CORRIDOR" in r for r in rec_high.reasons)
+    assert any("[Actor: System] | [HIGH_DISPATCH]" in r for r in rec_high.reasons)
     print("  [PASS] HIGH -> 2 Fire, 1 Ambulance, Buzzer ON, Gate OPEN, GREEN_CORRIDOR")
     
     # 4. CRITICAL with Person in Hazard
@@ -94,7 +100,8 @@ def test_dispatch_matrix():
     assert rec_crit.traffic_actions[0].action_type == "GREEN_CORRIDOR"
     
     # Check Explicit Traceability
-    assert "Trigger: P=1 (YOLO >= 0.50, inside polygon, 1 frame) -> CRITICAL -> 2 Fire + 1 Amb + 1 Rescue." in rec_crit.reasons
+    assert any("Trigger: P=1 (YOLO >= 0.50, inside polygon, 1 frame) -> CRITICAL -> 2 Fire + 1 Amb + 1 Rescue." in r for r in rec_crit.reasons)
+    assert any("[Actor: System] | [PERSON_ESCALATION]" in r for r in rec_crit.reasons)
     print("  [PASS] CRITICAL -> 2 Fire, 1 Ambulance, 1 Rescue, Buzzer ON, Gate OPEN, GREEN_CORRIDOR")
     print("  [PASS] Explicit traceability string validated")
 
@@ -166,7 +173,40 @@ def test_manual_override_pipeline():
     print("  [PASS] Manual CONFIRM defaults to MEDIUM severity when no R score exists")
     print("  [PASS] Dispatch matrix generates MEDIUM resources and hardware actions")
 
+
+def test_side_states():
+    print("\n" + "=" * 60)
+    print("DISPATCH-03a: Side-State Hardware Fallbacks")
+    print("=" * 60)
+    
+    from app.physical_actions.execution import build_cancellation_specs, build_safe_default_specs
+    from app.physical_actions.schemas import DEFAULT_ACTUATOR_NODE_ID, ActionCategory, ActionType
+    
+    # 1. FAILSAFE (NO_SAFE_ROUTE or ACTUATOR_ACK_TIMEOUT)
+    failsafe_specs = build_safe_default_specs(
+        target_node_id=DEFAULT_ACTUATOR_NODE_ID,
+        trigger_reason="NO_SAFE_ROUTE"
+    )
+    hardware_actions = [(s.action_category, s.action_type) for s in failsafe_specs]
+    assert (ActionCategory.TRAFFIC, ActionType.ALL_RED) in hardware_actions
+    assert (ActionCategory.GATE, ActionType.CLOSE) in hardware_actions
+    assert (ActionCategory.BUZZER, ActionType.ON) in hardware_actions
+    print("  [PASS] FAILSAFE defaults to ALL_RED traffic, GATE CLOSE, BUZZER ON")
+    
+    # 2. REJECTED/CANCELLED
+    cancel_specs = build_cancellation_specs(
+        target_node_id=DEFAULT_ACTUATOR_NODE_ID,
+        trigger_reason="REJECTED"
+    )
+    cancel_actions = [(s.action_category, s.action_type) for s in cancel_specs]
+    assert (ActionCategory.TRAFFIC, ActionType.OFF) in cancel_actions
+    assert (ActionCategory.GATE, ActionType.CLOSE) in cancel_actions
+    assert (ActionCategory.BUZZER, ActionType.OFF) in cancel_actions
+    print("  [PASS] REJECTED/CANCELLED defaults to TRAFFIC OFF, GATE CLOSE, BUZZER OFF")
+
+
 if __name__ == "__main__":
     test_dispatch_matrix()
     test_manual_override_pipeline()
+    test_side_states()
     print("\nAll Dispatch policy tests PASSED!")
