@@ -80,6 +80,51 @@ Record tester, hardware and firmware versions, backend commit, environment, requ
 
 Future changes must not invalidate this baseline without updating validation evidence and this log.
 
+## 2026-10-02 22:05 — Refactor Dispatch Resource and Hardware Action Logic
+
+**Changed by:** Hong Jia Bao
+**Branch:** main
+**Commit:** not committed yet
+
+**Requirement / area:**
+- DISPATCH-01 to DISPATCH-03 (Dispatch Logic & Hardware Orchestration)
+
+**Files changed:**
+- `CityResponder_Dispatch_Specification.md`
+- `backend/app/dispatch/policies.py`
+- `backend/app/respond/service.py`
+- `backend/scripts/validate_dispatch_policies.py`
+
+**Previous behavior / value:**
+- Manual confirm unconditionally defaulted to CRITICAL.
+- Buzzer only sounded on HIGH and CRITICAL severities.
+- GREEN_CORRIDOR and low-level gate rules were undefined, and documentation lacked explicit trigger chains.
+
+**New behavior / value:**
+- Manual override now strictly uses the existing calculated `R` score, or defaults to **MEDIUM** if no score exists.
+- Buzzer is now set to `ON` for **ALL** severities (LOW through CRITICAL) to guarantee building evacuation.
+- Gate `OPEN` and `GREEN_CORRIDOR` actions are explicitly restricted to **MEDIUM, HIGH, and CRITICAL** events.
+- Updated documentation to use explicit logic chains (e.g., `P=1 -> CRITICAL -> 2 Fire + 1 Amb + 1 Rescue`).
+
+**Why this changed:**
+- Addressed code review feedback to prevent wasting medical/rescue resources (adhering to the "≤10% false dispatch KPI") caused by manual overrides always calling ambulances.
+- Patched a critical life-safety flaw (referencing the Kuching apartment case study) where LOW/MEDIUM fires would not trigger building evacuation alarms.
+
+**Source / decision reference:**
+- Team architectural code review and updated `CityResponder_Dispatch_Specification.md`.
+
+**Validation performed:**
+- Executed updated `validate_dispatch_policies.py` to confirm fallback to Medium and Buzzer ON for Low severity. 
+
+**Requirement status after change:**
+- PASS
+
+**Impact on teammates:**
+- Backend routing team must ensure `GREEN_CORRIDOR` logic handles the updated severity threshold. Hardware team must verify the buzzer triggers correctly on Low severity.
+
+**Follow-up required:**
+- Proceed to configure the Routing Topology and Cost thresholds module.
+
 ## 2026-10-02 21:15 — Finalize and Implement Severity Module Logic (TBD-SEV-01 to 06)
 
 **Changed by:** Hong Jia Bao

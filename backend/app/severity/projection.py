@@ -83,13 +83,18 @@ def get_incident_history_projection(
             "projected_outcome is a read-model convenience, not a source-defined lifecycle state"
         )
 
+    final_severity = automatic.final_severity
+    if latest is not None and latest.resulting_operator_outcome == "CONFIRM":
+        if final_severity is None:
+            final_severity = "MEDIUM"
+
     return IncidentHistoryProjection(
         incident_id=decision_id,
         automatic_decision=automatic,
         operator_actions=operator_actions,
         latest_operator_action=latest,
         projected_outcome=projected_outcome,
-        final_severity=automatic.final_severity,
+        final_severity=final_severity,
         created_at=automatic_event.created_at,
         evaluated_at=automatic.evaluated_at,
         audit_timeline=[EventRead.model_validate(event) for event in events],

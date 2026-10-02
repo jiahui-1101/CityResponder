@@ -42,6 +42,7 @@ class RespondPhaseInput(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     incident_decision: IncidentDecision
+    operator_actions: list[Any] = Field(default_factory=list)
     person_in_hazard: bool | None = None
     topology: RoutingTopology
     edge_evidence: dict[str, RoadEdgeEvidence] = Field(default_factory=dict)
@@ -107,12 +108,28 @@ class RespondOrchestrationService:
             "started_at": started_at,
             "audit_references": list(request.audit_references),
         }
-        if request.incident_decision.incident_confirmed is not True:
+        # Apply Operator manual override logic (DISPATCH-03a)
+        effective_confirmed = request.incident_decision.incident_confirmed
+        effective_severity = request.incident_decision.final_severity
+        
+        latest_action = None
+        if request.operator_actions:
+            # Assumes operator actions are provided chronologically or we find the latest CONFIRM
+            for action in request.operator_actions:
+                if getattr(action, "action", None) == "CONFIRM" or getattr(action, "resulting_operator_outcome", None) == "CONFIRM":
+                    latest_action = action
+                    
+        if latest_action is not None:
+            effective_confirmed = True
+            if effective_severity is None:
+                effective_severity = "MEDIUM"
+
+        if effective_confirmed is not True:
             return self._finish(
                 status="not_actionable",
                 base=base,
                 started_clock=started_clock,
-                reasons=["incident is not explicitly confirmed"],
+                reasons=["incident is not explicitly confirmed or manually overridden"],
             )
 
         routing_started = perf_counter()
@@ -293,8 +310,8 @@ class RespondOrchestrationService:
 
         dispatch_input = DispatchInput(
             incident_decision_id=request.incident_decision.decision_id,
-            incident_confirmed=request.incident_decision.incident_confirmed,
-            final_severity=request.incident_decision.final_severity,
+            incident_confirmed=effective_confirmed,
+            final_severity=effective_severity,
             severity_score=request.incident_decision.severity_score,
             person_in_hazard=request.person_in_hazard,
             route_id=routed.route_id,
