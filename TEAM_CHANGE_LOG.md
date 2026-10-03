@@ -1272,3 +1272,222 @@ Future changes must not invalidate this baseline without updating validation evi
 ## Change entries
 
 <!-- Add newest entries above older entries. -->
+
+## 2026-10-03 15:17 — Approved policy for Area Risk (TBD-RISK-01 to 09)
+
+**Changed by:** Zhen Jie
+**Branch:** main
+**Commit:** not committed yet
+**Approved by:** Zhen Jie (section owner); no separate team sign-off requested
+
+**Requirement / area:**
+- TBD-RISK-01 to TBD-RISK-09 (Area Risk F / R / E / A / M, `SOURCE_TBD_REQUIREMENTS.md` section 7)
+
+**Files changed:**
+- `area_risk.md` (new requirement file)
+
+**Previous behavior / value:**
+- `TBD_SOURCE`. The proposal gives the formula `100 * (0.30F + 0.25R + 0.20E + 0.15A + 0.10M)` and the 180-day verified-only rule, but does not say what F, R, E, A, M mean.
+
+**New behavior / value (approved, not yet implemented):**
+- Every component is in [0, 1]. A component that cannot be calculated makes the score `not_calculated` (no silent zero).
+- Counted incidents: operator-verified real fires (state `VERIFIED_FIRE`) with an assigned area, whose start time is within the last 180 days.
+- `F = n_a / max over all areas n_b` (frequency, relative to the busiest area).
+- `R = max(0, 1 - d / 180)`, `d` = days since the area's latest verified incident (recency).
+- `E` = average of `s_i` over the area's verified incidents, `s_i = severity R / 100`, or `1.0` if the Critical person override applied (escalation).
+- `A` = share of the area's verified incidents whose dispatch route had a blocked or conflict-pruned edge or needed a reroute (access).
+- `M` = failed checks / 3 from the area config: fire certificate valid, alarm audible, escape routes unobstructed (readiness gap). Set by the City Risk Planner.
+- Area = one structure ROI on the tabletop model. Incident area = ROI containing the fire detection center (larger overlap if two); if there is no detection, the operator chooses the area when verifying. `area_id` is stored on the incident.
+- Cold start: `n_a = 0` shows "No verified history"; `n_a = 1` shows "Insufficient history (1 of 2)"; `n_a >= 2` shows the score. `N_min = 2` is a config value.
+- No Low / Medium / High bands until defined. The "possible electrical-risk hotspot; inspection recommended" wording appears only at 3 or more verified incidents (config value).
+- No what-if or predictive simulation; the page is described as a historical Area Risk Index.
+
+**Why this changed:**
+- Section 7 was assigned to Zhen Jie. The proposal leaves F, R, E, A, M undefined, so the meanings are design choices built from data the system already records and from proposal section 3.2. They are not source-defined.
+
+**Source / decision reference:**
+- Proposal sections 4.4 and 5.1; Zhen Jie decisions (choice of meanings, `N_min = 2`, repeated = 3); Hong Jia Bao log entry 2026-10-02 22:45 for incident states.
+
+**Validation performed:**
+- None. Documentation only; no code, test or scenario was run.
+
+**Requirement status after change:**
+- `PARTIAL`. The policy is approved by Zhen Jie and the TBD item is resolved at policy level; implementation and validation are not done yet. No software behavior changed.
+
+**Impact on teammates:**
+- Once implemented, backend needs: `area_id` on incidents, the five component calculations, and cold-start messages on the `/risk` page.
+- Depends on: Hong Jia Bao's `VERIFIED_FIRE` state, the severity score (E), routing blockage events logged per incident (A), and the final area/ROI list (TBD-ROUTE-07).
+
+**Follow-up required:**
+- Fill in the area list and names (from TBD-ROUTE-07). Confirm with Hong Jia Bao how H (TBD-FUSION-04) uses history, and the difference between `VERIFIED` and `VERIFIED_FIRE`.
+
+## 2026-10-03 15:17 — Approved policy for Adaptive Calibration (TBD-CAL-01 to 10)
+
+**Changed by:** Zhen Jie
+**Branch:** main
+**Commit:** not committed yet
+**Approved by:** Zhen Jie (section owner); no separate team sign-off requested
+
+**Requirement / area:**
+- TBD-CAL-01 to TBD-CAL-10 (Adaptive Calibration Learning Policy, `SOURCE_TBD_REQUIREMENTS.md` section 8)
+
+**Files changed:**
+- `adaptive_calibration.md` (new requirement file)
+
+**Previous behavior / value:**
+- `TBD_SOURCE` for feature/label representation, loss, update equation, validation metric, gate, dataset selection, baseline version, activation and rollback policy. Already source-defined: step 0.02, weights in [0.10, 0.50], sum 1.00, 30 training / 15 validation outcomes, Admin approval, versioning, rollback.
+
+**New behavior / value (approved, not yet implemented):**
+- Sample: `x = (S, T, V, H)` from the window that completed the 3-window rule; eligible only if all four channels were `available`.
+- Label: `VERIFIED_FIRE` gives `y = 1`, `REJECTED` gives `y = 0`; `CANCELLED` is not used.
+- Loss and validation metric: Brier score `(1/n) * sum (w·x - y)^2`.
+- Update: batch gradient over the 30 training samples, `w_candidate = Project(w_active - 0.02 * g)`, `g = (2/30) * sum (w·x_i - y_i) * x_i`. `Project` = exact projection onto `0.10 <= w_i <= 0.50`, `sum = 1.00`. One step per run; result is only a candidate.
+- Gate: `Brier_val(candidate) <= Brier_val(active)` on the same 15 validation outcomes. No improvement margin required.
+- Selection: 45 most recent eligible outcomes by verification time; newest 15 = validation, previous 30 = training, no overlap; both sets need at least one true and one false alarm, otherwise calibration is blocked.
+- Initial version `v1` = S 0.30, T 0.20, V 0.35, H 0.15.
+- Approval makes the version active for incidents that start afterwards. An incident already being tracked keeps its starting version. Every stored `C` records the version id.
+- Rollback: Admin only, written reason, restores exact weights for later incidents, no version deleted, never automatic.
+
+**Why this changed:**
+- Section 8 was assigned to Zhen Jie. Because the weights sum to 1 and scores are in [0, 1], `C / 100 = w · x` is already in [0, 1], so a simple regression fits the source constraints.
+
+**Source / decision reference:**
+- Proposal sections 2, 4.4, 5.1; `SOURCE_TBD_REQUIREMENTS.md` (0.02 is the "batch gradient setting", so it is the learning rate); Zhen Jie decisions (in-flight incidents keep their version); Hong Jia Bao log entries for incident states and fusion channels.
+
+**Validation performed:**
+- None. Documentation only; no code, test or scenario was run.
+
+**Requirement status after change:**
+- `PARTIAL`. The policy is approved by Zhen Jie and the TBD item is resolved at policy level; implementation and validation are not done yet. No software behavior changed.
+
+**Impact on teammates:**
+- Once implemented: calibration service, weight-version table, `/admin` preview/approve/rollback, and a stored weight-version id on every `C`.
+- Tests to add: projection keeps bounds and sum, gate blocks regression, train/validation split has no overlap.
+- Depends on Hong Jia Bao's channel definitions (S, T, V, H) and incident states.
+
+**Follow-up required:**
+- Implement and validate. Check that the audit ledger stores all four channel scores per alert window. Confirm which state a rejected false alarm ends in.
+
+## 2026-10-03 15:17 — Approved policy for Evidence Retention (TBD-PRIV-01 to 04)
+
+**Changed by:** Zhen Jie
+**Branch:** main
+**Commit:** not committed yet
+**Approved by:** Zhen Jie (section owner); no separate team sign-off requested
+
+**Requirement / area:**
+- TBD-PRIV-01 to TBD-PRIV-04 (Evidence Retention, `SOURCE_TBD_REQUIREMENTS.md` section 9)
+
+**Files changed:**
+- `evidence_retention.md` (new requirement file)
+
+**Previous behavior / value:**
+- `TBD_SOURCE` for retention duration, purge policy, storage backend and automatic frame selection. Already defined (per the TBD file): no permanent continuous video, at most 5 annotated frames per incident.
+
+**New behavior / value (approved, not yet implemented):**
+- Retention: 180 days counted from the incident start time (config value, change-control only).
+- Automatic purge: scheduled job once per day deletes frame files older than the retention period. Manual purge: System Administrator only, with a written reason, may delete earlier.
+- Purge deletes image files only; incident record, scores, detections and frame metadata (including a SHA-256 hash) stay in the append-only history. Every purge appends an audit event (who, when, how many, reason).
+- Storage: local folder on the host, paths in SQLite, served only through the authenticated API. Encryption at rest and off-site backup are out of scope for the prototype.
+- Frame selection stays explicit; automatic selection is out of scope until deterministic criteria are approved.
+
+**Why this changed:**
+- Section 9 was assigned to Zhen Jie. 180 days was chosen for auditability and to match the Area Risk window.
+
+**Source / decision reference:**
+- `SOURCE_TBD_REQUIREMENTS.md` section 9; proposal scope statement (prototype, not a certified life-safety product); Zhen Jie decision (180 days).
+
+**Validation performed:**
+- None. Documentation only.
+
+**Requirement status after change:**
+- `PARTIAL`. The policy is approved by Zhen Jie and the TBD item is resolved at policy level; implementation and validation are not done yet. No software behavior changed.
+
+**Impact on teammates:**
+- Once implemented: purge job, Admin purge action with audit event, frame metadata table with hash.
+
+**Follow-up required:**
+- Find where the "5 annotated frames" rule is written (it is in the TBD file, but I could not find it in the proposal text).
+
+## 2026-10-03 15:17 — Approved policy for Admin / Operational Configuration (TBD-ADMIN-01)
+
+**Changed by:** Zhen Jie
+**Branch:** main
+**Commit:** not committed yet
+**Approved by:** Zhen Jie (section owner); no separate team sign-off requested
+
+**Requirement / area:**
+- TBD-ADMIN-01 (Editable operational settings, `SOURCE_TBD_REQUIREMENTS.md` section 10)
+
+**Files changed:**
+- `admin_configuration.md` (new requirement file)
+
+**Previous behavior / value:**
+- `TBD_SOURCE`. The proposal defines Admin calibration governance and an Admin account for "User RBAC, system health, and freshness calibration", but no general settings editor.
+
+**New behavior / value (approved, not yet implemented):**
+- Admin can edit in the UI: calibration approve/rollback, user roles, and sensor freshness timeouts inside these ranges (server enforces them, reason required, audited, applies from the next window, reset-to-default available):
+  - MQ-2: 1.5 s to 3.0 s (default 2.0 s)
+  - DHT22: 2.5 s to 4.0 s (default 3.0 s)
+  - Camera: 0.5 s to 1.0 s (default 1.0 s; can only be tightened)
+- Admin cannot edit in the UI (change only through change-control): fusion thresholds, severity thresholds/weights, routing weights, ACK timeout, risk thresholds, `N_min`, retention duration, sensor alarm thresholds, MQTT settings, model paths. Fusion weights change only through calibration.
+
+**Why this changed:**
+- Section 10 was assigned to Zhen Jie. Safety-critical values should not be edited at runtime without review. The freshness ranges are engineering judgment, not source values.
+
+**Source / decision reference:**
+- Proposal section 7 (Admin account description) and section 4.3 (freshness timeouts); Zhen Jie decision (timeouts editable). SN1 hardware log entries show roughly one MQ-2 and one DHT22 message per second, which supports the lower limits.
+
+**Validation performed:**
+- None. Documentation only.
+
+**Requirement status after change:**
+- `PARTIAL`. The policy is approved by Zhen Jie and the TBD item is resolved at policy level; implementation and validation are not done yet. No software behavior changed.
+
+**Impact on teammates:**
+- Once implemented: `/admin` freshness form, server-side range check, audit event for each change. Hardware team: confirm the real DHT22 reading interval, because the 2.5 s lower limit assumes about 2 s.
+
+**Follow-up required:**
+- Hardware team to confirm DHT22 timing. Implement the freshness form and the server-side range check.
+
+## 2026-10-03 15:17 — Approved policy for Deployment and Reliability (TBD-OPS-01 to 03)
+
+**Changed by:** Zhen Jie
+**Branch:** main
+**Commit:** not committed yet
+**Approved by:** Zhen Jie (section owner); no separate team sign-off requested
+
+**Requirement / area:**
+- TBD-OPS-01 to TBD-OPS-03 (Production Deployment / Reliability, `SOURCE_TBD_REQUIREMENTS.md` section 11)
+
+**Files changed:**
+- `deployment_reliability.md` (new requirement file)
+
+**Previous behavior / value:**
+- `TBD_SOURCE` for topology/load, acceptance criteria and availability/recovery policy.
+
+**New behavior / value (approved, not yet implemented):**
+- Topology: one host workstation, Mosquitto on `localhost:1883`, backend on `127.0.0.1:8010`, dashboard on port 5173, SN1, AC1, one overhead camera, SQLite. Design target 4 simultaneous dashboard sessions (one per role); graph size depends on TBD-ROUTE-07.
+- Event rates from the proposal: IR every 200 ms, detection at 5 FPS or more, segmentation at 2 FPS or more, fusion in 1-second windows.
+- Acceptance uses only the proposal targets: routes under 1 s, dashboard update under 1 s, ACK success 95% over 20 cycles, 85% verification correctness over at least 40 scenarios, false-dispatch 10% or lower, button alert under 1 s. Scaling beyond the tabletop is out of scope.
+- No uptime target. SQLite survives restart; unfinished incidents reload and are shown to the operator for review; old commands are not re-sent.
+- When the backend is lost, AC1 goes to the existing safe default: traffic ALL_RED, gate CLOSE, buzzer ON. Detection: backend MQTT Last Will message, plus a 3-second AC1 heartbeat watchdog (backend heartbeat every 1 s; the 3 s value is an engineering choice to be tested on hardware). AC1 leaves fail-safe only on a valid command with a higher version number.
+- Backup is manual: copy the SQLite file and the evidence folder before demos.
+
+**Why this changed:**
+- Section 11 was assigned to Zhen Jie. Inventing new load numbers would be fake values, so the proposal's own targets are used.
+
+**Source / decision reference:**
+- Proposal sections 2.3, 4.3, 5.1 and the setup/run steps; Zhen Jie decision (actuators go to fail-safe when the backend is lost); existing `FAILSAFE` safe default in Hong Jia Bao's log entry 2026-10-02 22:45.
+
+**Validation performed:**
+- None. Documentation only. No firmware or backend change was made.
+
+**Requirement status after change:**
+- `PARTIAL`. The policy is approved by Zhen Jie and the TBD item is resolved at policy level; implementation and validation are not done yet. No software behavior changed.
+
+**Impact on teammates:**
+- Once implemented: backend must publish a 1 s heartbeat and register an MQTT Last Will; AC1 firmware needs a heartbeat/offline watchdog (to my knowledge not implemented yet, please verify); both need a hardware test.
+
+**Follow-up required:**
+- Hardware/firmware owners to confirm the 3 s heartbeat value. Provide the final graph size (TBD-ROUTE-07). Implement and test on hardware.
