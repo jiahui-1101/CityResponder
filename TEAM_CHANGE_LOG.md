@@ -1515,10 +1515,10 @@ Future changes must not invalidate this baseline without updating validation evi
 - Enforced hardware rules: DHT22 values are held across 1s windows, MQ-2 requires a 60s warm-up, and MQ-2 must be wired to an ESP32 ADC1 pin with a voltage divider
 
 **Why this changed:**
-- team decision / logic compilation. The file was rewritten to serve as a finalized, developer-ready master specification by removing outdated discussions and integrating the Hidden Conflicts Review solutions.
+- logic compilation. The file was rewritten to serve as a finalized, developer-ready master specification by removing outdated discussions and integrating the Hidden Conflicts Review solutions.
 
 **Source / decision reference:**
-- Team decisions and "Hidden Conflicts Review".
+-  "Hidden Conflicts Review".
 
 **Validation performed:**
 - Logic review for state machine race conditions and hardware limitations.
@@ -1559,10 +1559,10 @@ Future changes must not invalidate this baseline without updating validation evi
 - Added the "Floor Rule": If `R` is unavailable, the Operator chooses the severity. When `R` recovers, the system automatically uses the higher severity (Operator's choice acts as a floor).
  
 **Why this changed:** 
-- team decision / logic compilation. Variables had to be defined for backend implementation, and the missing data behavior needed strict rules to prevent manual dispatch errors.
+- logic compilation. Variables had to be defined for backend implementation, and the missing data behavior needed strict rules to prevent manual dispatch errors.
  
 **Source / decision reference:** 
-- Team decisions and "Hidden Conflicts Review".
+-  "Hidden Conflicts Review".
  
 **Validation performed:** 
 - Logic review for missing variables and edge cases (e.g., missing R score, false-dispatch rate mitigation).
@@ -1605,7 +1605,7 @@ Future changes must not invalidate this baseline without updating validation evi
 - UI consistency and hardware logic refinement. To prevent physical sandbox disruptions (alarms/traffic paralysis) during low-severity or unrouted incidents, and to finalize strict hardware communication constraints.
 
 **Source / decision reference:**
-- Team decisions and "Hidden Conflicts Review".
+- "Hidden Conflicts Review".
 
 **Validation performed:**
 - Logic review for hardware action matrices and `NO_SAFE_ROUTE` edge cases.
@@ -1649,7 +1649,7 @@ Future changes must not invalidate this baseline without updating validation evi
 - team decision / logic compilation. The routing cost formula and edge removal logic require absolute strictness to prevent `NO_SAFE_ROUTE` false positives and rapid traffic light flipping on the sandbox hardware.
 
 **Source / decision reference:**
-- Team decisions and "Hidden Conflicts Review"[cite: 11].
+- "Hidden Conflicts Review".
 
 **Validation performed:**
 - Logic review of hardware polling rates, debounce logic, and edge mapping matrices (S0 to A1)[cite: 11].
@@ -1664,3 +1664,46 @@ Future changes must not invalidate this baseline without updating validation evi
 
 **Follow-up required:**
 - Physically measure actual segmentation delays, IR polarities (HIGH/LOW), and the exact `O_ir` bounding zones on the sandbox[cite: 11].
+
+## 2026-10-03 17:21 — Finalize Incident Feedback Lifecycle and State Model
+
+**Changed by:** Hong Jia Bao
+**Branch:** main
+**Commit:** not committed yet
+
+**Requirement / area:**
+- TBD-INC-01 to TBD-INC-02 (Incident Feedback Lifecycle)
+
+**Files changed:**
+- `incident_feedback.md`
+
+**Previous behavior / value:**
+- Lack of clear distinction on how Operator `REJECT` and `CANCEL` actions affect subsequent model calibration labels and false dispatch statistics.
+- No explicit database-level handling rules for race conditions when automatic confirmation and manual confirmation occur simultaneously.
+- Missing recurring reminder mechanism for unattended `ALERT`s.
+- `FAILSAFE` state actions were not strictly bound to severity levels (Low/Medium vs. High/Critical).
+
+**New behavior / value:**
+- Clarified the exact impact of `CONFIRM`/`REJECT`/`CANCEL` on calibration labels (1/0/not used) and risk scores.
+- Introduced the "Lock rule" as a single database transaction: the first condition met (auto or manual) wins, and late confirms are ignored. Operator-chosen severity acts as an auto-upgradeable "floor".
+- Defined that physical `FAILSAFE` responses (All-Red lights, Gate CLOSE, Buzzer ON) only trigger for High or Critical severities.
+- Added the `ALERT_UNATTENDED` mechanism: alerts do not auto-close; after 30 seconds of inaction, the dashboard flashes a repeating reminder and logs it.
+
+**Why this changed:**
+- Team decision / logic compilation. To allow backend developers to build a strict incident state machine, completely resolve concurrent confirmation conflicts, and ensure perfectly clean dataset labels for future AI recalibration.
+
+**Source / decision reference:**
+- Proposal (Figure 7.2).
+
+**Validation performed:**
+- Logic review for state machine transition paths, specifically the race condition lock from ALERT to CONFIRMED.
+
+**Requirement status after change:**
+- PASS
+
+**Impact on teammates:**
+- Backend developers must implement the transition from `ALERT` to `CONFIRMED` as a strict single database transaction.
+- Backend must implement the 30-second polling mechanism for `ALERT_UNATTENDED` reminders.
+
+**Follow-up required:**
+- Check the backend codebase's existing enums to ensure the state list exactly matches this document (ALERT, CONFIRMED, RESPONDING, ACTIVE, CONCLUDED, VERIFIED).
