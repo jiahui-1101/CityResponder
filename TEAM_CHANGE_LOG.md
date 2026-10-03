@@ -1577,3 +1577,45 @@ Future changes must not invalidate this baseline without updating validation evi
 **Follow-up required:** 
 - Physically measure the polygon pixels in the sandbox.
 - Add specific test scenarios to check the false-dispatch rate for the 1-frame `P = 1` rule (goal ≤ 10%).
+
+## 2026-10-03 16:51 — Finalize Dispatch Matrix and Failsafe Rules
+
+**Changed by:** Hong Jia Bao
+**Branch:** main
+**Commit:** not committed yet
+
+**Requirement / area:**
+- TBD-DISPATCH-01 to TBD-DISPATCH-03 (Dispatch Module)
+
+**Files changed:**
+- `dispatch.md`
+
+**Previous behavior / value:**
+- The wording for Low/Medium dispatch was ambiguous ("vehicles are only dispatched in the background").
+- The hardware failsafe triggered physical alarms for `NO_SAFE_ROUTE` regardless of the severity level.
+- The 500ms hardware ACK timeout lacked a strict definition for retry attempts before triggering the failsafe.
+
+**New behavior / value:**
+- **Low/Medium Action Clarification:** Explicitly stated that "Responder units are assigned/displayed in the dashboard only; no physical sandbox action is triggered."
+- **Severity-Based Failsafe:** Failsafe actions are now split. High/Critical triggers physical failsafe (ALL_RED, Gate CLOSE, Buzzer ON). Low/Medium triggers a dashboard warning only.
+- **ACK Timeout Definition:** Defined that each hardware command has a 500 ms ACK timeout with exactly one retry allowed. If the retry fails, the failsafe triggers.
+- **Resource & Escalation:** Finalized resource mapping per severity and confirmed the 1-frame `P = 1` Critical override rule.
+
+**Why this changed:**
+- UI consistency and hardware logic refinement. To prevent physical sandbox disruptions (alarms/traffic paralysis) during low-severity or unrouted incidents, and to finalize strict hardware communication constraints.
+
+**Source / decision reference:**
+- Team decisions and "Hidden Conflicts Review".
+
+**Validation performed:**
+- Logic review for hardware action matrices and `NO_SAFE_ROUTE` edge cases.
+
+**Requirement status after change:**
+- PASS
+
+**Impact on teammates:**
+- Backend developers must separate the `NO_SAFE_ROUTE` and hardware failure logic based on the incident's severity (dashboard warning vs. physical actions).
+- Hardware team must implement the 500ms + 1 retry logic for actuator ACKs.
+
+**Follow-up required:**
+- Verify the overall false dispatch rate remains ≤ 10% during testing for the single-frame `P = 1` rule.
