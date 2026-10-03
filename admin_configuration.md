@@ -4,7 +4,7 @@ Owner: Zhen Jie
 Covers: TBD-ADMIN-01
 Source basis: Proposal section 5.1 (`/admin` page), section 7 (Admin account: "User RBAC, system health, and freshness calibration"), `SOURCE_TBD_REQUIREMENTS.md` section 10
 
-**Status tag:** `CHOSEN` = the proposal does not fully define this item, so it is a design choice made by Zhen Jie (with Claude's help). Every item needs team sign-off and a `TEAM_CHANGE_LOG.md` entry before the real TBD file is updated. If the proposal authors had a specific meaning, theirs wins.
+**Status tag:** `APPROVED` = decided and approved by Zhen Jie as owner of this section. No separate team sign-off was requested. The proposal does not fully define these items, so they are design decisions; if the proposal authors had a specific meaning, theirs should replace it. Each decision is recorded in `TEAM_CHANGE_LOG.md`.
 
 **What the source already says**
 - The System Administrator approves calibration versions and can roll them back.
@@ -14,7 +14,7 @@ Source basis: Proposal section 5.1 (`/admin` page), section 7 (Admin account: "U
 ---
 
 ## TBD-ADMIN-01: Which settings may the Admin edit?
-**Status:** `CHOSEN` (ranges in the freshness table are `CHOSEN`)
+**Status:** `APPROVED`
 
 **Requirement**
 
@@ -39,7 +39,7 @@ Source basis: Proposal section 5.1 (`/admin` page), section 7 (Admin account: "U
 - ADMIN-R2: Every Admin change is an appended audit event with the Admin's identity, the old and new value, and a written reason.
 - ADMIN-R3: The server enforces the Admin role and the allowed ranges. Hiding a button in the UI is not enough.
 
-### Allowed range for freshness timeouts (`CHOSEN`)
+### Allowed range for freshness timeouts (`APPROVED`)
 
 | Source | Default (source) | Allowed range | Reason |
 |---|---|---|---|
