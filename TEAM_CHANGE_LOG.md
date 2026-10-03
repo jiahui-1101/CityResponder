@@ -1619,3 +1619,48 @@ Future changes must not invalidate this baseline without updating validation evi
 
 **Follow-up required:**
 - Verify the overall false dispatch rate remains ≤ 10% during testing for the single-frame `P = 1` rule.
+
+## 2026-10-03 17:08 — Finalize Routing Module Parameters and Calibration Logic
+
+**Changed by:** Hong Jia Bao
+**Branch:** main
+**Commit:** not committed yet
+
+**Requirement / area:**
+- TBD-ROUTE-01 to TBD-ROUTE-08 (Routing Module)[cite: 11]
+
+**Files changed:**
+- `routing.md`
+
+**Previous behavior / value:**
+- Ambiguity existed regarding how segmentation masks converted into routing occupancy (`O` and `L`), and the meaning of `C_routing` was undefined[cite: 11].
+- IR hardware rules (polarity, debounce, physical prop restrictions) were vague[cite: 11].
+- The conflict resolution logic between the Camera and IR sensor lacked a grace period, specific state thresholds, and clear recovery mechanisms (auto/manual override expiry)[cite: 11].
+- ETA calculations were included despite the prototype lacking a moving vehicle or speed model[cite: 11].
+
+**New behavior / value:**
+- **Variables Defined:** `O` uses a 3-frame median (1.5s)[cite: 11]. `L` is defined as obstacle length / road length (max 1.0)[cite: 11]. `C_routing` is assumed as pothole mask area (kept strictly separate from the obstacle mask)[cite: 11].
+- **IR Hardware Strict Rules:** Debounce requires 5 consecutive blocked/clear samples[cite: 11]. Physical test props MUST be tall enough to be seen by the IR beam and fall inside the `O_ir` camera zone (no flat items like tape)[cite: 11].
+- **Conflict Resolution (`SENSOR_CONFLICT`):** Defined Camera states (BLOCKED, CLEAR, MIDDLE)[cite: 11]. Added a 1.5s grace time when sensors disagree[cite: 11]. "MIDDLE + IR blocked" is explicitly handled as "passable, extra cost only" to utilize the cost formula[cite: 11].
+- **Edge Recovery:** Implemented a 5-second hold-off for automatic recovery to prevent route flipping, and set a 60-second expiration for manual Operator "verified clear" overrides[cite: 11].
+- **ETA Removed:** ETA metrics are completely removed from the UI/system and replaced with raw route length (cm) and route cost[cite: 11].
+
+**Why this changed:**
+- team decision / logic compilation. The routing cost formula and edge removal logic require absolute strictness to prevent `NO_SAFE_ROUTE` false positives and rapid traffic light flipping on the sandbox hardware.
+
+**Source / decision reference:**
+- Team decisions and "Hidden Conflicts Review"[cite: 11].
+
+**Validation performed:**
+- Logic review of hardware polling rates, debounce logic, and edge mapping matrices (S0 to A1)[cite: 11].
+
+**Requirement status after change:**
+- PASS
+
+**Impact on teammates:**
+- Backend developers must implement the 5s auto-recovery hold-off, 60s manual override expiry, and the 1.5s sensor conflict grace period[cite: 11].
+- UI developers must remove ETA from all dashboards and replace it with route length (cm) and cost[cite: 11].
+- Hardware team must measure and hardcode real-world coordinates for the mapping table (Distance, Road ROI, IR Zone)[cite: 11].
+
+**Follow-up required:**
+- Physically measure actual segmentation delays, IR polarities (HIGH/LOW), and the exact `O_ir` bounding zones on the sandbox[cite: 11].
