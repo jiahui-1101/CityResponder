@@ -132,7 +132,6 @@ class RespondOrchestrationService:
             sequence = None
             if safe_default_trigger and request.execute_physical and request.db:
                 from app.physical_actions.execution import build_cancellation_specs
-                from app.physical_actions.schemas import DEFAULT_ACTUATOR_NODE_ID
                 from app.physical_actions.sequence import PhysicalCommandSequence
                 from uuid import uuid4
                 specs = build_cancellation_specs(
