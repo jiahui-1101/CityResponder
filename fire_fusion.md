@@ -1,81 +1,40 @@
-# Fire Fusion (S / T / V / H) - TBD Resolutions
+# 2. Fire Fusion (S / T / V / H)
 
-## TBD-FUSION-01: S, sensor normalization
-**What's missing:** how MQ-2 and DHT22 readings become a number from 0 to 1, and what happens when the data is old or missing.
-**My idea:** scale each sensor between a "normal" value and an "alarm" value, then clamp to 0 to 1. So `s_smoke = (reading - baseline) / (alarm - baseline)`, and the same for temperature. Then `S = max(s_smoke, s_heat)`. The proposal says MQ-2 is stale after 2.0 s and DHT22 after 3.0 s, so I would use those. If both are stale, S is unavailable and C is not calculated.
-**Need from team:** the baseline and alarm values for both sensors [measure] (we have the testing aerosol and heat pad). Is it ok to use only one sensor if the other one is stale?
-**Team answer:**
-Use the measured normal and alarm values for MQ-2 and DHT22:
-* **DHT22 (Temperature):** normal = 30°C, alarm = 50°C (scaled for tabletop heat pad testing).
-* **MQ-2 (Smoke):** normal = 500, alarm = 2000 (0-4095 analog scale).
+**Formula:** `C = 100 * (0.30 S_fusion + 0.20 T_temporal + 0.35 V + 0.15 H)`[cite: 18]
 
-Each sensor is normalized to 0–1 and clamped to this range. `S = max(s_smoke, s_heat)` using the available sensor values. If one sensor is stale, the other available sensor can still be used. If both sensors are stale, S is unavailable and C is not calculated.
+## 1. S_fusion (Sensor Normalization)
+The `S_fusion` score represents the maximum value between normalized smoke and heat levels[cite: 18]. 
+*   **DHT22 (Temperature):** The normal baseline is 30°C, and the alarm threshold is 50°C[cite: 18]. Data becomes stale after 3.0 s[cite: 18].
+*   **MQ-2 (Smoke):** The normal baseline is 500, and the alarm threshold is 2000 on a 0–4095 analog scale[cite: 18]. Data becomes stale after 2.0 s[cite: 18].
+*   **Calculation:** Each sensor's reading is normalized to a 0–1 scale and clamped[cite: 18]. `S_fusion = max(s_smoke, s_heat)`[cite: 18]. 
+*   **Fallback:** If one sensor is stale, the system uses the remaining available sensor[cite: 18]. If both are stale, `S_fusion` is unavailable and the `C` score is not calculated[cite: 18].
 
----
+## 2. T_temporal (Temporal Consistency)
+The `T_temporal` score measures the persistence of the hazard over time[cite: 18].
+*   **Calculation:** It is calculated as the number of windows with valid evidence divided by 3, analyzing the last 3 one-second windows[cite: 18].
+*   **Evidence Threshold:** A window contains valid evidence if `S_fusion ≥ 0.20`, `V ≥ 0.50`, or the manual button is pressed[cite: 18]. 
+*   **Note:** This confidence metric operates independently from the strict "3-window rule" required for final automatic confirmation[cite: 18].
 
-## TBD-FUSION-02: T, temporal consistency
-**What's missing:** the exact formula for T.
-**My idea:** look at the last 3 one-second windows and count how many had some evidence. `T = count / 3`, so it can only be 0, 1/3, 2/3, or 1.
-**Worry:** we already have a "3 consecutive windows" rule, so this might count persistence twice. Is that ok? (B) Under Option B, T would just be the temperature score.
-**Need from team:** the level that counts as "evidence present" [measure].
-**Team answer:**
-Use the last 3 one-second windows to calculate temporal consistency:
-`T = number of windows with valid evidence / 3`
+## 3. V (Vision Normalization)
+The `V` score relies on the YOLO model's evaluation of the building's Region of Interest (ROI)[cite: 18].
+*   **Calculation:** `V = max(fire confidence, smoke confidence)`[cite: 18].
+*   **Constraints:** The minimum accepted YOLO confidence is 0.50[cite: 18]. Overlapping bounding boxes are not added together[cite: 18]. Person detection is excluded from this metric as it is handled by the Severity module[cite: 18]. 
+*   **Stale Limit:** Camera frames older than 1.0 s render `V` unavailable[cite: 18].
 
-A window is counted as having evidence when the normalized sensor score `S >= 0.20`, vision score `V >= 0.40`, or the manual button is pressed. The 3-window persistence rule for automatic confirmation remains separate. T is used as a confidence component and does not replace the requirement for 3 consecutive windows.
+## 4. H (Historical Baseline)
+The `H` score accounts for the 180-day verified historical risk of the area[cite: 18].
+*   **Calculation:** `H = Area Risk Score / 100`, sourced from operator-verified incidents in the SQLite database[cite: 18].
+*   **Cold Start:** If there is no history, `H = 0` and the log records "no_history" (an exception to the standard "no zero fill" rule)[cite: 18].
 
----
+## 5. Event Confirmation & Channels
+Automatic dispatch requires a strong, sustained signal across multiple physical sources[cite: 18].
+*   **Auto-Confirmation Gate:** The system automatically confirms an incident when `C ≥ 40` for 3 consecutive windows, supported by at least 2 independent channels[cite: 18].
+*   **Supporting Channels:** Valid channels include Smoke (`s_smoke ≥ 0.30`), Heat (`s_heat ≥ 0.30`), Camera (`V ≥ 0.30`), and the Manual Button (score = 1.0)[cite: 18].
+*   **Manual Button Workflow:** Pressing the button instantly creates an `ALERT` state on the dashboard and acts as one supporting channel, but it does not bypass the 3-window rule for automatic confirmation[cite: 18].
+*   **Manual Override & Race Conditions:** If the Operator manually confirms the alert, the "2 physical sensors" requirement is skipped[cite: 18]. However, if the automatic gate passes before the Operator confirms, the system's automated confirmation takes precedence, and the Operator's confirmation is ignored (lock rule)[cite: 18]. 
 
-## TBD-FUSION-03: V, vision normalization
-**What's missing:** how fire, smoke and person detections become V.
-**My idea:** `V` = the highest fire or smoke confidence from YOLO inside the building ROI. If there are many boxes, take the max and don't add them up (otherwise overlapping boxes inflate it). I left person out of V because a person is not proof of fire. Person is used in severity instead. If the camera frame is older than 1.0 s, V is unavailable.
-**Need from team:** the minimum YOLO confidence to accept a detection. Should smoke count less than fire?
-**Team answer:**
-Use the highest YOLO confidence for fire or smoke detected inside the building ROI:
-`V = max(Fire confidence, Smoke confidence)`
-
-Person detection is not included in V; it is used for severity assessment instead. Multiple overlapping detections are not added together.
-* The minimum accepted YOLO confidence is **0.50**.
-* Fire and smoke will use the same confidence threshold for the first implementation. No additional smoke weighting is added to keep the fusion logic simple.
-
-If the camera frame is older than 1.0 s, V is unavailable.
-
----
-
-## TBD-FUSION-04: H, historical baseline
-**What's missing:** where the history comes from, the time range, the formula, and what to do at the start when there is no history.
-**My idea:** use the operator-verified incidents in SQLite, with the same 180-day window as Area Risk. `H = area risk score / 100`. For cold start I was thinking `H = 0` but clearly shown as "no_history" in the log, because if H is blocked then nothing can run during the demo. I know the proposal code says not to fill missing values with zero, so I want the team to confirm this exception.
-**Other idea:** H could instead mean how unusual the current sensor reading is compared to its own recent average. I don't know which one the team wants. (B) Under Option B, H would be the button/human input.
-**Team answer:**
-Use operator-verified incidents stored in SQLite as the history source, using the same 180-day period as the Area Risk calculation.
-`H = Area Risk Score / 100`
-
-For cold start (no history), explicitly set `H = 0` in the calculation formula. This ensures the system relies strictly on real-time evidence (S, T, V) to reach the threshold, acting as a safe default. Do not use sensor anomaly detection for H in the first implementation.
-
----
-
-## TBD-FUSION-05: Supporting channels
-**What's missing:** what counts as a "supporting channel" and how much support is enough.
-**My idea:** count independent sources only: smoke sensor, heat sensor, camera, and manual button. A source supports if it is available and its score is above a minimum. I don't count T and H, because they come from other data and one sensor would be counted twice.
-**Need from team:** the minimum score for "supporting" [measure]. Do smoke and heat count as two separate channels?
-**Team answer:**
-Count only independent evidence sources as supporting channels:
-* MQ-2 → Smoke
-* DHT22 → Temperature
-* Camera → YOLO Fire/Smoke
-* Manual Button → Human confirmation/evidence
-
-MQ-2 and DHT22 are treated as two separate independent channels. T and H are not counted as supporting channels because they are derived from existing evidence/history and should not count the same evidence twice.
-
-A channel must be available and meet the minimum supporting score of **0.30** to count. Automatic fire confirmation still requires at least 2 independent supporting channels.
-
----
-
-## TBD-FUSION-06: Manual button
-**What's missing:** what the button actually does.
-**My idea:** the button creates an alert on the dashboard right away (the proposal says under 1 s) and counts as one supporting channel. It does not change the C formula and does not skip the 3-window rule or the operator confirmation.
-**Need from team:** is that right? Can a button press alone lead to dispatch if the operator confirms?
-**Team answer:**
-A manual button press immediately creates an alert on the dashboard and counts as one supporting channel (score = 1.0).
-
-The button does not directly change the C formula. It does not skip the 3-window persistence requirement for automatic confirmation. However, if an authenticated Operator manually confirms the incident following a button press, this action bypasses the "at least 2 physical sensors" requirement and directly triggers resource dispatch.
+## 6. Hardware & Stale Data Rules
+*   **Stale Data Handling:** A reading is marked unavailable (and logged as `SENSOR_STALE` with its source ID, e.g., `MQ2`, `CAM`) if the read fails, returns NaN, falls outside the sensor range, or exceeds its specific stale time limit[cite: 18]. 
+*   **DHT22 Polling:** Because the DHT22 updates approximately every 2 seconds, its last value is held across the 1-second fusion windows, which is covered by its 3.0 s stale limit[cite: 18].
+*   **MQ-2 Warm-Up:** The MQ-2 sensor requires a 60-second warm-up period after power-on to stabilize[cite: 18]. During this time, smoke data is marked unavailable, and `S_fusion` relies solely on heat[cite: 18]. 
+*   **Wiring:** The MQ-2 analog output must be connected to an ESP32 ADC1 pin using a voltage divider to reduce its 5V output to the ESP32's 3.3V maximum[cite: 18].

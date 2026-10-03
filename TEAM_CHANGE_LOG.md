@@ -1491,3 +1491,44 @@ Future changes must not invalidate this baseline without updating validation evi
 
 **Follow-up required:**
 - Hardware/firmware owners to confirm the 3 s heartbeat value. Provide the final graph size (TBD-ROUTE-07). Implement and test on hardware.
+
+## 2026-10-03 16:15 — Finalize Fire Fusion Master Specification
+
+**Changed by:** Hong Jia Bao
+**Branch:** main
+**Commit:** not committed yet
+
+**Requirement / area:**
+- FUSION-01 to FUSION-07 (Fire Fusion Module)[cite: 18]
+
+**Files changed:**
+- `fire_fusion.md`
+
+**Previous behavior / value:**
+- The document contained unresolved questions and mixed proposals (Zhenjie's drafts vs. Jiabao's ideas)[cite: 18].
+- Lacked strict hardware constraints (warm-up times, wiring) and lacked a clear resolution for the race condition between automatic and manual confirmations[cite: 18].
+
+**New behavior / value:**
+- Consolidated into a clean master specification following team decisions exclusively[cite: 18].
+- Finalized sensor baselines (MQ-2: 500/2000, DHT22: 30°C/50°C) and stale limits (MQ-2: 2.0s, DHT22: 3.0s, Camera: 1.0s)[cite: 18].
+- Added the "Lock Rule": if the automatic gate passes before the Operator confirms, the system's automated confirmation takes precedence and ignores the manual confirm[cite: 18].
+- Enforced hardware rules: DHT22 values are held across 1s windows, MQ-2 requires a 60s warm-up, and MQ-2 must be wired to an ESP32 ADC1 pin with a voltage divider[cite: 18].
+
+**Why this changed:**
+- team decision / logic compilation. The file was rewritten to serve as a finalized, developer-ready master specification by removing outdated discussions and integrating the Hidden Conflicts Review solutions.
+
+**Source / decision reference:**
+- Team decisions and "Hidden Conflicts Review"[cite: 18].
+
+**Validation performed:**
+- Logic review for state machine race conditions and hardware limitations[cite: 18].
+
+**Requirement status after change:**
+- PASS
+
+**Impact on teammates:**
+- Backend developers must implement the lock rule for the `ALERT` to `CONFIRMED` state transition[cite: 18].
+- Hardware team must ensure ESP32 ADC1 wiring and calibrate the MQ-2 sensor only after the 60s warm-up[cite: 18].
+
+**Follow-up required:**
+- Hardware team to physically measure and confirm if 60s is sufficient for the MQ-2 warm-up[cite: 18].
