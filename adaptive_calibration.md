@@ -4,7 +4,7 @@ Owner: Zhen Jie
 Covers: TBD-CAL-01 to TBD-CAL-10
 Source basis: Proposal sections 2, 4.4 and 5.1; `SOURCE_TBD_REQUIREMENTS.md` section 8
 
-**Status tag:** `CHOSEN` = the proposal does not fully define this item, so it is a design choice made by Zhen Jie (with Claude's help). Every item needs team sign-off and a `TEAM_CHANGE_LOG.md` entry before the real TBD file is updated. If the proposal authors had a specific meaning, theirs wins.
+**Status tag:** `APPROVED` = decided and approved by Zhen Jie as owner of this section. No separate team sign-off was requested. The proposal does not fully define these items, so they are design decisions; if the proposal authors had a specific meaning, theirs should replace it. Each decision is recorded in `TEAM_CHANGE_LOG.md`.
 
 **Already fixed by the source**
 - Calibration adjusts the 4 Feature 1 fusion weights (S, T, V, H).
@@ -20,7 +20,7 @@ Because the weights sum to 1 and every channel score is in [0, 1], the fusion co
 ---
 
 ## TBD-CAL-01: Training representation
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **Requirement**
 - One training sample = `x = (S, T, V, H)` plus label `y`.
@@ -32,18 +32,18 @@ Because the weights sum to 1 and every channel score is in [0, 1], the fusion co
 **Assumption:** the audit ledger stores the four channel scores for that window (the proposal says all inputs and decisions are logged). Please check in the code.
 
 ## TBD-CAL-02: Label semantics
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **Requirement**
-- CONFIRM gives `y = 1` (verified true alarm).
+- CONFIRM (incident state `VERIFIED_FIRE`) gives `y = 1` (verified true alarm).
 - REJECT gives `y = 0` (verified false alarm).
 - CANCEL is not used for calibration.
 
 **Why:** the proposal says verified true and false alarms feed calibration. CANCEL has no clear true/false meaning.
-**Dependency:** must match TBD-INC-01 (section 6, other owner).
+**Dependency:** must match TBD-INC-01 (section 6, other owner) and the incident states `VERIFIED_FIRE`, `REJECTED`, `CANCELLED` introduced by Hong Jia Bao (change log 2026-10-02 22:45). Confirm with him which state REJECT ends in for a false alarm.
 
 ## TBD-CAL-03: Loss / objective function
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **Requirement:** mean squared error (Brier score) over the training set:
 `L(w) = (1/n) * sum_i (w·x_i - y_i)^2`
@@ -51,7 +51,7 @@ Because the weights sum to 1 and every channel score is in [0, 1], the fusion co
 **Why:** the output `w · x` is already in [0, 1] and linear in `w`, so this is the simplest loss that is easy to explain to the Admin and has a clean gradient.
 
 ## TBD-CAL-04: Gradient and update equation
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **Requirement**
 1. Batch gradient over all 30 training samples: `g = (2/30) * sum_i (w·x_i - y_i) * x_i`.
@@ -62,12 +62,12 @@ Because the weights sum to 1 and every channel score is in [0, 1], the fusion co
 **Why:** decided by Zhen Jie: the TBD file calls 0.02 the "batch gradient setting", so it is the learning rate.
 
 ## TBD-CAL-05: Validation metric
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **Requirement:** Brier score on the 15 validation outcomes: `B(w) = (1/15) * sum (w·x_i - y_i)^2`. The page may also show accuracy at `C >= 40` for information only. It does not decide the gate.
 
 ## TBD-CAL-06: Performance gate threshold
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **Requirement**
 - A candidate may be approved only if `B(w_candidate) <= B(w_active)` on the same 15 validation outcomes (no regression).
@@ -77,7 +77,7 @@ Because the weights sum to 1 and every channel score is in [0, 1], the fusion co
 **Why:** the source gives no numeric target. "Not worse than the current version" is the minimum sensible safety rule. With only 15 samples, a strict improvement margin would be noise.
 
 ## TBD-CAL-07: 30/15 dataset selection
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **Requirement**
 - Eligible outcomes = verified (CONFIRM or REJECT) incidents that meet CAL-01.
@@ -88,12 +88,12 @@ Because the weights sum to 1 and every channel score is in [0, 1], the fusion co
 **Why:** a time-ordered split is deterministic and avoids testing on older data than the model was trained on.
 
 ## TBD-CAL-08: Initial production version
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **Requirement:** version `v1` = S 0.30, T 0.20, V 0.35, H 0.15 (the proposal's fusion formula). It satisfies the bounds and sums to 1.00.
 
 ## TBD-CAL-09: Live activation policy
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **Requirement**
 - Admin approval makes the candidate the active version. Nothing else activates a version.
@@ -104,7 +104,7 @@ Because the weights sum to 1 and every channel score is in [0, 1], the fusion co
 **Why:** the proposal says the new version applies to future cycles. Keeping one version per incident stops a decision changing halfway through the 3-window check and keeps the audit trail clear.
 
 ## TBD-CAL-10: Rollback operational policy
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **Requirement**
 - Only an authenticated Admin can roll back, with a written reason.
