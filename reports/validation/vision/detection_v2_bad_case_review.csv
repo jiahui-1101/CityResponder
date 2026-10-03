@@ -1,0 +1,10 @@
+image,session,class,classification,notes
+fire_session_003_0002_20261003T153810Z.jpg,fire_session_003,fire,LOW_CONFIDENCE_TRUE_POSITIVE,Low-confidence true fire prediction; visible target and box appear consistent.
+fire_session_003_0004_20261003T153916Z.jpg,fire_session_003,fire,TRUE_MISS,"Visible small fire near upper edge; current box appears consistent, model missed it."
+fire_session_003_0006_20261003T153958Z.jpg,fire_session_003,fire,LOW_CONFIDENCE_TRUE_POSITIVE,Low-confidence true fire prediction; visible target and box appear consistent.
+fire_session_003_0008_20261003T154050Z.jpg,fire_session_003,fire,TRUE_MISS,"Very small/partly edge-adjacent visible fire; current box appears consistent, model missed it."
+fire_session_003_0010_20261003T154159Z.jpg,fire_session_003,fire,NOT_ACTUALLY_BAD,Fire prediction was present; the auxiliary low-confidence person candidate is unrelated to fire.
+person_session_003_0002_20261003T155806Z.jpg,person_session_003,person,LOW_CONFIDENCE_TRUE_POSITIVE,Person detections were present; low-confidence extras are not a fire issue.
+person_session_003_0003_20261003T155824Z.jpg,person_session_003,person,LOW_CONFIDENCE_TRUE_POSITIVE,Person detections were present; low-confidence extras are not a fire issue.
+smoke_session_003_0002_20261003T154754Z.jpg,smoke_session_003,smoke,TRUE_MISS,Smoke model miss; unrelated to fire annotation audit.
+smoke_session_003_0009_20261003T155158Z.jpg,smoke_session_003,smoke,LOCALIZATION_ERROR,One of two smoke targets was not fully matched; unrelated to fire audit.

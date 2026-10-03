@@ -1,0 +1,8 @@
+path: datasets/cityresponder_detection_pilot/yolo_detection_v1
+train: images/train
+val: images/val
+test: images/test
+names:
+  0: fire
+  1: smoke
+  2: person

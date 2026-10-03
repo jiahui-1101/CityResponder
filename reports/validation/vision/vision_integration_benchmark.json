@@ -1,0 +1,61 @@
+{
+  "prototype_scope": "controlled tabletop integration",
+  "frames": 100,
+  "failed_reads_or_frames": 0,
+  "failures": [],
+  "actual_native_resolution": "1920x1080",
+  "raw_board_crop": {
+    "x": 340,
+    "y": 80,
+    "width": 1080,
+    "height": 840
+  },
+  "elapsed_seconds": 12.426682299934328,
+  "average_end_to_end_fps": 8.047200176713979,
+  "end_to_end": {
+    "mean_ms": 123.75212000333704,
+    "median_ms": 122.69065005239099,
+    "p95_ms": 134.01419983711094
+  },
+  "capture": {
+    "mean_ms": 14.108531998936087,
+    "median_ms": 13.99874995695427,
+    "p95_ms": 16.9641999527812
+  },
+  "crop": {
+    "mean_ms": 0.021527004428207874,
+    "median_ms": 0.020449981093406677,
+    "p95_ms": 0.029300106689333916
+  },
+  "detection": {
+    "mean_ms": 46.77556300885044,
+    "median_ms": 46.07534996466711,
+    "p95_ms": 51.63799994625151
+  },
+  "segmentation": {
+    "mean_ms": 62.21509699593298,
+    "median_ms": 61.578350025229156,
+    "p95_ms": 70.39389992132783
+  },
+  "postprocessing": {
+    "mean_ms": 0.3943760076072067,
+    "median_ms": 0.23194996174424887,
+    "p95_ms": 0.9068000363186002
+  },
+  "serialization": {
+    "mean_ms": 0.13906899723224342,
+    "median_ms": 0.12385001173242927,
+    "p95_ms": 0.21570001263171434
+  },
+  "observed_class_instances": {
+    "pothole": 134
+  },
+  "normal_clear_frames": 11,
+  "normal_scene_observed": true,
+  "fire_or_person_observed": false,
+  "road_obstacle_or_pothole_observed": true,
+  "mqtt_publish_requested": false,
+  "mqtt_connected": false,
+  "mqtt_evidence_published": false,
+  "continuous_video_stored": false
+}

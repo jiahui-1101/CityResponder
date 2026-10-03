@@ -1,0 +1,47 @@
+{
+  "TRAIN": {
+    "total_images": 246,
+    "fire_images": 60,
+    "smoke_images": 48,
+    "person_images": 59,
+    "negative_images": 79,
+    "sessions": [
+      "fire_session_001",
+      "fire_session_004",
+      "negative_session_001",
+      "person_session_001",
+      "smoke_session_001"
+    ]
+  },
+  "VAL": {
+    "total_images": 58,
+    "fire_images": 10,
+    "smoke_images": 10,
+    "person_images": 10,
+    "negative_images": 28,
+    "sessions": [
+      "fire_session_002",
+      "negative_session_002",
+      "person_session_002",
+      "smoke_session_002"
+    ]
+  },
+  "TEST": {
+    "total_images": 38,
+    "fire_images": 8,
+    "smoke_images": 10,
+    "person_images": 10,
+    "negative_images": 10,
+    "sessions": [
+      "fire_session_003",
+      "negative_session_003",
+      "person_session_003",
+      "smoke_session_003"
+    ]
+  },
+  "SESSION_LEAKAGE": 0,
+  "IMAGE_LEAKAGE": 0,
+  "source_images": 342,
+  "split_images": 342,
+  "errors": []
+}

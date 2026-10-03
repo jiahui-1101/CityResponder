@@ -1,0 +1,181 @@
+filename,class,session_id,qa_status,annotation_status,polygon_count,notes
+raw\road_obstacle\road_obstacle_session_001_0001_20261003T190745Z.jpg,road_obstacle,road_obstacle_session_001,KEEP,ANNOTATED,1,
+raw\road_obstacle\road_obstacle_session_002_0001_20261003T190918Z.jpg,road_obstacle,road_obstacle_session_002,KEEP,ANNOTATED,1,
+raw\road_obstacle\road_obstacle_session_002_0002_20261003T190921Z.jpg,road_obstacle,road_obstacle_session_002,KEEP,ANNOTATED,1,
+raw\road_obstacle\road_obstacle_session_002_0003_20261003T190924Z.jpg,road_obstacle,road_obstacle_session_002,KEEP,ANNOTATED,1,
+raw\road_obstacle\road_obstacle_session_002_0004_20261003T190926Z.jpg,road_obstacle,road_obstacle_session_002,KEEP,ANNOTATED,1,
+raw\road_obstacle\road_obstacle_session_002_0005_20261003T190928Z.jpg,road_obstacle,road_obstacle_session_002,KEEP,ANNOTATED,1,
+raw\road_obstacle\road_obstacle_session_002_0006_20261003T190931Z.jpg,road_obstacle,road_obstacle_session_002,KEEP,ANNOTATED,1,
+raw\road_obstacle\road_obstacle_session_002_0007_20261003T190934Z.jpg,road_obstacle,road_obstacle_session_002,KEEP,ANNOTATED,1,
+raw\road_obstacle\road_obstacle_session_002_0008_20261003T190938Z.jpg,road_obstacle,road_obstacle_session_002,KEEP,ANNOTATED,1,
+raw\road_obstacle\road_obstacle_session_002_0009_20261003T190941Z.jpg,road_obstacle,road_obstacle_session_002,KEEP,ANNOTATED,1,
+raw\road_obstacle\road_obstacle_session_002_0010_20261003T190947Z.jpg,road_obstacle,road_obstacle_session_002,KEEP,ANNOTATED,1,
+raw\road_obstacle\road_obstacle_session_014_0001_20261003T191120Z.jpg,road_obstacle,road_obstacle_session_014,KEEP,ANNOTATED,3,
+raw\road_obstacle\road_obstacle_session_014_0002_20261003T191122Z.jpg,road_obstacle,road_obstacle_session_014,KEEP,ANNOTATED,3,
+raw\road_obstacle\road_obstacle_session_014_0003_20261003T191127Z.jpg,road_obstacle,road_obstacle_session_014,KEEP,ANNOTATED,3,
+raw\road_obstacle\road_obstacle_session_014_0004_20261003T191129Z.jpg,road_obstacle,road_obstacle_session_014,KEEP,ANNOTATED,3,
+raw\road_obstacle\road_obstacle_session_014_0005_20261003T191133Z.jpg,road_obstacle,road_obstacle_session_014,KEEP,ANNOTATED,3,
+raw\road_obstacle\road_obstacle_session_014_0006_20261003T191136Z.jpg,road_obstacle,road_obstacle_session_014,KEEP,ANNOTATED,3,
+raw\road_obstacle\road_obstacle_session_014_0007_20261003T191139Z.jpg,road_obstacle,road_obstacle_session_014,KEEP,ANNOTATED,3,
+raw\road_obstacle\road_obstacle_session_014_0008_20261003T191141Z.jpg,road_obstacle,road_obstacle_session_014,KEEP,ANNOTATED,3,
+raw\road_obstacle\road_obstacle_session_014_0009_20261003T191143Z.jpg,road_obstacle,road_obstacle_session_014,KEEP,ANNOTATED,3,
+raw\road_obstacle\road_obstacle_session_014_0010_20261003T191148Z.jpg,road_obstacle,road_obstacle_session_014,KEEP,ANNOTATED,3,
+raw\road_obstacle\road_obstacle_session_015_0001_20261003T191910Z.jpg,road_obstacle,road_obstacle_session_015,KEEP,ANNOTATED,1,
+raw\road_obstacle\road_obstacle_session_015_0002_20261003T191912Z.jpg,road_obstacle,road_obstacle_session_015,KEEP,ANNOTATED,1,
+raw\road_obstacle\road_obstacle_session_015_0003_20261003T191914Z.jpg,road_obstacle,road_obstacle_session_015,KEEP,ANNOTATED,2,
+raw\road_obstacle\road_obstacle_session_015_0004_20261003T191917Z.jpg,road_obstacle,road_obstacle_session_015,KEEP,ANNOTATED,2,
+raw\road_obstacle\road_obstacle_session_015_0005_20261003T191918Z.jpg,road_obstacle,road_obstacle_session_015,KEEP,ANNOTATED,2,
+raw\road_obstacle\road_obstacle_session_015_0006_20261003T191921Z.jpg,road_obstacle,road_obstacle_session_015,KEEP,ANNOTATED,2,
+raw\road_obstacle\road_obstacle_session_015_0007_20261003T191923Z.jpg,road_obstacle,road_obstacle_session_015,KEEP,ANNOTATED,2,
+raw\road_obstacle\road_obstacle_session_015_0008_20261003T191929Z.jpg,road_obstacle,road_obstacle_session_015,KEEP,ANNOTATED,3,
+raw\road_obstacle\road_obstacle_session_015_0009_20261003T191931Z.jpg,road_obstacle,road_obstacle_session_015,KEEP,ANNOTATED,3,
+raw\road_obstacle\road_obstacle_session_015_0010_20261003T191933Z.jpg,road_obstacle,road_obstacle_session_015,KEEP,ANNOTATED,3,
+raw\road_obstacle\road_obstacle_session_016_0001_20261003T191942Z.jpg,road_obstacle,road_obstacle_session_016,KEEP,ANNOTATED,3,
+raw\road_obstacle\road_obstacle_session_016_0002_20261003T191944Z.jpg,road_obstacle,road_obstacle_session_016,KEEP,ANNOTATED,3,
+raw\road_obstacle\road_obstacle_session_016_0003_20261003T191948Z.jpg,road_obstacle,road_obstacle_session_016,KEEP,ANNOTATED,3,
+raw\road_obstacle\road_obstacle_session_016_0004_20261003T191951Z.jpg,road_obstacle,road_obstacle_session_016,KEEP,ANNOTATED,4,
+raw\road_obstacle\road_obstacle_session_016_0005_20261003T191955Z.jpg,road_obstacle,road_obstacle_session_016,KEEP,ANNOTATED,4,
+raw\road_obstacle\road_obstacle_session_016_0006_20261003T192001Z.jpg,road_obstacle,road_obstacle_session_016,KEEP,ANNOTATED,4,
+raw\road_obstacle\road_obstacle_session_016_0007_20261003T192004Z.jpg,road_obstacle,road_obstacle_session_016,KEEP,ANNOTATED,4,
+raw\road_obstacle\road_obstacle_session_016_0008_20261003T192005Z.jpg,road_obstacle,road_obstacle_session_016,KEEP,ANNOTATED,4,
+raw\road_obstacle\road_obstacle_session_016_0009_20261003T192007Z.jpg,road_obstacle,road_obstacle_session_016,KEEP,ANNOTATED,4,
+raw\road_obstacle\road_obstacle_session_016_0010_20261003T192010Z.jpg,road_obstacle,road_obstacle_session_016,KEEP,ANNOTATED,4,
+raw\road_obstacle\road_obstacle_session_017_0001_20261003T192024Z.jpg,road_obstacle,road_obstacle_session_017,KEEP,ANNOTATED,3,
+raw\road_obstacle\road_obstacle_session_017_0002_20261003T192025Z.jpg,road_obstacle,road_obstacle_session_017,KEEP,ANNOTATED,2,
+raw\road_obstacle\road_obstacle_session_017_0003_20261003T192028Z.jpg,road_obstacle,road_obstacle_session_017,KEEP,ANNOTATED,3,
+raw\road_obstacle\road_obstacle_session_017_0004_20261003T192030Z.jpg,road_obstacle,road_obstacle_session_017,KEEP,ANNOTATED,3,
+raw\road_obstacle\road_obstacle_session_017_0005_20261003T192032Z.jpg,road_obstacle,road_obstacle_session_017,KEEP,ANNOTATED,4,
+raw\road_obstacle\road_obstacle_session_017_0006_20261003T192035Z.jpg,road_obstacle,road_obstacle_session_017,KEEP,ANNOTATED,4,
+raw\road_obstacle\road_obstacle_session_017_0007_20261003T192037Z.jpg,road_obstacle,road_obstacle_session_017,KEEP,ANNOTATED,4,
+raw\road_obstacle\road_obstacle_session_017_0008_20261003T192039Z.jpg,road_obstacle,road_obstacle_session_017,KEEP,ANNOTATED,4,
+raw\road_obstacle\road_obstacle_session_017_0009_20261003T192043Z.jpg,road_obstacle,road_obstacle_session_017,KEEP,ANNOTATED,3,
+raw\road_obstacle\road_obstacle_session_017_0010_20261003T192044Z.jpg,road_obstacle,road_obstacle_session_017,KEEP,ANNOTATED,2,
+raw\road_obstacle\road_obstacle_session_018_0001_20261003T192058Z.jpg,road_obstacle,road_obstacle_session_018,KEEP,ANNOTATED,2,
+raw\road_obstacle\road_obstacle_session_018_0002_20261003T192101Z.jpg,road_obstacle,road_obstacle_session_018,KEEP,ANNOTATED,2,
+raw\road_obstacle\road_obstacle_session_018_0003_20261003T192105Z.jpg,road_obstacle,road_obstacle_session_018,KEEP,ANNOTATED,2,
+raw\road_obstacle\road_obstacle_session_018_0004_20261003T192108Z.jpg,road_obstacle,road_obstacle_session_018,KEEP,ANNOTATED,1,
+raw\road_obstacle\road_obstacle_session_018_0005_20261003T192109Z.jpg,road_obstacle,road_obstacle_session_018,KEEP,ANNOTATED,2,
+raw\road_obstacle\road_obstacle_session_018_0006_20261003T192112Z.jpg,road_obstacle,road_obstacle_session_018,KEEP,ANNOTATED,2,
+raw\road_obstacle\road_obstacle_session_018_0007_20261003T192115Z.jpg,road_obstacle,road_obstacle_session_018,KEEP,ANNOTATED,2,
+raw\road_obstacle\road_obstacle_session_018_0008_20261003T192120Z.jpg,road_obstacle,road_obstacle_session_018,KEEP,ANNOTATED,2,
+raw\road_obstacle\road_obstacle_session_018_0009_20261003T192125Z.jpg,road_obstacle,road_obstacle_session_018,KEEP,ANNOTATED,2,
+raw\road_obstacle\road_obstacle_session_018_0010_20261003T192131Z.jpg,road_obstacle,road_obstacle_session_018,KEEP,ANNOTATED,2,
+raw\pothole\pothole_session_001_0001_20261003T191338Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0002_20261003T191341Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0003_20261003T191343Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0004_20261003T191346Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0005_20261003T191349Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0006_20261003T191352Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0007_20261003T191355Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0008_20261003T191359Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0009_20261003T191403Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0010_20261003T191407Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0011_20261003T191411Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0012_20261003T191414Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0013_20261003T191434Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0014_20261003T191505Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0015_20261003T191508Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0016_20261003T191510Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0017_20261003T191514Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0018_20261003T191518Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0019_20261003T191521Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0020_20261003T191523Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0021_20261003T191525Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0022_20261003T191527Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0023_20261003T191533Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0024_20261003T191537Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0025_20261003T191552Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0026_20261003T191555Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0027_20261003T191557Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0028_20261003T191559Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0029_20261003T191602Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0030_20261003T191604Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0031_20261003T191607Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0032_20261003T191609Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0033_20261003T191614Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0034_20261003T191616Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0035_20261003T191620Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0036_20261003T191641Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0037_20261003T191653Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0038_20261003T191657Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0039_20261003T191701Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_001_0040_20261003T191704Z.jpg,pothole,pothole_session_001,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_002_0001_20261003T191725Z.jpg,pothole,pothole_session_002,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_002_0003_20261003T191728Z.jpg,pothole,pothole_session_002,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_002_0004_20261003T191731Z.jpg,pothole,pothole_session_002,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_002_0005_20261003T191733Z.jpg,pothole,pothole_session_002,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_002_0006_20261003T191736Z.jpg,pothole,pothole_session_002,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_002_0007_20261003T191738Z.jpg,pothole,pothole_session_002,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_002_0008_20261003T191741Z.jpg,pothole,pothole_session_002,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_002_0009_20261003T191743Z.jpg,pothole,pothole_session_002,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_002_0010_20261003T191745Z.jpg,pothole,pothole_session_002,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_003_0001_20261003T191756Z.jpg,pothole,pothole_session_003,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_003_0002_20261003T191759Z.jpg,pothole,pothole_session_003,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_003_0003_20261003T191801Z.jpg,pothole,pothole_session_003,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_003_0004_20261003T191803Z.jpg,pothole,pothole_session_003,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_003_0005_20261003T191808Z.jpg,pothole,pothole_session_003,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_003_0006_20261003T191810Z.jpg,pothole,pothole_session_003,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_003_0007_20261003T191813Z.jpg,pothole,pothole_session_003,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_003_0008_20261003T191824Z.jpg,pothole,pothole_session_003,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_003_0009_20261003T191827Z.jpg,pothole,pothole_session_003,KEEP,ANNOTATED,1,
+raw\pothole\pothole_session_003_0010_20261003T191830Z.jpg,pothole,pothole_session_003,KEEP,ANNOTATED,1,
+raw\clear_road\clear_road_session_001_0001_20261003T192201Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0002_20261003T192202Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0003_20261003T192202Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0004_20261003T192203Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0005_20261003T192203Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0006_20261003T192204Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0007_20261003T192204Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0008_20261003T192204Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0009_20261003T192205Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0010_20261003T192205Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0011_20261003T192205Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0012_20261003T192207Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0013_20261003T192208Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0014_20261003T192209Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0015_20261003T192209Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0016_20261003T192210Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0017_20261003T192210Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0018_20261003T192210Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0019_20261003T192211Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0020_20261003T192211Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0021_20261003T192212Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0022_20261003T192212Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0023_20261003T192212Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0024_20261003T192213Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0025_20261003T192213Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0026_20261003T192213Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0027_20261003T192214Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0028_20261003T192214Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0029_20261003T192215Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0030_20261003T192215Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0031_20261003T192215Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0032_20261003T192216Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0033_20261003T192216Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0034_20261003T192216Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0035_20261003T192217Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0036_20261003T192217Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0037_20261003T192217Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0038_20261003T192218Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0039_20261003T192218Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_001_0040_20261003T192219Z.jpg,clear_road,clear_road_session_001,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_002_0001_20261003T192223Z.jpg,clear_road,clear_road_session_002,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_002_0002_20261003T192223Z.jpg,clear_road,clear_road_session_002,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_002_0003_20261003T192224Z.jpg,clear_road,clear_road_session_002,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_002_0004_20261003T192224Z.jpg,clear_road,clear_road_session_002,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_002_0005_20261003T192224Z.jpg,clear_road,clear_road_session_002,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_002_0006_20261003T192225Z.jpg,clear_road,clear_road_session_002,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_002_0007_20261003T192225Z.jpg,clear_road,clear_road_session_002,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_002_0008_20261003T192225Z.jpg,clear_road,clear_road_session_002,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_002_0009_20261003T192226Z.jpg,clear_road,clear_road_session_002,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_002_0010_20261003T192226Z.jpg,clear_road,clear_road_session_002,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_003_0001_20261003T192227Z.jpg,clear_road,clear_road_session_003,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_003_0002_20261003T192227Z.jpg,clear_road,clear_road_session_003,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_003_0003_20261003T192228Z.jpg,clear_road,clear_road_session_003,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_003_0004_20261003T192228Z.jpg,clear_road,clear_road_session_003,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_003_0005_20261003T192228Z.jpg,clear_road,clear_road_session_003,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_003_0006_20261003T192229Z.jpg,clear_road,clear_road_session_003,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_003_0007_20261003T192229Z.jpg,clear_road,clear_road_session_003,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_003_0008_20261003T192229Z.jpg,clear_road,clear_road_session_003,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_003_0009_20261003T192229Z.jpg,clear_road,clear_road_session_003,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label
+raw\clear_road\clear_road_session_003_0010_20261003T192230Z.jpg,clear_road,clear_road_session_003,KEEP,NEGATIVE_CONFIRMED,0,QA KEEP clear-road image; empty YOLO-seg label

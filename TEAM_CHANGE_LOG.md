@@ -78,6 +78,210 @@ Record tester, hardware and firmware versions, backend commit, environment, requ
 - Controlled dashboard latency: 10/10 under 1 second
 - Production UI fake/mock audit: PASS
 
+## 2026-10-03 — Detection pilot dataset integrity cleanup and QA
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+**Integrity cleanup:**
+- Removed the one orphan metadata row for `raw/person/person_session_001_0049_20261003T145644Z.jpg`; the image was absent on disk and was not recreated or fabricated.
+- Audit record preserved at `datasets/cityresponder_detection_pilot/metadata/orphan_metadata_audit.md`.
+- Active metadata now has 272 rows for 272 image files; every row maps to exactly one existing file and every file has exactly one active row.
+
+**Validation:**
+- All 272 images are readable, non-empty, and `1080×840`; class folders and session filename prefixes match metadata.
+- Exact SHA-256 duplicate groups: 0.
+- Consecutive within-session dHash review (distance ≤8) produced 260 near-duplicate candidate pairs: fire 44, smoke 47, person 61, negative 108. Nothing was deleted automatically; all are marked `REVIEW`.
+- Duplicate review CSV: `reports/validation/vision/detection_pilot_duplicate_review.csv`.
+- Human-QA contact sheets: `reports/validation/vision/detection_pilot_qa/`; summary: `reports/validation/vision/detection_pilot_qa/dataset_integrity_summary.json`.
+
+**Distribution and split boundary:**
+- Fire: 50 images, 1 real session; smoke: 50 images, 1 real session; person: 62 images, 1 real session; negative: 110 images, 2 real sessions; total 272.
+- Session-aware train/validation/test splitting is **NOT READY**. No synthetic sessions or splits were created.
+- Minimum additional real capture recommended: fire 2 sessions × 8–12 varied images; smoke 2 × 8–12; person 2 × 8–12; negative 1 × 8–12.
+- YOLO training, annotation, auto-labeling, firmware/backend changes, crop/ROI changes, and commit/push were not performed.
+
+## 2026-10-04 — Added session-aware detection pilot captures
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+**Capture scope:**
+- Added exactly 70 real webcam crops using the locked camera index `1`, native `1920×1080` capture, and locked `1080×840` crop `(340,80,1080,840)`.
+- Added sessions: `fire_session_002` (10), `fire_session_003` (10), `smoke_session_002` (10), `smoke_session_003` (10), `person_session_002` (10), `person_session_003` (10), and `negative_session_003` (10).
+- Existing images were not deleted, renamed, or modified. One early smoke session-003 image was preserved and the remaining session count was completed explicitly.
+- Capture runs reported zero failed reads and zero corrupt-frame rejections; near-duplicate warnings were retained as metadata and did not cause automatic deletion.
+
+**Final integrity verification:**
+- 342 readable image files and 342 active metadata rows; no orphan references, untracked images, filename collisions, class-folder/session-prefix mismatches, or dimension mismatches.
+- All images are `1080×840`; exact SHA-256 duplicate groups: 0.
+- Final distribution: fire 70/3 sessions, smoke 70/3, person 82/3, negative 120/3.
+
+**Boundary:**
+- Session-aware split is now structurally ready for review, but no train/validation/test split was created.
+- Annotation, auto-labeling, YOLO training, firmware/backend changes, camera/crop changes, and commit/push were not performed.
+
+## 2026-10-04 — Final human-QA preparation for detection pilot
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+- Rebuilt non-destructive contact sheets for all 342 images, organized by class, session, and filename order under `reports/validation/vision/detection_pilot_qa_final/`.
+- Generated `qa_flags.csv` with Laplacian blur metric, grayscale brightness metric, consecutive within-session dHash near-duplicate flags, and `KEEP`/`REVIEW` recommendations. No image was deleted.
+- Near-duplicate review uses dHash Hamming distance `<=8` for consecutive frames: 321 candidate pairs involving 339 candidate images. Two images fell below the conservative blur metric threshold; no extreme brightness flags were found.
+- Automated semantic class consistency was deliberately left `UNVERIFIED_HUMAN_REVIEW`; no model-based class claim was made. All 342 rows are therefore recommended for human review.
+- Created `datasets/cityresponder_detection_pilot/metadata/human_qa_manifest.csv` with one `PENDING` row per image and blank QA reason.
+- No annotation, train/validation/test split, YOLO training, firmware/backend change, or commit/push was performed.
+
+## 2026-10-04 — Interactive human QA reviewer launched
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+- Added `backend/scripts/review_detection_pilot.py`, a local OpenCV reviewer for the 342-image pilot dataset.
+- Review order is FIRE → SMOKE → PERSON → NEGATIVE, grouped by session and capture order.
+- KEEP and reason-required REJECT decisions update `datasets/cityresponder_detection_pilot/metadata/human_qa_manifest.csv` atomically after each decision; source images are never moved or deleted.
+- Automated flags, blur/brightness metrics, near-duplicate warnings, and class-specific human review guidance are shown per image. No semantic class is pre-approved.
+- Reviewer launched locally; QA remains pending until explicit human decisions are made. No annotation, split, training, or commit/push was performed.
+
+## 2026-10-04 — YOLO manual annotation workspace launched
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+- Added `backend/scripts/annotate_detection_pilot.py` for manual bounding-box annotation of QA-approved images only.
+- Created `datasets/cityresponder_detection_pilot/annotations/annotation_manifest.csv` and `annotations/labels/`.
+- Current QA-approved set: 208 positive images pending annotation and 117 negative images marked `NEGATIVE_CONFIRMED` with empty label files; 17 QA-REJECT images are excluded.
+- YOLO class map is fixed at `0=fire`, `1=smoke`, `2=person`; no negative class is created.
+- Annotation UI launched locally and is waiting on the first positive FIRE image. Source images are not modified, moved, or deleted.
+- No train/validation/test split, YOLO training, or commit/push was performed.
+
+## 2026-10-03 — Detection pilot capture workflow completed
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+**Pilot scope:**
+- Detection-only classes: `fire`, `smoke`, `person`, and `negative`.
+- Reusable capture script: `backend/scripts/capture_detection_pilot.py`.
+- Dataset root: `datasets/cityresponder_detection_pilot/` with per-class raw directories and `metadata/captures.csv`.
+- Every saved image uses the locked native `1920×1080` frame and 1:1 `1080×840` crop `(340,80,1080,840)`; no upsampling, auto-labeling, or training is performed.
+- Session IDs, timestamps, source settings, SHA-256 hashes, and near-duplicate warnings are recorded per image.
+
+**Boundary:**
+- Pilot engineering targets are not acceptance requirements.
+- Camera/crop/ROI configuration remains locked. No firmware, backend, hardware, or production logic changed.
+
+**Capture result:**
+- Current metadata totals: fire 50 (1 session), smoke 50 (1 session), person 63 (1 session), negative 110 (2 sessions); 273 metadata rows total.
+- Current image files: 272 readable `1080×840` crops. One metadata row references the missing file `raw/person/person_session_001_0049_20261003T145644Z.jpg`; no untracked image files were found.
+- No duplicate SHA-256 hash groups were found in the current metadata; capture runs reported no failed reads or corrupt frames. The missing referenced file remains an evidence-integrity issue and must be resolved or explicitly excluded before annotation.
+- Camera remained fixed; no upsampling, auto-labeling, or training was performed. Human dataset review is required before annotation or training.
+
+**Follow-up required:**
+- Resolve the one missing person image reference (or exclude its metadata row with an auditable correction), then perform human dataset review before annotation or training.
+
+## 2026-10-03 — Webcam calibration locked after visual confirmation
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+**Locked configuration:**
+- Physical camera position: LOCKED.
+- Native RAW_CAMERA resolution: `1920×1080`.
+- RAW_BOARD_CROP: `x=340, y=80, width=1080, height=840`.
+- Building A ROI in RAW_BOARD_CROP: `x=460, y=350, width=340, height=360`; source requirement `>=300×180`: PASS.
+- Road ROI in RAW_BOARD_CROP: `x=10, y=675, width=1035, height=145`.
+- Calibrated working frame: `1536×1195`, scale factor `1.4222×`.
+
+**Requirement boundary:**
+- Board source crop `1080×840` versus required `>=1536×1017`: FAIL; this source-resolution limitation is accepted and remains explicit.
+- The calibrated resize is processing-only and does not add raw source detail.
+- All older webcam framing/crop/ROI evidence remains historical/superseded; no dataset was captured using superseded coordinates.
+- No firmware, backend, crop, ROI, or camera-position changes are permitted without a new explicit decision.
+
+**Evidence:**
+- Raw crop: `reports/validation/vision/webcam_board_raw_crop_final_20261003.jpg`.
+- Calibrated working frame: `reports/validation/vision/webcam_board_calibrated_final_20261003.jpg`.
+- Inspection: `reports/validation/vision/webcam_roi_inspection_final_20261003.jpg`.
+- The inspection filename was already correct; no rename was required.
+
+**Follow-up required:**
+- Ready for pilot dataset capture; do not begin training until dataset/annotation instructions are provided.
+
+## 2026-10-03 — Final raw webcam reference accepted
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+**Verified state:**
+- User manually repositioned and accepted the webcam position as the intended final fixed position.
+- Board-facing webcam: OpenCV index `1`; requested and actual resolution `1920×1080`.
+- After exposure settling, one uncropped native reference was captured: `reports/validation/vision/webcam_reference_final_20261003_142219Z.jpg`.
+- Capture statistics: 72 valid frames, 0 failed reads, approximately 23.870 FPS over 3.016 seconds.
+- The raw frame visibly contains the complete model board, Building A, Fire Station, routing roads, IR-A/IR-B areas, TL1/TL2, servo gate, MQ-2 area, and DHT22 area without an obvious framing cut-off.
+
+**Boundary:**
+- This is raw reference evidence only. No crop, ROI coordinates, resize, dataset capture, annotation, or YOLO training was performed.
+- Previous crop/ROI calibration remains superseded.
+
+**Follow-up required:**
+- Perform crop/ROI definition only after explicit user instruction.
+
+## 2026-10-03 — Webcam calibration restarted; framing adjustment required
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+**Verified state:**
+- The webcam was physically repositioned again. All previous webcam reference frames, crops, ROI coordinates, and calibrated-frame measurements are superseded and were not reused.
+- Camera discovery found valid OpenCV indexes 0 and 1. Index 0 is room-facing; index 1 is the board-facing USB webcam and was selected.
+- Index 1 returned real `1280×720` and `1920×1080` frames. A `2560×1440` request fell back to actual `1920×1080` and was not counted as a higher native mode.
+- Current-position mode probes: `1280×720` returned 73 valid frames, 0 failed reads, approximately 24.284 FPS; `1920×1080` returned 74 valid frames, 0 failed reads, approximately 24.379 FPS; `2560×1440` returned actual `1920×1080`, 74 valid frames, 0 failed reads, approximately 24.343 FPS.
+- New raw reference: `reports/validation/vision/webcam_reference_final_20261003T141115Z.jpg` (`1920×1080`, 134 valid frames, 0 failed reads, approximately 26.641 FPS over 5.030 seconds).
+- The current raw frame cuts off the upper portion of the intended model/road area, so full required model coverage is not established.
+
+**Decision:**
+- `FRAMING_ADJUSTMENT_REQUIRED`.
+- No raw board crop or calibrated board frame was generated for this attempt; no ROI coordinates or source-resolution compliance claim was made.
+- No dataset was captured using any superseded framing. MQ-2, SN1, AC1, backend logic, and production firmware were not changed.
+
+**Follow-up required:**
+- Reposition or re-aim the webcam to include the complete model boundary and all required routes/components, then begin a new reference capture.
+
+## 2026-10-03 — Webcam final-position calibration restarted
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+**Verified state:**
+- The USB webcam was physically repositioned; all previous webcam reference frames, crops, ROI coordinates, and calibrated measurements are superseded and were not reused for this calibration.
+- Camera discovery found valid OpenCV indexes 0 and 1. Index 0 is the room-facing camera; index 1 is the board-facing USB webcam and was selected.
+- Index 1 returned real `1280×720` and `1920×1080` frames. A `2560×1440` request fell back to actual `1920×1080` and was not counted as a higher native mode.
+- At `1920×1080`, the mode produced 74 valid frames in 3.006 seconds, 0 failed reads, approximately 24.619 FPS during the probe.
+- New raw reference: `reports/validation/vision/webcam_reference_final_20261003T140459Z.jpg` (`1920×1080`, 134 valid frames, 0 failed reads, approximately 26.714 FPS over 5.016 seconds).
+- Full visible model coverage was checked before cropping; required roads/buildings, visible traffic-light areas, servo/gate area, and the model boundary remain in frame. No dataset was captured using superseded framing.
+- New raw crop, independently selected from the current frame: `(x=300, y=160, width=1200, height=880)`.
+- New calibrated board frame: `reports/validation/vision/webcam_board_calibrated_final_20261003T140617Z.jpg`, `1536×1126`, aspect-preserving resize factor `1.28×`.
+
+**Boundary:**
+- Raw-camera and calibrated-frame coordinate systems remain separate. Digital resizing is not counted as additional raw spatial detail.
+- Building A and road ROI coordinates remain pending explicit user confirmation; no ROI compliance claim was made.
+- Source targets remain explicit: corrected/source board `>=1536×1017` and Building A source ROI `>=300×180`.
+
+**Follow-up required:**
+- User must inspect the new calibrated frame and confirm ROIs using the exact requested format before any stability test or dataset capture.
+
 ## 2026-10-03 — Final pre-webcam AC1 validation
 
 **Changed by:** Codex / real-hardware validation
@@ -1268,6 +1472,293 @@ Future changes must not invalidate this baseline without updating validation evi
 
 **Follow-up required:**
 - Investigate the occasional >500 ms OPEN ACK latency before claiming timing reliability. Then perform the separately authorized full AC1 backend command/ACK/retry/failsafe E2E validation; do not run the failsafe in this calibration task.
+
+## 2026-10-03 — Webcam bring-up and fixed software board framing
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+**Real camera evidence:**
+- Windows exposed two camera devices, including `USB2.0 HD UVC WebCam`; OpenCV index 1 was visually identified as the board-facing USB webcam. Index 0 showed the laptop-facing view.
+- Index 1 opened at 1280×720 and produced 1,758 valid frames across three 20-second stability samples (~60 seconds total), with 0 failed reads and measured rates of 29.19–29.31 FPS.
+- OpenCV/MSMF and DirectShow both reported `CAP_PROP_ZOOM=-1`; no usable UVC zoom control was exposed. Focus/autofocus controls were not changed.
+
+**Fixed software framing evidence:**
+- User confirmed the fixed board crop preserves 100% of the intended tabletop model.
+- RAW_CAMERA crop: `(x=240, y=5, width=710, height=680)` from the 1280×720 frame.
+- CALIBRATED_BOARD_FRAME: 1280×1226, approximately 1.803× resize in each axis. This is digital resizing only and does not add raw spatial detail.
+- User-selected calibrated ROIs: Building A `(x=535, y=440, width=350, height=325)`; road `(x=330, y=810, width=850, height=120)`.
+- Equivalent raw-camera measurements: Building A ≈194.1×180.3 px; road width ≈471.5 px. Building A therefore passes the 280×180 target only in the calibrated frame, not in raw-camera pixels; road width passes in both.
+- Repository requirements say “real view”/pixel sizes but do not define raw versus calibrated coordinates, and the audit records exact ROI coordinates as TBD. No requirement PASS was claimed.
+
+**MQ-2 boundary:**
+- The previously verified `MQ2_MODULE_AO_OUTPUT_FAULT_SUSPECTED` remains unresolved; no MQ-2 firmware, thresholds, wiring, or calibration was changed during webcam work.
+
+## 2026-10-03 — Fixed-camera native-resolution verification
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+**Real mode observations (USB webcam index 1, physical camera unchanged):**
+- 1280×720 requested and returned; 28.267 FPS measured; 0 failed reads.
+- 1920×1080 requested and returned; 28.444 FPS measured; 0 failed reads.
+- 2560×1440 requested but the driver returned 1920×1080; it is not a distinct higher native mode (28.417 FPS, 0 failed reads).
+- Selected native source mode: 1920×1080, the highest actual stable mode observed.
+
+**Fixed-framing raw-coordinate mapping:**
+- The prior 1280×720 board crop `(240,5,710,680)` maps to approximately `(360,8,1065,1020)` at 1920×1080.
+- Building A maps to approximately `291.2×270.4` raw pixels; road width maps to approximately `707.2` raw pixels.
+- The stated source targets `1536×1017` board source and `300×180` Building A source are not both met by the native board crop/ROI. Software upsampling is not counted as raw detail.
+
+**Requirement boundary:**
+- The repository’s current external requirements do not contain the stated 1536×1017/300×180 source wording; the audit records exact ROI coordinates as TBD. No compliance PASS was claimed. Dataset/model work may proceed only with this source-resolution limitation recorded.
+
+## 2026-10-03 — Webcam moved; prior framing superseded
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+**Verified state:**
+- The physical USB webcam moved after the previous calibration. The prior reference, crop, and ROI measurements remain preserved as historical evidence but are superseded and were not reused for dataset capture.
+- New native reference captured from OpenCV index 1 at `1920×1080`: `reports/validation/vision/webcam_reference_20261003T091412Z.jpg`.
+- The new reference stream produced 92 valid frames, 0 failed reads, and approximately 30.21 FPS during the capture window.
+- The tabletop model roads, buildings, fire-station area, gate/model region, and board boundary appear visible in the new frame. External left-side wiring/breadboard background is outside the model crop; final ROI acceptance remains pending user confirmation.
+
+**New independently selected framing:**
+- RAW_CAMERA crop: `(x=330, y=25, width=1020, height=1015)`.
+- CALIBRATED_BOARD_FRAME: `1280×1274`, resize factor approximately `1.255×` per axis.
+- New calibrated frame: `reports/validation/vision/webcam_board_calibrated_20261003T091412Z.jpg`.
+
+**Dataset boundary:**
+- No dataset was captured using the superseded framing. No YOLO annotation or training was started.
+
+## 2026-10-03 — Replacement MQ-2 analog-path validation
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+**Verified SN1 hardware:**
+- Replacement module labels were confirmed left-to-right as `VCC, GND, DO, AO`; DO remained unused.
+- Replacement VCC/GND/AO were connected without changing the independently verified 20k upper / 10k lower divider or GPIO34 midpoint.
+- Module status LED was ON, heater/sensor area was warm, and no abnormal heating, smell, or smoke was observed.
+- Existing `firmware/sn1_bringup` built successfully and uploaded to CP210x `COM5` with flash verification.
+
+**Raw observation:**
+- 65.31 seconds; 65 usable samples; first `581`; last `486`; min `447`; max `621`; mean `534.585`; median `536`.
+- All 65 samples were nonzero; no ADC saturation near 4095.
+- DHT22 was valid for 65/65 reads. IR1 and IR2 were readable HIGH for all captured lines; button was readable HIGH for all captured lines. No reset loop, brownout, watchdog, or crash was observed; one startup reset line was present at the beginning of the serial buffer after upload.
+
+**Diagnosis:**
+- `NEW_MQ2_ANALOG_PATH_PASS` — the replacement module restored a clearly nonzero analog path, strongly supporting the prior `MQ2_MODULE_AO_OUTPUT_FAULT_SUSPECTED` diagnosis for the old module.
+- No smoke/fire/gas stimulus was used. No thresholds or production files were changed. Ambient warm-up/baseline characterization remains a separate next step.
+
+## 2026-10-03 — New MQ-2 pre-burn-in engineering baseline
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+**Observation boundary:**
+- Replacement MQ-2 remained on the verified VCC/GND/AO wiring and 20k/10k divider in clean ventilated room air. No smoke, aerosol, gas, perfume, alcohol, flame, or other intentional stimulus was used.
+- A temporary non-production 10 Hz raw-report interval was used to meet the engineering baseline sample target, then restored to the original 1 Hz source and re-uploaded to COM5. GPIO assignments, thresholds, and production firmware behavior were not changed.
+
+**Ten-minute warm-up:**
+- Duration `660.07 s` total capture (first 600 s used for warm-up), `5,999` warm-up samples; first/last raw values were not retained by the aggregate recorder, but the series ranged `126–366`, mean `243.286`, median `236`, standard deviation `40.569`, overall CV `16.675%`.
+- Per-minute averages: `316.229, 295.233, 275.718, 254.260, 239.083, 229.113, 219.133, 207.448, 202.663, 194.103`.
+
+**Final 60-second clean-air window:**
+- `601` samples; min `131`; max `242`; mean `186.101`; median `186`; standard deviation `11.049`; CV `5.937%`.
+- Final 30-second window: `300` samples; min `131`; max `237`; mean `183.150`; median `183`; standard deviation `9.466`; CV `5.169%`.
+
+**Classification:**
+- `PRE_BURN_IN_BASELINE_STILL_DRIFTING` — minute averages continued downward and final 30-second CV exceeded 5%.
+- Formal 24-hour burn-in remains outstanding. No formal calibration PASS or production threshold was claimed.
+- DHT22 was valid for all `6,600` runtime lines; IR1, IR2, and button remained readable; no brownout, reset loop, watchdog, or crash was observed.
+
+## 2026-10-03 — Corrected pre-burn-in baseline repeat with first/last values
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+The preceding aggregate run did not retain first/last values. A repeat capture was performed with the same clean-air, pre-burn-in method and is the authoritative result below.
+
+**Ten-minute warm-up:**
+- Duration `660.16 s` total capture (first 600 s used for warm-up), `6,000` samples; first `164`; last `128`; min `64`; max `208`; mean `142.113`; median `142`; standard deviation `15.321`; CV `10.781%`.
+- Per-minute averages: `159.769, 158.469, 154.132, 147.802, 141.732, 139.072, 135.717, 128.523, 127.793, 128.118`.
+
+**Final 60-second clean-air window:**
+- `601` samples; first `125`; last `120`; min `54`; max `181`; mean `120.799`; median `122`; standard deviation `10.777`; CV `8.922%`.
+- Final 30-second window: `300` samples; first `117`; last `120`; min `59`; max `176`; mean `121.960`; median `122`; standard deviation `10.067`; CV `8.255%`.
+
+**Classification and health:**
+- `PRE_BURN_IN_BASELINE_STILL_DRIFTING` — minute averages fell materially and final 30-second CV exceeded 5%.
+- Temporary 10 Hz engineering output was restored to the original 1 Hz source and re-uploaded to COM5; no GPIO, threshold, or production behavior changed.
+- DHT22 valid `6,601/6,601`; IR1, IR2, and button remained readable; no health-fault lines or uptime backsteps were observed.
+- Formal 24-hour burn-in remains outstanding; no formal calibration PASS or production threshold was claimed.
+
+## 2026-10-04 — YOLOv8n detection v1 training and evaluation
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+**Annotation and split gates:**
+- Human-QA annotation workspace completed and validated: `325` active images; `208` positive images annotated; `117` approved negatives have empty YOLO labels; invalid/missing labels `0`.
+- Deterministic session-aware split `detection_split_v1`: train `229`, val `58`, test `38`; session leakage `0`; image leakage `0`.
+- Mapping was session-based (`*_session_001` train, `*_session_002` val, `*_session_003` test). No production integration was changed.
+
+**Training:**
+- YOLOv8n pretrained model, `imgsz=640`, requested `epochs=50`, `patience=10`, `batch=8`, `workers=0`, `seed=42`, deterministic CPU execution.
+- Early stopping completed `40` epochs; best checkpoint was epoch `30`.
+- Best weights: `runs/detect/runs/detection_v1/weights/best.pt`; last weights: `runs/detect/runs/detection_v1/weights/last.pt`.
+- Environment: Python `3.14.4`, Ultralytics `8.4.165`, Torch `2.14.0+cpu`, CUDA unavailable, device CPU.
+
+**Best-checkpoint validation:**
+- VAL overall: precision `0.859`, recall `0.900`, mAP50 `0.917`, mAP50-95 `0.408`.
+- VAL per class (precision / recall / mAP50 / mAP50-95): fire `0.770 / 0.700 / 0.771 / 0.239`; smoke `0.870 / 1.000 / 0.986 / 0.421`; person `0.937 / 1.000 / 0.995 / 0.564`.
+- TEST overall (held out session 003): precision `0.877`, recall `0.810`, mAP50 `0.839`, mAP50-95 `0.379`.
+- TEST per class: fire `0.766 / 0.625 / 0.665 / 0.199`; smoke `0.956 / 0.818 / 0.865 / 0.388`; person `0.908 / 0.987 / 0.986 / 0.551`.
+- Final validation/test plots and confusion matrices were generated under `runs/detect/runs/detection_v1`, `runs/detect/runs/detect/val_final`, and `runs/detect/runs/detect/test_final`.
+
+**Real webcam benchmark:**
+- Locked webcam index `1`, actual `1920×1080`, fixed crop `(340,80,1080,840)`, resized to `640×640` for inference. `100/100` valid frames, `0` failed reads, elapsed `8.856 s`.
+- Average throughput including capture and inference: `11.29 FPS`; median inference latency `51.89 ms`; p95 `59.95 ms`. The measured stream exceeded the `>=5` inference/s target on this CPU run.
+- Evidence: `reports/validation/vision/detection_v1_webcam_benchmark.json`.
+
+**Bad-case candidates and limitations:**
+- Automated TEST candidate report contains `9` rows (low-confidence candidates and fire/smoke missed/localization candidates); it is a human-review aid, not automatic rejection or retraining evidence: `reports/validation/vision/detection_v1_bad_cases.csv`.
+- Representative annotated predictions are under `reports/validation/vision/detection_v1_predictions/`.
+- Dataset remains small, class-balanced only at image level, uses controlled tabletop/miniature visual proxies, and has the documented camera source-resolution limitation. Metrics do not establish production readiness or real-world human/fire/smoke generalization.
+- No second training pass, segmentation, firmware/backend changes, or production detection integration was started. No commit/push was performed.
+
+## 2026-10-04 — YOLOv8n detection v2 fire audit (pre-capture)
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+- Reviewed all `61` QA-KEEP fire annotations across `fire_session_001`–`003`.
+- `61` labels were unchanged; `0` objective annotation corrections were justified.
+- Five fire cases require review attention because they are small, edge-adjacent, or low-confidence model cases; the boxes remain consistent with the visible fire target.
+- Reviewed all `9` v1 bad-case candidates. The fire candidates include two true misses (small/edge targets), two low-confidence true positives, and one fire candidate that was not actually bad; smoke/person candidates remain unrelated to the fire label audit.
+- Evidence: `reports/validation/vision/detection_v2_fire_annotation_audit.csv` and `reports/validation/vision/detection_v2_bad_case_review.csv`.
+- The current camera frame contains no fire target, so no supplementary `fire_session_004` images were captured or fabricated. The audit indicates that a small hard-case fire supplement is warranted before the single v2 training pass; existing session_003 test data remains untouched.
+
+## 2026-10-04 — YOLOv8n detection v2 final pass
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+**Fire supplement and annotation gate:**
+- Captured `17` additional real images in `fire_session_004` using the locked webcam/crop. The user stopped the session after image 17; no further images were fabricated.
+- Human QA: `17 KEEP`, `0 REJECT`; all `17` received one manually drawn fire box. Existing source images were preserved.
+- Fire annotation audit covered all `61` pre-existing QA-KEEP fire labels: `0` objective corrections; `61` unchanged. Test-session labels were not modified.
+- Evidence: `reports/validation/vision/detection_v2_fire_annotation_audit.csv`, `reports/validation/vision/detection_v2_bad_case_review.csv`, and `reports/validation/vision/detection_v2_fire_session_004_contact_sheet.jpg`.
+
+**V2 split:**
+- Session-aware split: train `246`, val `58`, test `38`; train contains fire sessions `001` and `004`, while val/session `002` and test/session `003` remain isolated.
+- Image leakage `0`; session leakage `0`; split source count `342` with no split errors.
+- The entire v1 held-out test image/label set is byte/hash-identical in v2; no test evidence was altered.
+- Split manifest: `reports/validation/vision/detection_split_v2.json`.
+
+**Training:**
+- One clean YOLOv8n run from `yolov8n.pt`, `imgsz=640`, requested `epochs=60`, `patience=12`, `batch=8`, `workers=0`, `seed=42`, deterministic CPU execution.
+- Early stopping completed `41` epochs; best checkpoint was epoch `29`.
+- Best weights: `runs/detect/runs/cityresponder_detection_v2/train/weights/best.pt`; last weights: `runs/detect/runs/cityresponder_detection_v2/train/weights/last.pt`.
+- Environment: Python `3.14.4`, Ultralytics `8.4.165`, Torch `2.14.0+cpu`, CPU only.
+
+**Independent best-checkpoint evaluation:**
+- VAL overall: precision `0.9645`, recall `0.9615`, mAP50 `0.9859`, mAP50-95 `0.4592`.
+- TEST overall (held-out session 003): precision `0.9525`, recall `0.8488`, mAP50 `0.8970`, mAP50-95 `0.4102`.
+- TEST per class (precision / recall / mAP50 / mAP50-95): fire `0.9380 / 0.7500 / 0.8360 / 0.3205`; smoke `0.9194 / 0.8182 / 0.8600 / 0.3773`; person `1.0000 / 0.9783 / 0.9950 / 0.5328`.
+- Compared with v1 TEST fire (`0.766 / 0.625 / 0.665 / 0.199`), v2 deltas are `+0.172 / +0.125 / +0.171 / +0.121`.
+- Smoke versus v1 (`0.956 / 0.818 / 0.865 / 0.388`) has a small precision/mAP decrease, with recall unchanged; person versus v1 (`0.908 / 0.987 / 0.986 / 0.551`) improves precision and mAP50 while mAP50-95 decreases slightly. No material regression was judged from this small held-out set.
+- Metrics evidence: `reports/validation/vision/detection_v2_metrics.json`.
+
+**Webcam benchmark:**
+- Locked webcam index `1`, actual `1920×1080`, fixed crop `(340,80,1080,840)`, resized to `640×640`; `100/100` valid frames and `0` failed reads.
+- Throughput including capture and inference: `17.56 FPS`; median inference latency `51.79 ms`; p95 `59.89 ms`; `>=5` inference/s target PASS.
+- Evidence: `reports/validation/vision/detection_v2_webcam_benchmark.json`.
+
+**Decision and limits:**
+- Selected `DETECTION_CANDIDATE = V2` because fire TEST performance improved materially, smoke/person changes were not material regressions on the unchanged held-out test, and the webcam benchmark passed.
+- Detection status: `FROZEN_PENDING_INTEGRATION`. No production detection integration was performed.
+- Limitations remain: small controlled tabletop/miniature dataset, fire-only supplement of `17` images (below the 20–30 planning range because the user stopped capture), documented source-resolution limitation, CPU-only benchmark, and no claim of real-world generalization.
+- Segmentation has not started. No firmware, backend, MQTT, hardware, or threshold changes were made. No commit/push was performed.
+
+## 2026-10-04 — Segmentation pilot integrity and QA preparation
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+- Verified `181` readable 1080×840 segmentation pilot images with `181` metadata rows. Corrupt images, orphan metadata, exact SHA-256 duplicates, dimension mismatches, metadata mismatches, and filename collisions were all `0`.
+- Distribution: `road_obstacle=61`, `pothole=60`, `clear_road=60`. The extra road-obstacle image was retained; no automatic deletion was performed.
+- Road-obstacle session IDs are not the intended contiguous `001/002/003` layout: session `001=1`, `002=10`, and sessions `014`–`018=10` each. Pothole and clear-road sessions are `001=40`, `002=10`, `003=10`. Session-aware splitting is therefore not yet ready.
+- Recomputed adjacent perceptual similarity and created `165` near-duplicate candidates. These are review-only; exact duplicates remain `0` and no images were deleted.
+- Created human-QA manifest at `datasets/cityresponder_segmentation_pilot/metadata/human_qa_manifest.csv`; all rows start `PENDING`.
+- Created class/session contact sheets under `reports/validation/vision/segmentation_pilot_qa/` and integrity evidence at `reports/validation/vision/segmentation_pilot_integrity.json` plus `segmentation_pilot_duplicate_review.csv`.
+- Created, but did not launch to completion, `backend/scripts/review_segmentation_pilot.py` and `backend/scripts/annotate_segmentation_pilot.py`. Polygon annotation and segmentation training have not started.
+- Detection remains frozen; no firmware, backend, webcam, or production logic was changed. No split, training, commit, or push was performed.
+
+## 2026-10-04 — Segmentation QA completion, provenance audit, and polygon preparation
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+- Verified segmentation human QA is complete: road obstacle `61 KEEP / 0 REJECT`, pothole `59 KEEP / 1 REJECT`, clear road `60 KEEP / 0 REJECT`; total `180 KEEP`, `1 REJECT`, `0 PENDING`.
+- Audited road-obstacle provenance without renaming historical sessions. Timestamp and visual variation support distinct capture blocks for sessions `002`, `014`, `015`, `016`, `017`, and `018`; session `001` remains a one-image retained provenance record.
+- Provisional future grouping recommendation: `001/002/014/015` TRAIN, `016/017` VAL, `018` TEST. This is recorded as an audit recommendation only; no split was created.
+- Evidence: `reports/validation/vision/road_obstacle_session_provenance_audit.csv`.
+- Initialized `datasets/cityresponder_segmentation_pilot/annotations/annotation_manifest.csv`: road obstacle `61 PENDING`, pothole `59 PENDING`, clear road `60 NEGATIVE_CONFIRMED`.
+- Created `60` empty YOLO-seg label files for QA-KEEP clear-road images. The manual polygon UI is running for positive images only.
+- Polygon annotation and segmentation training have not started. Detection V2 remains frozen. No firmware/backend changes, split, commit, or push were performed.
+
+## 2026-10-04 — YOLOv8n-seg v1 training and held-out validation
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+- Validated the completed polygon annotations before training: `209` valid polygons across `120` positive images, `60` clear-road empty labels, `0` invalid labels, and `0` missing labels. QA rejects were excluded.
+- Created the session-aware split at `datasets/cityresponder_segmentation_pilot/yolo_segmentation_v1/`: train `111`, validation `39`, test `30`; road-obstacle/pothole/clear-road distributions are `31/40/40`, `20/9/10`, and `10/10/10`, respectively. Session leakage and image leakage are both `0`.
+- Corrected the Windows Ultralytics dataset-root declaration in `data.yaml`; no source images or annotations changed.
+- Ran one CPU `yolov8n-seg.pt` training job with `imgsz=640`, `epochs=60`, `patience=12`, `seed=42`, `batch=8`, and `workers=0`. Early stopping completed at epoch `30`; the best checkpoint was epoch `18` by the recorded segmentation fitness. Weights: `runs/segment/runs/cityresponder_segmentation_v1/train2/weights/best.pt` and `last.pt`.
+- Best-checkpoint validation metrics: mask P/R/mAP50/mAP50-95 = `0.9856 / 0.9981 / 0.9950 / 0.6752`; box P/R/mAP50/mAP50-95 = `0.9856 / 0.9981 / 0.9950 / 0.7241`.
+- Best-checkpoint test metrics: mask P/R/mAP50/mAP50-95 = `0.9872 / 1.0000 / 0.9950 / 0.6252`; box P/R/mAP50/mAP50-95 = `0.9872 / 1.0000 / 0.9950 / 0.6582`. Test mask mAP50-95 by class: road_obstacle `0.6827`, pothole `0.5677`.
+- Held-out clear-road audit: `10/10` images with `0` false-positive instances. Evidence: `reports/validation/vision/segmentation_v1_clear_road_fp.csv`.
+- Saved representative test predictions under `reports/validation/vision/segmentation_v1_predictions/rendered_final/`; bad-case report is `reports/validation/vision/segmentation_v1_bad_cases.csv` with `0` automatically identified cases.
+- Webcam benchmark used camera index `1`, actual `1920x1080`, fixed crop `(340,80,1080,840)`, and `640x640` inference input: `100` valid frames, `0` failed reads, average end-to-end `9.40 FPS`, median inference `79.99 ms`, p95 `90.28 ms`. Evidence: `reports/validation/vision/segmentation_v1_webcam_benchmark.json`.
+- Segmentation v1 remains a controlled tabletop pilot: no production integration, no firmware/backend changes, no automatic second training pass, and no commit/push. Detection V2 remains frozen.
+
+## 2026-10-04 — Frozen Detection V2 and Segmentation V1 prototype integration
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+- Integrated frozen Detection V2 weights at `runs/detect/runs/cityresponder_detection_v2/train/weights/best.pt` with exact classes `fire`, `smoke`, and `person`.
+- Integrated frozen Segmentation V1 weights at `runs/segment/runs/cityresponder_segmentation_v1/train2/weights/best.pt` with exact classes `road_obstacle` and `pothole`.
+- Added startup model-contract checks for weight existence, model task, and exact indexed class mapping; no fallback model is substituted.
+- Locked the shared camera pipeline to index `1`, native `1920x1080`, RAW_CAMERA crop `(340,80,1080,840)`, Building A ROI `(460,350,340,360)`, and road ROI `(10,675,1035,145)` in RAW_BOARD_CROP coordinates.
+- Added one shared-frame integration pipeline: capture once, crop once, run both frozen models, retain raw confidence/box/polygon evidence, and publish through the existing `city/vision/detection` and `city/vision/road` ingestion path. Fusion receives the resulting evidence through the existing perception snapshot; no vision code dispatches actuators.
+- Replaced process-local numeric camera frame IDs with UUID-based source identifiers so evidence from separate runtime sessions cannot collide.
+- Preserved the existing evidence policy: no continuous video storage and a hard maximum of five explicitly selected annotated frames per incident. The integration can render one selected audit frame in memory but does not auto-store it.
+- Added runtime vision health reporting. Camera, model, inference, or malformed-output failures raise an integration error and mark vision unavailable; they are not converted into clean/safe evidence.
+- Automated integration tests: `13 passed, 0 failed`. Covered model contracts/unavailable weights, locked crop, Building A and road geometry, structured outputs, empty results, camera/inference failures, evidence cap, no continuous video, and no direct actuator dispatch.
+- Real MQTT smoke handoff: broker connected; one Detection V2 message and one Segmentation V1 road message were persisted with model identity and reached the existing fusion input path. The published frame contained no detection/road segmentation evidence and issued no actuator command.
+- Real webcam smoke observations: normal/empty output occurred in `11/100` frames; no fire/person output was observed. The model emitted `134` pothole instances, but physical pothole ground truth was not independently confirmed, so no physical PASS is claimed for that scene.
+- Combined steady-state benchmark after one untimed integrated warm-up: `100` valid frames, `0` failures, `8.05 FPS`, end-to-end median `122.69 ms`, p95 `134.01 ms`; detection mean `46.78 ms`, segmentation mean `62.22 ms`. Evidence: `reports/validation/vision/vision_integration_benchmark.json`.
+- Regression checks passed: vision unit suite, fusion policy, severity policy, severity orchestration, dispatch policy, requirements/privacy/evidence validation, backend compilation, frontend typecheck, and frontend build.
+- Existing unrelated response E2E validation remains failed in unchanged `backend/app/respond/service.py`: a function-local `DEFAULT_ACTUATOR_NODE_ID` import shadows the module import and causes `UnboundLocalError` on the no-safe-route branch. It was reported and not modified.
+- Known limitations remain explicit: controlled tabletop datasets, no established real-world generalization, and native board crop `1080x840` below the `1536x1017` source target. MQ-2 formal calibration was not started. No commit/push was performed.
 
 ## Change entries
 

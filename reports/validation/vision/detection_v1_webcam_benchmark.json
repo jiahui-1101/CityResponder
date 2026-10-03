@@ -1,0 +1,30 @@
+{
+  "camera_index": 1,
+  "requested_resolution": [
+    1920,
+    1080
+  ],
+  "actual_resolution": [
+    1920,
+    1080
+  ],
+  "crop": [
+    340,
+    80,
+    1080,
+    840
+  ],
+  "input_resolution": [
+    640,
+    640
+  ],
+  "frames": 100,
+  "attempts": 100,
+  "failed_reads": 0,
+  "elapsed_seconds": 8.855935200001113,
+  "average_fps_including_capture_and_inference": 11.291862207843101,
+  "mean_inference_latency_ms": 76.62504099542275,
+  "median_latency_ms": 51.890150003600866,
+  "p95_latency_ms": 59.954100055620074,
+  "meets_5_inference_per_s": true
+}

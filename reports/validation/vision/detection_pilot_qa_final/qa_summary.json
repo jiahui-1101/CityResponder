@@ -1,0 +1,79 @@
+{
+  "images": 342,
+  "classes": {
+    "negative": 120,
+    "person": 82,
+    "fire": 70,
+    "smoke": 70
+  },
+  "sessions": {
+    "negative_session_001": 81,
+    "negative_session_002": 29,
+    "person_session_001": 62,
+    "fire_session_001": 50,
+    "smoke_session_001": 50,
+    "fire_session_002": 10,
+    "fire_session_003": 10,
+    "smoke_session_003": 10,
+    "smoke_session_002": 10,
+    "person_session_002": 10,
+    "person_session_003": 10,
+    "negative_session_003": 10
+  },
+  "all_images_readable": true,
+  "dimensions": {
+    "1080x840": 342
+  },
+  "exact_sha256_duplicate_groups": 0,
+  "near_duplicate_metric": "consecutive within-session dHash, Hamming distance <= 8",
+  "near_duplicate_pairs": 321,
+  "near_duplicate_candidate_images": 339,
+  "near_duplicate_pairs_by_class": {
+    "fire": 60,
+    "negative": 117,
+    "person": 79,
+    "smoke": 65
+  },
+  "near_duplicate_candidate_images_by_class": {
+    "negative": 120,
+    "person": 82,
+    "fire": 68,
+    "smoke": 69
+  },
+  "quality_thresholds": {
+    "blur_metric_below": 80.0,
+    "brightness_below": 40.0,
+    "brightness_above": 220.0
+  },
+  "quality_flag_rows": 342,
+  "class_consistency": "UNVERIFIED_HUMAN_REVIEW",
+  "contact_sheets": [
+    "reports/validation/vision/detection_pilot_qa_final/fire_fire_session_001_sheet_01.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/fire_fire_session_001_sheet_02.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/fire_fire_session_001_sheet_03.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/fire_fire_session_002_sheet_01.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/fire_fire_session_003_sheet_01.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/smoke_smoke_session_001_sheet_01.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/smoke_smoke_session_001_sheet_02.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/smoke_smoke_session_001_sheet_03.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/smoke_smoke_session_002_sheet_01.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/smoke_smoke_session_003_sheet_01.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/person_person_session_001_sheet_01.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/person_person_session_001_sheet_02.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/person_person_session_001_sheet_03.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/person_person_session_001_sheet_04.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/person_person_session_002_sheet_01.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/person_person_session_003_sheet_01.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/negative_negative_session_001_sheet_01.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/negative_negative_session_001_sheet_02.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/negative_negative_session_001_sheet_03.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/negative_negative_session_001_sheet_04.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/negative_negative_session_001_sheet_05.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/negative_negative_session_002_sheet_01.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/negative_negative_session_002_sheet_02.jpg",
+    "reports/validation/vision/detection_pilot_qa_final/negative_negative_session_003_sheet_01.jpg"
+  ],
+  "manifest": "datasets/cityresponder_detection_pilot/metadata/human_qa_manifest.csv",
+  "qa_flags": "reports/validation/vision/detection_pilot_qa_final/qa_flags.csv",
+  "near_duplicate_report": "reports/validation/vision/detection_pilot_qa_final/near_duplicate_pairs.csv"
+}

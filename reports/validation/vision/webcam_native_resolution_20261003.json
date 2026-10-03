@@ -1,0 +1,44 @@
+{
+  "camera_index": 1,
+  "physical_camera_moved": false,
+  "modes": [
+    {
+      "requested": [1280, 720],
+      "actual": [1280, 720],
+      "measured_fps": 28.267,
+      "failed_reads": 0,
+      "building_a_raw_xywh": [536.758, 249.046, 194.141, 180.261],
+      "road_raw_width_px": 471.484
+    },
+    {
+      "requested": [1920, 1080],
+      "actual": [1920, 1080],
+      "measured_fps": 28.444,
+      "failed_reads": 0,
+      "board_crop_raw_xywh": [360, 8, 1065, 1020],
+      "building_a_raw_xywh": [805.137, 373.568, 291.211, 270.392],
+      "road_raw_width_px": 707.227
+    },
+    {
+      "requested": [2560, 1440],
+      "actual": [1920, 1080],
+      "measured_fps": 28.417,
+      "failed_reads": 0,
+      "note": "Driver fell back to 1920x1080; not a distinct higher native mode."
+    }
+  ],
+  "selected_native_mode": {
+    "actual": [1920, 1080],
+    "measured_fps": 28.444,
+    "reason": "Highest actual stable mode observed while preserving the fixed full-model framing."
+  },
+  "source_requirement_check": {
+    "raw_board_crop_dimensions": [1065, 1020],
+    "raw_building_a_dimensions": [291.211, 270.392],
+    "raw_road_width_px": 707.227,
+    "corrected_source_requirement": [1536, 1017],
+    "building_a_source_requirement": [300, 180],
+    "status": "PARTIAL",
+    "note": "Native board crop width and Building A width remain below the stated source targets. Upsampling is not counted as raw detail."
+  }
+}

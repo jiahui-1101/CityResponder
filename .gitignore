@@ -15,3 +15,8 @@ firmware/ac1_mqtt/include/secrets.h
 **/runs/
 *.pt
 *.onnx
+
+# Generated vision caches and transient validator process logs
+datasets/**/labels/*.cache
+reports/validation/vision/*_stdout.log
+reports/validation/vision/*_stderr.log

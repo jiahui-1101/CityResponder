@@ -1,0 +1,23 @@
+{
+  "source_reference": "webcam_reference_20261003T091412Z.jpg",
+  "raw_camera_dimensions": [
+    1920,
+    1080
+  ],
+  "raw_board_crop_xywh": [
+    330,
+    25,
+    1020,
+    1015
+  ],
+  "calibrated_dimensions": [
+    1280,
+    1274
+  ],
+  "resize_factor": [
+    1.2549019607843137,
+    1.2551724137931035
+  ],
+  "selection_note": "Crop independently selected from the new physical camera position; no prior crop reused.",
+  "note": "Digital resize only; no additional raw spatial detail."
+}

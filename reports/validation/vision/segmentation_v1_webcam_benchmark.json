@@ -1,0 +1,21 @@
+{
+  "camera_index": 1,
+  "requested_resolution": "1920x1080",
+  "actual_width": 1920,
+  "actual_height": 1080,
+  "crop": {
+    "x": 340,
+    "y": 80,
+    "width": 1080,
+    "height": 840
+  },
+  "input_resolution": "640x640",
+  "frames": 100,
+  "failed_reads": 0,
+  "duration_seconds": 10.635087099974044,
+  "average_fps": 9.402837894975402,
+  "median_inference_latency_ms": 79.98969999607652,
+  "p95_inference_latency_ms": 90.27839999180287,
+  "valid_mode": true,
+  "target_ge_2_fps": true
+}

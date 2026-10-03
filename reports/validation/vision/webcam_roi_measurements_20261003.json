@@ -1,0 +1,53 @@
+{
+  "building_a": {
+    "calibrated_xywh": [
+      535,
+      440,
+      350,
+      325
+    ],
+    "raw_camera_xywh": [
+      536.7578125,
+      249.04567699836866,
+      194.140625,
+      180.2610114192496
+    ],
+    "calibrated_passes_minimum": true,
+    "raw_passes_minimum": false
+  },
+  "road": {
+    "calibrated_xywh": [
+      330,
+      810,
+      850,
+      120
+    ],
+    "raw_camera_xywh": [
+      423.046875,
+      454.2659053833605,
+      471.484375,
+      66.557911908646
+    ],
+    "calibrated_passes_minimum": true,
+    "raw_passes_minimum": true
+  },
+  "raw_camera_dimensions": [
+    1280,
+    720
+  ],
+  "calibrated_dimensions": [
+    1280,
+    1226
+  ],
+  "board_crop_raw_xywh": [
+    240,
+    5,
+    710,
+    680
+  ],
+  "scale": [
+    1.8028169014084507,
+    1.8029411764705883
+  ],
+  "requirement_basis": "The repository requires real-view pixel sizes but does not specify raw versus calibrated coordinates; exact ROI coordinates are explicitly TBD in the audit. No compliance PASS is claimed."
+}

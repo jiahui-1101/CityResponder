@@ -1,0 +1,45 @@
+{
+  "TRAIN": {
+    "total_images": 111,
+    "road_obstacle_images": 31,
+    "pothole_images": 40,
+    "clear_road_images": 40,
+    "sessions": [
+      "clear_road_session_001",
+      "pothole_session_001",
+      "road_obstacle_session_001",
+      "road_obstacle_session_002",
+      "road_obstacle_session_014",
+      "road_obstacle_session_015"
+    ]
+  },
+  "VALIDATION": {
+    "total_images": 39,
+    "road_obstacle_images": 20,
+    "pothole_images": 9,
+    "clear_road_images": 10,
+    "sessions": [
+      "clear_road_session_002",
+      "pothole_session_002",
+      "road_obstacle_session_016",
+      "road_obstacle_session_017"
+    ]
+  },
+  "TEST": {
+    "total_images": 30,
+    "road_obstacle_images": 10,
+    "pothole_images": 10,
+    "clear_road_images": 10,
+    "sessions": [
+      "clear_road_session_003",
+      "pothole_session_003",
+      "road_obstacle_session_018"
+    ]
+  },
+  "SESSION_LEAKAGE": 0,
+  "IMAGE_LEAKAGE": 0,
+  "QA_REJECT_INCLUDED": 0,
+  "source_keep_images": 180,
+  "split_images": 180,
+  "errors": []
+}

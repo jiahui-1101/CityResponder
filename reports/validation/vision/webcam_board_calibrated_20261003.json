@@ -1,0 +1,20 @@
+{
+  "source": "webcam_reference_20261003.jpg",
+  "source_dimensions_raw": [
+    1280,
+    720
+  ],
+  "board_crop_raw_xywh": [
+    240,
+    5,
+    710,
+    680
+  ],
+  "calibrated_dimensions": [
+    1280,
+    1226
+  ],
+  "scale_x": 1.8028169014084507,
+  "scale_y": 1.8029411764705883,
+  "note": "Fixed software crop/resize only; no new raw spatial detail."
+}

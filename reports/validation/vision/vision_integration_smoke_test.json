@@ -1,0 +1,38 @@
+{
+  "scope": "controlled tabletop prototype",
+  "camera_index": 1,
+  "actual_native_resolution": "1920x1080",
+  "raw_board_crop": {
+    "x": 340,
+    "y": 80,
+    "width": 1080,
+    "height": 840
+  },
+  "normal_scene": {
+    "status": "OBSERVED",
+    "evidence": "11 of 100 benchmark frames contained no detection or segmentation result"
+  },
+  "fire_or_person_scene": {
+    "status": "NOT_OBSERVED",
+    "evidence": "No fire or person model outputs were present during this unattended real-camera run"
+  },
+  "road_obstacle_or_pothole_scene": {
+    "status": "MODEL_OUTPUT_OBSERVED_PHYSICAL_GROUND_TRUTH_UNCONFIRMED",
+    "evidence": "134 pothole instances were emitted across the 100-frame benchmark; no user physical confirmation was requested or supplied"
+  },
+  "mqtt_handoff": {
+    "broker_connected": true,
+    "detection_event_persisted": true,
+    "road_event_persisted": true,
+    "published_frame_id": "56abdd7e-edea-4d72-9b91-c9a8a8542c28:board",
+    "detection_model_identity_persisted": true,
+    "segmentation_model_identity_persisted": true
+  },
+  "fusion_handoff": {
+    "vision_detection_present": true,
+    "road_evidence_count": 1,
+    "vision_source_references_present": true,
+    "direct_actuator_dispatch": false
+  },
+  "continuous_video_stored": false
+}

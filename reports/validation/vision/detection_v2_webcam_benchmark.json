@@ -1,0 +1,31 @@
+{
+  "camera_index": 1,
+  "requested_resolution": [
+    1920,
+    1080
+  ],
+  "actual_resolution": [
+    1920,
+    1080
+  ],
+  "crop_xywh": [
+    340,
+    80,
+    1080,
+    840
+  ],
+  "input_resolution": [
+    640,
+    640
+  ],
+  "frames": 100,
+  "failed_reads": 0,
+  "elapsed_s": 5.696102499961853,
+  "throughput_fps": 17.555863856148957,
+  "median_inference_ms": 51.79135000798851,
+  "p95_inference_ms": 59.88900002557784,
+  "min_inference_ms": 46.80800007190555,
+  "max_inference_ms": 64.02030005119741,
+  "target_fps": 5,
+  "pass_ge_5_inference_s": true
+}

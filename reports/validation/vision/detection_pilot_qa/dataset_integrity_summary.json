@@ -1,0 +1,50 @@
+{
+  "active_metadata_rows": 272,
+  "disk_images": 272,
+  "missing_references": [],
+  "untracked_images": [],
+  "validation_issues": [],
+  "classes": {
+    "negative": 110,
+    "person": 62,
+    "fire": 50,
+    "smoke": 50
+  },
+  "sessions": {
+    "negative_session_001": 81,
+    "negative_session_002": 29,
+    "person_session_001": 62,
+    "fire_session_001": 50,
+    "smoke_session_001": 50
+  },
+  "dimensions": {
+    "1080x840": 272
+  },
+  "exact_duplicate_groups": 0,
+  "near_duplicate_pairs": 260,
+  "near_duplicate_metric": "consecutive within-session dHash, Hamming distance <= 8",
+  "near_duplicate_by_class": {
+    "fire": 44,
+    "negative": 108,
+    "person": 61,
+    "smoke": 47
+  },
+  "contact_sheets": [
+    "reports/validation/vision/detection_pilot_qa/fire_contact_sheet_01.jpg",
+    "reports/validation/vision/detection_pilot_qa/fire_contact_sheet_02.jpg",
+    "reports/validation/vision/detection_pilot_qa/fire_contact_sheet_03.jpg",
+    "reports/validation/vision/detection_pilot_qa/smoke_contact_sheet_01.jpg",
+    "reports/validation/vision/detection_pilot_qa/smoke_contact_sheet_02.jpg",
+    "reports/validation/vision/detection_pilot_qa/smoke_contact_sheet_03.jpg",
+    "reports/validation/vision/detection_pilot_qa/person_contact_sheet_01.jpg",
+    "reports/validation/vision/detection_pilot_qa/person_contact_sheet_02.jpg",
+    "reports/validation/vision/detection_pilot_qa/person_contact_sheet_03.jpg",
+    "reports/validation/vision/detection_pilot_qa/person_contact_sheet_04.jpg",
+    "reports/validation/vision/detection_pilot_qa/negative_contact_sheet_01.jpg",
+    "reports/validation/vision/detection_pilot_qa/negative_contact_sheet_02.jpg",
+    "reports/validation/vision/detection_pilot_qa/negative_contact_sheet_03.jpg",
+    "reports/validation/vision/detection_pilot_qa/negative_contact_sheet_04.jpg",
+    "reports/validation/vision/detection_pilot_qa/negative_contact_sheet_05.jpg",
+    "reports/validation/vision/detection_pilot_qa/negative_contact_sheet_06.jpg"
+  ]
+}

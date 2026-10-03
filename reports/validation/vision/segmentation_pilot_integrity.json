@@ -1,0 +1,51 @@
+{
+  "distribution": {
+    "road_obstacle": {
+      "images": 61,
+      "sessions": {
+        "road_obstacle_session_001": 1,
+        "road_obstacle_session_002": 10,
+        "road_obstacle_session_014": 10,
+        "road_obstacle_session_015": 10,
+        "road_obstacle_session_016": 10,
+        "road_obstacle_session_017": 10,
+        "road_obstacle_session_018": 10
+      }
+    },
+    "pothole": {
+      "images": 60,
+      "sessions": {
+        "pothole_session_001": 40,
+        "pothole_session_002": 10,
+        "pothole_session_003": 10
+      }
+    },
+    "clear_road": {
+      "images": 60,
+      "sessions": {
+        "clear_road_session_001": 40,
+        "clear_road_session_002": 10,
+        "clear_road_session_003": 10
+      }
+    }
+  },
+  "total_images": 181,
+  "metadata_rows": 181,
+  "corrupt": [],
+  "orphan_metadata": [],
+  "exact_duplicate_groups": {},
+  "exact_duplicate_count": 0,
+  "near_duplicate_candidates": 165,
+  "dimension_mismatches": [],
+  "metadata_mismatches": [],
+  "filename_collisions": 0,
+  "extra_image": [
+    {
+      "class": "road_obstacle",
+      "session": "road_obstacle_session_001",
+      "filename": "raw/road_obstacle/road_obstacle_session_001_0001_20261003T190745Z.jpg",
+      "kept": true,
+      "reason": "road_obstacle class contains 61 images versus the approximate 60-image target; no automatic deletion performed"
+    }
+  ]
+}

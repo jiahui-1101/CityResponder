@@ -1,0 +1,8 @@
+session_id,image_count,first_timestamp,last_timestamp,distinct_capture_setup_supported,evidence,recommended_split_role
+road_obstacle_session_001,1,2026-10-03T19:07:45.016893+00:00,2026-10-03T19:07:45.016893+00:00,UNRESOLVED,One image only; retained as early provenance; no basis to promote to VAL/TEST.,TRAIN
+road_obstacle_session_002,10,2026-10-03T19:09:18.074183+00:00,2026-10-03T19:09:47.971137+00:00,YES,Distinct timestamp block (19:09:18–19:09:47) and visible red raised-object position changes; recommended early training group.,TRAIN
+road_obstacle_session_014,10,2026-10-03T19:11:20.721325+00:00,2026-10-03T19:11:48.760461+00:00,YES,Distinct timestamp block (19:11:20–19:11:48) with a different white circular prop plus red object positions; recommended training group.,TRAIN
+road_obstacle_session_015,10,2026-10-03T19:19:10.235256+00:00,2026-10-03T19:19:33.591194+00:00,YES,Distinct timestamp block (19:19:10–19:19:33) and changed object positions; recommended training group.,TRAIN
+road_obstacle_session_016,10,2026-10-03T19:19:42.645593+00:00,2026-10-03T19:20:10.132215+00:00,YES,Distinct later timestamp block (19:19:42–19:20:10) with changed positions; provisional validation group.,VAL
+road_obstacle_session_017,10,2026-10-03T19:20:24.271186+00:00,2026-10-03T19:20:44.995337+00:00,YES,Distinct later timestamp block (19:20:24–19:20:44) with changed positions; provisional validation group.,VAL
+road_obstacle_session_018,10,2026-10-03T19:20:58.896862+00:00,2026-10-03T19:21:31.260430+00:00,YES,Latest distinct timestamp block (19:20:58–19:21:31) with changed positions; provisional held-out test group.,TEST

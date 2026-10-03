@@ -1,0 +1,10 @@
+image,ground_truth_summary,prediction_summary,issue_type,notes
+fire_session_003_0002_20261003T153810Z.jpg,fire,fire:0.63; fire:0.28,LOW_CONFIDENCE,fire prediction confidence 0.28 below 0.40.
+fire_session_003_0004_20261003T153916Z.jpg,fire,none,FALSE_NEGATIVE_OR_LOCALIZATION,Ground-truth fire lacks same-class IoU>=0.5 prediction.
+fire_session_003_0006_20261003T153958Z.jpg,fire,fire:0.59; fire:0.27,LOW_CONFIDENCE,fire prediction confidence 0.27 below 0.40.
+fire_session_003_0008_20261003T154050Z.jpg,fire,none,FALSE_NEGATIVE_OR_LOCALIZATION,Ground-truth fire lacks same-class IoU>=0.5 prediction.
+fire_session_003_0010_20261003T154159Z.jpg,fire,fire:0.47; person:0.34,LOW_CONFIDENCE,person prediction confidence 0.34 below 0.40.
+person_session_003_0002_20261003T155806Z.jpg,person,person:0.74; person:0.32; person:0.32,LOW_CONFIDENCE,person prediction confidence 0.32 below 0.40.
+person_session_003_0003_20261003T155824Z.jpg,person,person:0.46; person:0.31,LOW_CONFIDENCE,person prediction confidence 0.31 below 0.40.
+smoke_session_003_0002_20261003T154754Z.jpg,smoke,none,FALSE_NEGATIVE_OR_LOCALIZATION,Ground-truth smoke lacks same-class IoU>=0.5 prediction.
+smoke_session_003_0009_20261003T155158Z.jpg,smoke; smoke,smoke:0.88,FALSE_NEGATIVE_OR_LOCALIZATION,Ground-truth smoke lacks same-class IoU>=0.5 prediction.

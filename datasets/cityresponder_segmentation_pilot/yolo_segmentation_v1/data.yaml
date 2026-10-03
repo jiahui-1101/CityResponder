@@ -1,0 +1,7 @@
+path: datasets/cityresponder_segmentation_pilot/yolo_segmentation_v1
+train: images/train
+val: images/val
+test: images/test
+names:
+  0: road_obstacle
+  1: pothole
