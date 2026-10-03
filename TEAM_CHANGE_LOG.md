@@ -1499,36 +1499,81 @@ Future changes must not invalidate this baseline without updating validation evi
 **Commit:** not committed yet
 
 **Requirement / area:**
-- FUSION-01 to FUSION-07 (Fire Fusion Module)[cite: 18]
+- FUSION-01 to FUSION-07 (Fire Fusion Module)
 
 **Files changed:**
 - `fire_fusion.md`
 
 **Previous behavior / value:**
-- The document contained unresolved questions and mixed proposals (Zhenjie's drafts vs. Jiabao's ideas)[cite: 18].
-- Lacked strict hardware constraints (warm-up times, wiring) and lacked a clear resolution for the race condition between automatic and manual confirmations[cite: 18].
+- The document contained unresolved questions and mixed proposals (Zhenjie's drafts vs. Jiabao's ideas).
+- Lacked strict hardware constraints (warm-up times, wiring) and lacked a clear resolution for the race condition between automatic and manual confirmations.
 
 **New behavior / value:**
-- Consolidated into a clean master specification following team decisions exclusively[cite: 18].
-- Finalized sensor baselines (MQ-2: 500/2000, DHT22: 30°C/50°C) and stale limits (MQ-2: 2.0s, DHT22: 3.0s, Camera: 1.0s)[cite: 18].
-- Added the "Lock Rule": if the automatic gate passes before the Operator confirms, the system's automated confirmation takes precedence and ignores the manual confirm[cite: 18].
-- Enforced hardware rules: DHT22 values are held across 1s windows, MQ-2 requires a 60s warm-up, and MQ-2 must be wired to an ESP32 ADC1 pin with a voltage divider[cite: 18].
+- Consolidated into a clean master specification following team decisions exclusively.
+- Finalized sensor baselines (MQ-2: 500/2000, DHT22: 30°C/50°C) and stale limits (MQ-2: 2.0s, DHT22: 3.0s, Camera: 1.0s).
+- Added the "Lock Rule": if the automatic gate passes before the Operator confirms, the system's automated confirmation takes precedence and ignores the manual confirm.
+- Enforced hardware rules: DHT22 values are held across 1s windows, MQ-2 requires a 60s warm-up, and MQ-2 must be wired to an ESP32 ADC1 pin with a voltage divider
 
 **Why this changed:**
 - team decision / logic compilation. The file was rewritten to serve as a finalized, developer-ready master specification by removing outdated discussions and integrating the Hidden Conflicts Review solutions.
 
 **Source / decision reference:**
-- Team decisions and "Hidden Conflicts Review"[cite: 18].
+- Team decisions and "Hidden Conflicts Review".
 
 **Validation performed:**
-- Logic review for state machine race conditions and hardware limitations[cite: 18].
+- Logic review for state machine race conditions and hardware limitations.
 
 **Requirement status after change:**
 - PASS
 
 **Impact on teammates:**
-- Backend developers must implement the lock rule for the `ALERT` to `CONFIRMED` state transition[cite: 18].
-- Hardware team must ensure ESP32 ADC1 wiring and calibrate the MQ-2 sensor only after the 60s warm-up[cite: 18].
+- Backend developers must implement the lock rule for the `ALERT` to `CONFIRMED` state transition.
+- Hardware team must ensure ESP32 ADC1 wiring and calibrate the MQ-2 sensor only after the 60s warm-up.
 
 **Follow-up required:**
-- Hardware team to physically measure and confirm if 60s is sufficient for the MQ-2 warm-up[cite: 18].
+- Hardware team to physically measure and confirm if 60s is sufficient for the MQ-2 warm-up.
+
+## 2026-10-03 16:27 — Finalize Severity Definitions and Floor Rule 
+ 
+**Changed by:** Hong Jia Bao 
+**Branch:** main 
+**Commit:** not committed yet 
+ 
+**Requirement / area:** 
+- TBD-SEV-01 to TBD-SEV-06 (Severity Module)
+ 
+**Files changed:** 
+- `severity.md`
+ 
+**Previous behavior / value:** 
+- Variables `A` and `Z` were undefined in the proposal.
+- Confusion existed on whether severity `S` and `T` reused the Fusion module's scores.
+- Hazard zone geometry and person (`P`) trigger frames were missing.
+- Numeric bands for severity levels were undefined, and system behavior was unclear when `R` could not be calculated.
+ 
+**New behavior / value:** 
+- Defined `A` (fire bounding box area / hazard zone polygon area) and `Z` (Zone Vulnerability Score from config).
+- Renamed variables to `S_smoke` (pure MQ-2 score) and `T_heat` (pure DHT22 score) to separate them completely from Fusion logic.
+- Defined `P = 1` trigger: box center inside the polygon, confidence ≥ 0.50, requiring only **1 frame** to escalate to Critical.
+- Established severity bands (Low 0-29, Medium 30-49, High 50-69, Critical 70-80).
+- Added the "Floor Rule": If `R` is unavailable, the Operator chooses the severity. When `R` recovers, the system automatically uses the higher severity (Operator's choice acts as a floor).
+ 
+**Why this changed:** 
+- team decision / logic compilation. Variables had to be defined for backend implementation, and the missing data behavior needed strict rules to prevent manual dispatch errors.
+ 
+**Source / decision reference:** 
+- Team decisions and "Hidden Conflicts Review".
+ 
+**Validation performed:** 
+- Logic review for missing variables and edge cases (e.g., missing R score, false-dispatch rate mitigation).
+ 
+**Requirement status after change:** 
+- PASS
+ 
+**Impact on teammates:** 
+- Backend developers must implement the "Floor Rule" and calculate pure sensor values separately from Fusion.
+- Hardware team must physically measure and map the hazard polygon coordinates in the sandbox.
+ 
+**Follow-up required:** 
+- Physically measure the polygon pixels in the sandbox.
+- Add specific test scenarios to check the false-dispatch rate for the 1-frame `P = 1` rule (goal ≤ 10%).
