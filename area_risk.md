@@ -4,7 +4,7 @@ Owner: Zhen Jie
 Covers: TBD-RISK-01 to TBD-RISK-09
 Source basis: Proposal sections 4.4 and 5.1 (Learn phase, `/risk` page), `SOURCE_TBD_REQUIREMENTS.md` section 7
 
-**Status tag:** `CHOSEN` = the proposal does not fully define this item, so it is a design choice made by Zhen Jie (with Claude's help). Every item needs team sign-off and a `TEAM_CHANGE_LOG.md` entry before the real TBD file is updated. If the proposal authors had a specific meaning, theirs wins.
+**Status tag:** `APPROVED` = decided and approved by Zhen Jie as owner of this section. No separate team sign-off was requested. The proposal does not fully define these items, so they are design decisions; if the proposal authors had a specific meaning, theirs should replace it. Each decision is recorded in `TEAM_CHANGE_LOG.md`.
 
 **What the proposal already fixes**
 - Score = `100 * (0.30F + 0.25R + 0.20E + 0.15A + 0.10M)`
@@ -13,9 +13,9 @@ Source basis: Proposal sections 4.4 and 5.1 (Learn phase, `/risk` page), `SOURCE
 - Repeated fires may show "possible electrical-risk hotspot; inspection recommended", never a diagnosis.
 - The proposal does **not** say what F, R, E, A, M stand for. RISK-01 to 05 below are my choices, built only from data the system already records and from topics in proposal section 3.2.
 
-**General rules (CHOSEN)**
+**General rules (APPROVED)**
 - RISK-G1: Every component F, R, E, A, M is a number in [0, 1].
-- RISK-G2: Only incidents the operator verified as real (CONFIRM) count. REJECT and CANCEL do not count (must stay consistent with TBD-INC-01, section 6).
+- RISK-G2: Only incidents the operator verified as a real fire count. In the code this is the closed state `VERIFIED_FIRE` (Hong Jia Bao, change log 2026-10-02 22:45). `REJECTED` and `CANCELLED` incidents do not count. Please check with him the exact difference between `VERIFIED` and `VERIFIED_FIRE`.
 - RISK-G3: Rolling window: an incident counts if its start time is within the 180 days before the calculation time.
 - RISK-G4: If a component cannot be calculated, the score is `not_calculated` with a visible reason. No silent zero.
 - RISK-G5: The `/risk` page shows the breakdown (F, R, E, A, M values and weights) so the Risk Planner can see why.
@@ -24,7 +24,7 @@ Source basis: Proposal sections 4.4 and 5.1 (Learn phase, `/risk` page), `SOURCE
 ---
 
 ## TBD-RISK-01: F (Frequency)
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **Requirement**
 - F = how often the area had verified incidents compared with other areas.
@@ -33,7 +33,7 @@ Source basis: Proposal sections 4.4 and 5.1 (Learn phase, `/risk` page), `SOURCE
 **Why:** relative scaling needs no invented cap. The side effect is that the busiest area always gets F = 1.0, so F is a ranking measure, not an absolute one. The "repeated fires" wording in the proposal makes frequency the natural meaning of the first and biggest component.
 
 ## TBD-RISK-02: R (Recency)
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **Requirement**
 - R = how recent the latest verified incident of the area is.
@@ -42,7 +42,7 @@ Source basis: Proposal sections 4.4 and 5.1 (Learn phase, `/risk` page), `SOURCE
 **Why:** it uses the same 180-day window as the rest of the score, so no new number is introduced.
 
 ## TBD-RISK-03: E (Escalation)
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **Requirement**
 - E = how severe the area's verified incidents were.
@@ -53,7 +53,7 @@ Source basis: Proposal sections 4.4 and 5.1 (Learn phase, `/risk` page), `SOURCE
 **Dependency:** severity score definitions (TBD-SEV, section 3, other owner).
 
 ## TBD-RISK-04: A (Access)
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **Requirement**
 - A = how often reaching the area was difficult.
@@ -64,7 +64,7 @@ Source basis: Proposal sections 4.4 and 5.1 (Learn phase, `/risk` page), `SOURCE
 **Dependency:** routing events must be logged per incident (section 5, other owner).
 
 ## TBD-RISK-05: M (Maintenance / readiness gap)
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **Requirement**
 - M = how many basic readiness checks the area fails.
@@ -75,7 +75,7 @@ Source basis: Proposal sections 4.4 and 5.1 (Learn phase, `/risk` page), `SOURCE
 **Why:** these three readiness problems are the ones the proposal gives as real-life examples, and it gives M the lowest weight (0.10), which fits a static factor.
 
 ## TBD-RISK-06: Area identity and mapping
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **What an "area" is:** one building or structure on the 120 cm x 90 cm tabletop model. The proposal gives every structure its own region on the overhead camera image (at least 280 x 180 px), so each of those regions is one area.
 
@@ -89,7 +89,7 @@ Source basis: Proposal sections 4.4 and 5.1 (Learn phase, `/risk` page), `SOURCE
 **Still to fill in by the team:** how many structures there are, their IDs and names.
 
 ## TBD-RISK-07: Risk bands and thresholds
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **Requirement**
 - No Low / Medium / High bands until the team defines the cutoffs. The `/risk` page shows only the numeric score and ranking.
@@ -99,7 +99,7 @@ Source basis: Proposal sections 4.4 and 5.1 (Learn phase, `/risk` page), `SOURCE
 **Why 3:** one fire is an event, two is a recurrence, three starts to look like a pattern. Showing a hotspot hint after two would be too easy to trigger by coincidence.
 
 ## TBD-RISK-08: Cold start behavior
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **Requirement**
 - `n_a = 0`: show "No verified history (last 180 days)". No score.
@@ -111,7 +111,7 @@ Source basis: Proposal sections 4.4 and 5.1 (Learn phase, `/risk` page), `SOURCE
 **Why 2:** one incident says nothing about a trend. Two is the smallest number that shows a repeat, and still reachable in a demo.
 
 ## TBD-RISK-09: What-if and predictive semantics
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **Requirement**
 - No what-if or predictive simulation for now.
