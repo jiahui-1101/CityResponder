@@ -4,12 +4,12 @@ Owner: Zhen Jie
 Covers: TBD-OPS-01 to TBD-OPS-03
 Source basis: Proposal sections 2, 4.3, 5.1, and the setup/run steps (host workstation, Mosquitto, backend, frontend); `SOURCE_TBD_REQUIREMENTS.md` section 11
 
-**Status tag:** `CHOSEN` = the proposal does not fully define this item, so it is a design choice made by Zhen Jie (with Claude's help). Every item needs team sign-off and a `TEAM_CHANGE_LOG.md` entry before the real TBD file is updated. If the proposal authors had a specific meaning, theirs wins.
+**Status tag:** `APPROVED` = decided and approved by Zhen Jie as owner of this section. No separate team sign-off was requested. The proposal does not fully define these items, so they are design decisions; if the proposal authors had a specific meaning, theirs should replace it. Each decision is recorded in `TEAM_CHANGE_LOG.md`.
 
 ---
 
 ## TBD-OPS-01: Production topology and load expectations
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **Requirement (confirmed part)**
 
@@ -34,7 +34,7 @@ Users:
 **Why 4 users:** the proposal does not give a number. 4 follows from the 4 roles and is only a design target. I am about 80% sure it is reasonable, so please tell me if the demo needs more sessions (for example judges watching).
 
 ## TBD-OPS-02: Production scalability acceptance criteria
-**Status:** `CHOSEN`
+**Status:** `APPROVED`
 
 **Requirement**
 - No scale target beyond the tabletop demo is defined, so scaling beyond one host and one model is out of scope.
@@ -50,12 +50,12 @@ Users:
 **Why:** inventing new load numbers would be a fake value, which the TBD file forbids.
 
 ## TBD-OPS-03: Production availability and recovery policy
-**Status:** `CHOSEN` (heartbeat value is an engineering choice, see below)
+**Status:** `APPROVED` (the 3 s heartbeat is an engineering choice and still has to be tested on hardware)
 
 **Requirement**
 - No uptime percentage target (prototype, not a certified life-safety product).
 - Data lives in SQLite and survives a backend restart. After a restart the backend reloads unfinished incidents and the audit history stays intact.
-- **Actuators go to the fail-safe state when the backend is lost** (decided by Zhen Jie): signals ALL_RED, barriers CLOSE, hazard lights ON. This is the same fail-safe the proposal already uses when an ACK fails.
+- **Actuators go to the fail-safe state when the backend is lost** (decided by Zhen Jie): traffic ALL_RED, gate CLOSE, buzzer ON. This is the same safe default the backend already applies for `FAILSAFE` and for an exhausted ACK retry (the proposal calls the third item "hazard lights"; the implementation uses the buzzer).
 - How AC1 detects that the backend is lost:
   1. The backend connects to Mosquitto with a Last Will message, so the broker announces "backend offline" immediately if the backend drops.
   2. As a backup, AC1 enters the fail-safe state if it receives no backend heartbeat for 3 seconds (heartbeat sent every 1 second, matching the 1-second fusion window). The 3 s value is my engineering choice and must be tested on the real hardware.
