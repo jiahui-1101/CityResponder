@@ -1,165 +1,135 @@
 # CityResponder: Area Risk Requirements (TBD section 7)
+
 Owner: Zhen Jie
 Covers: TBD-RISK-01 to TBD-RISK-09
-Source basis: Proposal sections 4.4 and 5.1 (Learn phase, /risk page), SOURCE_TBD_REQUIREMENTS.md section 7, TEAM_TECHNICAL_REQUIREMENTS.md section 6
+Source basis: Proposal sections 4.4 and 5.1 (Learn phase, `/risk` page), `SOURCE_TBD_REQUIREMENTS.md` section 7
 
-## Status tags
-* **CONFIRMED**: decided with high confidence from TEAM_TECHNICAL_REQUIREMENTS.md baseline and proposal logic.
-* **PARTIAL**: the definition is confirmed but a number or detail is still missing. (None remaining)
-* **PENDING**: cannot be decided from the documents. Waiting for clarification. (None remaining)
+**Status tag:** `CHOSEN` = the proposal does not fully define this item, so it is a design choice made by Zhen Jie (with Claude's help). Every item needs team sign-off and a `TEAM_CHANGE_LOG.md` entry before the real TBD file is updated. If the proposal authors had a specific meaning, theirs wins.
 
-## What the proposal and technical requirements fix
-* Score = 100 * (0.30F + 0.25R + 0.20E + 0.15A + 0.10M)
-* Uses confirmed/operator-verified incidents only, in a 180-day rolling window.
-* It is a transparent, explainable weighted score, "not a black-box prediction".
-* Repeated fires may display the cautious wording "possible electrical-risk hotspot; inspection recommended", never a definitive diagnosis.
-* Full mathematical breakdown and component definitions:
-  - F = Frequency of confirmed incidents in last 180 days: min(confirmed_incidents_in_last_180_days / 5, 1.0)
-  - R = Recency exponential decay: exp(-days_since_latest_confirmed_incident / 60)
-  - E = Verified electrical incident ratio: verified_electrical_incidents / confirmed_incidents_in_last_180_days
-  - A = Repeated sensor anomalies (near-misses): min(repeated_sensor_anomaly_events_in_last_30_days / 5, 1.0)
-  - M = Maintenance overdue/inspection status: 1.0 if overdue > 30 days, 0.5 if open <= 30 days, 0.0 if none due
+**What the proposal already fixes**
+- Score = `100 * (0.30F + 0.25R + 0.20E + 0.15A + 0.10M)`
+- Operator-verified incidents only, rolling 180-day window.
+- It is a transparent weighted score, "not a black-box prediction".
+- Repeated fires may show "possible electrical-risk hotspot; inspection recommended", never a diagnosis.
+- The proposal does **not** say what F, R, E, A, M stand for. RISK-01 to 05 below are my choices, built only from data the system already records and from topics in proposal section 3.2.
 
-## General rules for this section (CONFIRMED)
-* RISK-G1: Every component F, R, E, A, M shall be a number in [0.0, 1.0].
-* RISK-G2: Only incidents that the operator verified and marked as CONFIRMED count toward F, R, and E. REJECTED, FALSE_ALARM, and CANCELLED do not count toward fire incidents.
-* RISK-G3: The 180-day window is rolling: an incident counts if its start timestamp (`created_at`) is within 180 days before the moment the score is calculated.
-* RISK-G4: If a component cannot be calculated due to missing system data or uninitialized state, the score shall be `not_calculated` with a visible diagnostic reason. No silent zero.
-* RISK-G5: The UI shall show the score as a transparent breakdown (individual F, R, E, A, M values and their weights) so the City Risk Planner can audit why an area is ranked at a given risk level.
+**General rules (CHOSEN)**
+- RISK-G1: Every component F, R, E, A, M is a number in [0, 1].
+- RISK-G2: Only incidents the operator verified as real (CONFIRM) count. REJECT and CANCEL do not count (must stay consistent with TBD-INC-01, section 6).
+- RISK-G3: Rolling window: an incident counts if its start time is within the 180 days before the calculation time.
+- RISK-G4: If a component cannot be calculated, the score is `not_calculated` with a visible reason. No silent zero.
+- RISK-G5: The `/risk` page shows the breakdown (F, R, E, A, M values and weights) so the Risk Planner can see why.
+- RISK-G6: Notation: for area `a`, `n_a` = number of verified incidents of that area in the window.
 
 ---
 
-## TBD-RISK-01: F definition and normalization
-**Status**: CONFIRMED
+## TBD-RISK-01: F (Frequency)
+**Status:** `CHOSEN`
 
 **Requirement**
-* `F` represents the frequency of confirmed incidents in the designated area within the 180-day rolling window.
-* Formula: `F = min(confirmed_incidents_in_last_180_days / 5.0, 1.0)`.
-* `F_cap` is fixed at `5.0`. An area experiencing 5 or more confirmed fires within 180 days achieves the maximum frequency risk score of `1.0`.
+- F = how often the area had verified incidents compared with other areas.
+- `F = n_a / max over all areas (n_b)`. If the maximum is 0, no area has history (see RISK-08).
 
-**Team answer**: `F_cap` is strictly fixed to **5** as established in Section 6.2 of `TEAM_TECHNICAL_REQUIREMENTS.md`. This captures repeatability within the 45-row historical dataset (15 cases per area) without letting a single extreme cluster permanently skew the 180-day window.
+**Why:** relative scaling needs no invented cap. The side effect is that the busiest area always gets F = 1.0, so F is a ranking measure, not an absolute one. The "repeated fires" wording in the proposal makes frequency the natural meaning of the first and biggest component.
 
----
-
-## TBD-RISK-02: R definition and normalization
-**Status**: CONFIRMED
+## TBD-RISK-02: R (Recency)
+**Status:** `CHOSEN`
 
 **Requirement**
-* `R` represents **Recency** of the most recent confirmed incident in the area.
-* Formula: `R = exp(-days_since_latest_confirmed_incident / 60.0)`.
-* An incident occurring today produces `R = exp(0) = 1.00`. An incident 60 days ago produces `R = exp(-1) ≈ 0.368`. An incident at 180 days produces `R = exp(-3) ≈ 0.050`. If an area has no confirmed incidents in the 180-day window, `R = 0.0`.
+- R = how recent the latest verified incident of the area is.
+- `R = max(0, 1 - d / 180)` where `d` = days since the latest verified incident of that area. Today gives 1.0, 180 days ago gives 0.
 
-**Team answer**: `R` stands for **Recency** using exponential decay with a **60-day half-life constant (`lambda = 1/60`)**, as defined in Section 6.2 of `TEAM_TECHNICAL_REQUIREMENTS.md`. This smooth continuous decay avoids artificial cliffs caused by step functions.
+**Why:** it uses the same 180-day window as the rest of the score, so no new number is introduced.
 
----
-
-## TBD-RISK-03: E definition and normalization
-**Status**: CONFIRMED
+## TBD-RISK-03: E (Escalation)
+**Status:** `CHOSEN`
 
 **Requirement**
-* `E` represents the **Verified Electrical Ratio** among confirmed incidents in the 180-day window.
-* Formula: `E = verified_electrical_incidents / confirmed_incidents_in_last_180_days`.
-* If `confirmed_incidents_in_last_180_days == 0`, `E = 0.0`.
-* The cause is sourced exclusively from the post-incident outcome feedback form submitted by the authorized operator/firefighter (feedback table `probable_cause == 'ELECTRICAL'`).
+- E = how severe the area's verified incidents were.
+- For each verified incident, `s_i = severity score R / 100`, or `1.0` if the Critical person override applied. `E = average of s_i` over the area's verified incidents.
+- Incidents without a stored numeric severity are left out of the average. If none has one, E is `not_calculated`.
 
-**Team answer**: `E` stands for **Verified Electrical Ratio**, matching Section 6.2 and 7.1 of `TEAM_TECHNICAL_REQUIREMENTS.md`. Feedback submitted at incident resolution stores `probable_cause`, allowing verified electrical incidents to be isolated and normalized directly against total confirmed incidents.
+**Why not "electrical":** the proposal's "electrical-risk" text is only cautious wording, and the system has no field for the cause of a fire, so an electrical indicator cannot be calculated honestly.
+**Dependency:** severity score definitions (TBD-SEV, section 3, other owner).
 
----
-
-## TBD-RISK-04: A definition and normalization
-**Status**: CONFIRMED
+## TBD-RISK-04: A (Access)
+**Status:** `CHOSEN`
 
 **Requirement**
-* `A` represents **Repeated Sensor Anomalies** (near-misses / sub-threshold spikes) detected in the area within the last 30 days.
-* Formula: `A = min(repeated_sensor_anomaly_events_in_last_30_days / 5.0, 1.0)`.
-* An anomaly event is defined as a persistent environmental reading of Smoke `S >= 0.55` and Temperature `T >= 0.50` lasting at least 3 consecutive seconds without resulting in an operator-confirmed fire dispatch.
-* 5 anomaly episodes within 30 days saturate `A` to `1.0`.
+- A = how often reaching the area was difficult.
+- `A = (verified incidents of the area whose dispatch route had a blocked or conflict-pruned edge, or needed a reroute) / n_a`.
+- Data source: route and blockage events already kept in the append-only history.
 
-**Team answer**: `A` stands for **Repeated Sensor Anomaly Events**, fixed by Section 6.2 of `TEAM_TECHNICAL_REQUIREMENTS.md`. This captures early hardware/infrastructure warning signs (near-miss thermal/gas spikes) independently of full fire dispatches.
+**Why:** proposal section 3.2 talks about narrow access lanes being blocked, and routing blockages are recorded by the system, so no new data is needed.
+**Dependency:** routing events must be logged per incident (section 5, other owner).
 
----
-
-## TBD-RISK-05: M definition and normalization
-**Status**: CONFIRMED
+## TBD-RISK-05: M (Maintenance / readiness gap)
+**Status:** `CHOSEN`
 
 **Requirement**
-* `M` represents **Maintenance Status** of the area/building derived from the municipal inspection queue.
-* Piecewise schedule:
-  - `M = 1.0`: Inspection overdue by more than 30 days.
-  - `M = 0.5`: Inspection open / scheduled / pending for at most 30 days.
-  - `M = 0.0`: Up to date; no inspection due.
+- M = how many basic readiness checks the area fails.
+- Each area has three yes/no checks in the area config, taken from proposal section 3.2: (1) fire certificate valid, (2) emergency alarm audible in the whole building, (3) escape routes and corridors not obstructed (for example by grilles).
+- `M = number of failed checks / 3`.
+- The City Risk Planner maintains these values. If an area has no values entered, M is `not_calculated` (RISK-G4).
 
-**Team answer**: `M` stands for **Maintenance Status**, strictly mapped to the discrete regulatory schedule defined in Section 6.2 of `TEAM_TECHNICAL_REQUIREMENTS.md`.
-
----
+**Why:** these three readiness problems are the ones the proposal gives as real-life examples, and it gives M the lowest weight (0.10), which fits a static factor.
 
 ## TBD-RISK-06: Area identity and mapping
-**Status**: CONFIRMED
+**Status:** `CHOSEN`
+
+**What an "area" is:** one building or structure on the 120 cm x 90 cm tabletop model. The proposal gives every structure its own region on the overhead camera image (at least 280 x 180 px), so each of those regions is one area.
 
 **Requirement**
-* The city model has exactly three fixed areas:
-  1. `Area A` / `B-A`: Live Fire Zone Building A (`x=92–116, y=70–88`), occupied commercial (`Z=0.80`).
-  2. `Area B` / `B-B`: Building B (`x=48–72, y=40–58`), commercial/residential baseline.
-  3. `Area C` / `B-C`: Building C (`x=4–28, y=72–86`), historical risk comparison zone.
-* Incidents are assigned via detection coordinate inside the calibrated camera ROI polygon.
-* For non-camera alerts (e.g., manual push button PB1 or pure sensor anomalies), the incident record is statically mapped to the physical zone containing the sensor/button hardware (Button PB1 at `(90,75)` maps to `Area A`).
+- Area list: one entry per structure ROI. Each has `area_id` (for example `AREA_01`) and a display name that matches the label on the physical model. One shared config list is used by routing, severity and risk.
+- Automatic assignment: the incident gets the area whose ROI contains the center point of its fire detection. If the center lies in two ROIs, use the one with the larger overlap.
+- No camera detection (for example only the button or smoke sensor triggered): the operator must choose the area when confirming the incident.
+- The operator may correct the area when confirming. An incident without an area never counts toward Area Risk.
+- The incident record shall store `area_id`. If the current database has no such field, add one.
 
-**Team answer**: The model implements three areas: **Area A**, **Area B**, and **Area C** as defined in Section 8.2 and 8.3 of `TEAM_TECHNICAL_REQUIREMENTS.md`. Every incident record stores `area_id`. Non-camera alerts default to the device-to-zone hardware mapping registered in `devices.area_id` in SQLite.
-
----
+**Still to fill in by the team:** how many structures there are, their IDs and names.
 
 ## TBD-RISK-07: Risk bands and thresholds
-**Status**: CONFIRMED
+**Status:** `CHOSEN`
 
 **Requirement**
-* Numeric score range: `0` to `100`.
-* The four fixed operational risk priority bands are:
-  - `0–29`: **Low** (Dashboard action: Continue monitoring)
-  - `30–59`: **Moderate** (Dashboard action: Review trend)
-  - `60–79`: **High** (Dashboard action: Recommend inspection)
-  - `80–100`: **Critical** (Dashboard action: Prioritise inspection and operator review)
-* Cautious wording rule: The label `"possible electrical-risk hotspot; inspection recommended"` shall appear ONLY when `Risk >= 60` (High or Critical) AND `E >= 0.40` (at least 40% of confirmed incidents verified electrical). The UI shall never state "wiring fault confirmed".
+- No Low / Medium / High bands until the team defines the cutoffs. The `/risk` page shows only the numeric score and ranking.
+- Wording "possible electrical-risk hotspot; inspection recommended" is shown only for an area with 3 or more verified incidents in the window ("repeated" = 3 or more).
+- The number 3 is a configuration value, not hard-coded.
 
-**Team answer**: Confirmed. Bands are explicitly defined as **Low (0–29), Moderate (30–59), High (60–79), and Critical (80–100)** in Section 6.2 of `TEAM_TECHNICAL_REQUIREMENTS.md`. Cautious wording criteria are strictly bounded to prevent unverified diagnoses.
-
----
+**Why 3:** one fire is an event, two is a recurrence, three starts to look like a pattern. Showing a hotspot hint after two would be too easy to trigger by coincidence.
 
 ## TBD-RISK-08: Cold start behavior
-**Status**: CONFIRMED
+**Status:** `CHOSEN`
 
 **Requirement**
-* If an area has 0 confirmed incidents within the 180-day window:
-  - Frequency `F = 0.0`.
-  - Recency `R = 0.0`.
-  - Electrical ratio `E = 0.0`.
-  - Anomaly `A` and Maintenance `M` are calculated from live telemetry and inspection logs respectively.
-* If all incident history is absent and no inspections are logged, the score evaluates based on existing anomaly/maintenance values; if sensor streams are offline/uninitialized, the score displays `"No verified history (last 180 days)"` with state `not_calculated` per RISK-G4.
-* `N_min = 1`: A single confirmed incident is sufficient to calculate a non-zero historical score. No synthetic padding is permitted.
+- `n_a = 0`: show "No verified history (last 180 days)". No score.
+- `n_a = 1`: show "Insufficient history (1 of 2)", the raw count and the date. No score.
+- `n_a >= 2` (minimum `N_min = 2`): the score is calculated and shown.
+- `N_min = 2` is a configuration value.
+- A missing component (for example M not entered) makes the score `not_calculated`, never a quiet zero.
 
-**Team answer**: Confirmed. `N_min` is set to **1** confirmed incident. Cold-start areas with zero incidents evaluate with `F=0`, `R=0`, `E=0` while retaining `A` and `M` context, or show `"No verified history (last 180 days)"` if uninitialized, as mandated by Sections 6.2 and 6.4.
-
----
+**Why 2:** one incident says nothing about a trend. Two is the smallest number that shows a repeat, and still reachable in a demo.
 
 ## TBD-RISK-09: What-if and predictive semantics
-**Status**: CONFIRMED
+**Status:** `CHOSEN`
 
 **Requirement**
-* In accordance with Section 0.2, 6.0, 6.2, and 6.4 of `TEAM_TECHNICAL_REQUIREMENTS.md`, the prototype implements an **Explainable Weighted Priority Index**, not an unconstrained predictive ML model.
-* The `/planner` page shall be entitled **"Area Risk Index"** and display transparent, auditable factor weights.
-* All demonstration incidents not originating from real-world sensors shall be explicitly labelled `"synthetic demonstration data"`.
-* Logistic regression is formally specified as the next-stage predictive model after a threshold of at least 500 municipal verified incident records is collected (F3-FR-016).
+- No what-if or predictive simulation for now.
+- The page is called "Area Risk Index" and described as historical and rule-based.
 
-**Team answer**: Confirmed. The UI and documentation strictly use the title **"Area Risk Index"** with explainable rule-based scoring and cautious predictive labeling.
+**Why:** section 4.4 says "not a black-box prediction" and no simulation inputs are defined. Section 5.1 calls it "predictive", so the proposal wording is inconsistent. Suggest telling the leader.
 
 ---
 
-## Affected parts (verified in repo)
-* Backend: `app/services/risk.py`, `app/api/endpoints/risk.py`, schema `area_risk`
-* Frontend: `/planner` (City Risk Planner View) area ranking table, score breakdown cards, and CSV export
-* Database: SQLite tables `area_risk`, `inspections`, `feedback`, and `incidents`
-* Tests: Unit tests for exact 45-row seed dataset calculation, band boundary checks, and cold-start fallback
+## Affected parts (please verify in the repo)
+- Backend risk calculation service and tests
+- `/risk` page text, breakdown and cold-start messages
+- Area config list (area ID, name, three readiness checks) and `area_id` on incidents
+- Config values: `N_min = 2`, repeated-fire count = 3
+- `SOURCE_TBD_REQUIREMENTS.md` section 7, `TEAM_CHANGE_LOG.md`
 
 ## Dependencies on other sections
-* `TBD-INC-01`: Incident state machine (`CONFIRMED` state transitions drive `F`, `R`, and `E`)
-* `TBD-ROUTE-07`: Area ID consistency (`Area A`, `Area B`, `Area C`) between routing graphs and physical model
-* `TBD-FUSION-04`: Feature 1 and Feature 3 weight separation (Detection weights sum to 1.00; Risk weights sum to 1.00 as independent parameter sets)
+- TBD-INC-01 (meaning of CONFIRM / REJECT / CANCEL)
+- TBD-SEV (severity score for E)
+- TBD-ROUTE (blockage events for A, area list with ROI-07)
+- TBD-FUSION-04 (if H uses Area Risk, this score feeds fusion)
