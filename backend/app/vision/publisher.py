@@ -34,6 +34,17 @@ class VisionEvidencePublisher:
             "processing_timestamp": detection_result.processing_timestamp.isoformat(),
             "inference_duration_ms": detection_result.inference_duration_ms,
             "inference_per_second": detection_result.inference_per_second,
+            "coordinate_system": detection_result.coordinate_system.value,
+            "board_crop": (
+                detection_result.board_crop.model_dump(mode="json")
+                if detection_result.board_crop is not None
+                else None
+            ),
+            "model": (
+                detection_result.model.model_dump(mode="json")
+                if detection_result.model is not None
+                else None
+            ),
         }
         if person_hazard is not None:
             payload["person_in_hazard"] = person_hazard.person_in_hazard
@@ -55,9 +66,25 @@ class VisionEvidencePublisher:
                 detection.model_dump(mode="json")
                 for detection in evidence.contributing_detections
             ],
+            "road_roi": evidence.road_roi.model_dump(mode="json"),
+            "raw_segmentations": [
+                segmentation.model_dump(mode="json")
+                for segmentation in evidence.raw_segmentations
+            ],
             "processing_timestamp": evidence.processing_timestamp.isoformat(),
             "inference_duration_ms": evidence.inference_duration_ms,
             "inference_per_second": evidence.inference_per_second,
+            "coordinate_system": evidence.coordinate_system.value,
+            "board_crop": (
+                evidence.board_crop.model_dump(mode="json")
+                if evidence.board_crop is not None
+                else None
+            ),
+            "model": (
+                evidence.model.model_dump(mode="json")
+                if evidence.model is not None
+                else None
+            ),
         }
         mqtt_client.publish(ROAD_TOPIC, payload, qos=1)
 

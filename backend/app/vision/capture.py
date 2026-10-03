@@ -3,14 +3,14 @@
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from itertools import count
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 import cv2
 
 from app.vision.config import VisionConfig, get_vision_config
-from app.vision.schemas import FrameMetadata, FrameSourceType
+from app.vision.schemas import CoordinateSystem, FrameMetadata, FrameSourceType
 
 
 logger = logging.getLogger(__name__)
@@ -45,7 +45,6 @@ class VisionCaptureService:
         self._capture: cv2.VideoCapture | None = None
         self._image: Any | None = None
         self._finished = False
-        self._frame_ids = count(1)
         self.source_type, self._source_value = self._resolve_source(self.config.source)
 
     def open(self) -> None:
@@ -99,6 +98,17 @@ class VisionCaptureService:
 
         height, width = frame.shape[:2]
         if (
+            self.source_type is FrameSourceType.CAMERA
+            and self.config.require_exact_frame_size
+            and (width != self.config.frame_width or height != self.config.frame_height)
+        ):
+            message = (
+                f"Camera returned {width}x{height}; locked configuration requires "
+                f"{self.config.frame_width}x{self.config.frame_height}"
+            )
+            logger.error(message)
+            raise CaptureReadError(message)
+        if (
             width < self.config.building_roi_min_width_px
             or height < self.config.building_roi_min_height_px
         ):
@@ -111,11 +121,12 @@ class VisionCaptureService:
             raise CaptureReadError(message)
 
         metadata = FrameMetadata(
-            frame_id=str(next(self._frame_ids)),
+            frame_id=str(uuid4()),
             timestamp=datetime.now(timezone.utc),
             source=self.source_type,
             width=width,
             height=height,
+            coordinate_system=CoordinateSystem.RAW_CAMERA,
         )
         return CapturedFrame(frame=frame, metadata=metadata)
 

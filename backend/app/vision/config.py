@@ -14,6 +14,9 @@ class VisionConfig:
     frame_height: int
     detection_model: str
     segmentation_model: str
+    inference_size: int
+    require_exact_frame_size: bool
+    board_crop_coordinates: str | None
     building_roi_min_width_px: int
     building_roi_min_height_px: int
     min_road_width_px: int
@@ -40,8 +43,11 @@ def get_vision_config() -> VisionConfig:
         camera_index=settings.vision_camera_index,
         frame_width=settings.vision_frame_width,
         frame_height=settings.vision_frame_height,
-        detection_model=settings.vision_detection_model,
-        segmentation_model=settings.vision_segmentation_model,
+        detection_model=settings.detection_weights,
+        segmentation_model=settings.segmentation_weights,
+        inference_size=settings.vision_inference_size,
+        require_exact_frame_size=settings.vision_require_exact_frame_size,
+        board_crop_coordinates=settings.vision_board_crop_coordinates,
         building_roi_min_width_px=settings.vision_building_roi_min_width_px,
         building_roi_min_height_px=settings.vision_building_roi_min_height_px,
         min_road_width_px=settings.vision_min_road_width_px,

@@ -5,6 +5,11 @@ from time import perf_counter
 from typing import Any
 
 from app.vision.config import VisionConfig, get_vision_config
+from app.vision.model_contract import (
+    ModelContractError,
+    resolve_weights_path,
+    validate_model_contract,
+)
 from app.vision.schemas import (
     BoundingBox,
     PolygonPoint,
@@ -14,6 +19,7 @@ from app.vision.schemas import (
 
 logger = logging.getLogger(__name__)
 RELEVANT_LABELS = {"ROAD_OBSTACLE", "POTHOLE"}
+EXPECTED_CLASSES = ("road_obstacle", "pothole")
 
 
 class SegmentationError(RuntimeError):
@@ -44,7 +50,11 @@ class YOLOSegmentation:
             raise SegmentationInferenceError("Cannot run segmentation on an empty frame")
         model = self._load_model()
         try:
-            predict_kwargs: dict[str, Any] = {"source": frame, "verbose": False}
+            predict_kwargs: dict[str, Any] = {
+                "source": frame,
+                "verbose": False,
+                "imgsz": self.config.inference_size,
+            }
             if self.config.segmentation_confidence_threshold is not None:
                 predict_kwargs["conf"] = self.config.segmentation_confidence_threshold
             started_at = perf_counter()
@@ -67,9 +77,16 @@ class YOLOSegmentation:
         try:
             from ultralytics import YOLO
 
-            self._model = YOLO(self.config.segmentation_model)
+            weights_path = resolve_weights_path(self.config.segmentation_model)
+            self._model = YOLO(str(weights_path))
+            validate_model_contract(
+                self._model,
+                expected_task="segment",
+                expected_classes=EXPECTED_CLASSES,
+                weights_path=weights_path,
+            )
             return self._model
-        except Exception as exc:
+        except (Exception, ModelContractError) as exc:
             logger.exception("Unable to load YOLO segmentation model")
             raise SegmentationLoadError(
                 f"Unable to load YOLO segmentation model: "

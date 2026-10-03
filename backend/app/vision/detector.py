@@ -5,11 +5,17 @@ from time import perf_counter
 from typing import Any
 
 from app.vision.config import VisionConfig, get_vision_config
+from app.vision.model_contract import (
+    ModelContractError,
+    resolve_weights_path,
+    validate_model_contract,
+)
 from app.vision.schemas import BoundingBox, Detection
 
 
 logger = logging.getLogger(__name__)
 RELEVANT_LABELS = {"FIRE", "SMOKE", "PERSON"}
+EXPECTED_CLASSES = ("fire", "smoke", "person")
 
 
 class DetectorError(RuntimeError):
@@ -40,7 +46,11 @@ class YOLODetector:
             raise DetectorInferenceError("Cannot run detection on an empty frame")
         model = self._load_model()
         try:
-            predict_kwargs: dict[str, Any] = {"source": frame, "verbose": False}
+            predict_kwargs: dict[str, Any] = {
+                "source": frame,
+                "verbose": False,
+                "imgsz": self.config.inference_size,
+            }
             if self.config.detection_confidence_threshold is not None:
                 predict_kwargs["conf"] = self.config.detection_confidence_threshold
             started_at = perf_counter()
@@ -63,9 +73,16 @@ class YOLODetector:
         try:
             from ultralytics import YOLO
 
-            self._model = YOLO(self.config.detection_model)
+            weights_path = resolve_weights_path(self.config.detection_model)
+            self._model = YOLO(str(weights_path))
+            validate_model_contract(
+                self._model,
+                expected_task="detect",
+                expected_classes=EXPECTED_CLASSES,
+                weights_path=weights_path,
+            )
             return self._model
-        except Exception as exc:
+        except (Exception, ModelContractError) as exc:
             logger.exception("Unable to load YOLO detection model")
             raise DetectorLoadError(
                 f"Unable to load YOLO detection model: {self.config.detection_model}"

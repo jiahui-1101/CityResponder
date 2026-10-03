@@ -27,12 +27,21 @@ class Settings(BaseSettings):
     dev_firefighter_email: str = "firefighter@example.com"
     dev_risk_planner_email: str = "risk-planner@example.com"
     dev_admin_email: str = "admin@example.com"
-    vision_source: str = "0"
-    vision_camera_index: int = 0
-    vision_frame_width: int = 1280
-    vision_frame_height: int = 720
-    vision_detection_model: str = "yolov8n.pt"
-    vision_segmentation_model: str = "yolov8n-seg.pt"
+    vision_source: str = "CAMERA"
+    vision_camera_index: int = 1
+    vision_frame_width: int = 1920
+    vision_frame_height: int = 1080
+    detection_weights: str = (
+        "runs/detect/runs/cityresponder_detection_v2/train/weights/best.pt"
+    )
+    segmentation_weights: str = (
+        "runs/segment/runs/cityresponder_segmentation_v1/train2/weights/best.pt"
+    )
+    vision_inference_size: int = 640
+    vision_require_exact_frame_size: bool = True
+    vision_board_crop_coordinates: str = (
+        '{"name":"raw_board_crop","x":340,"y":80,"width":1080,"height":840}'
+    )
     vision_building_roi_min_width_px: int = 280
     vision_building_roi_min_height_px: int = 180
     vision_min_road_width_px: int = 120
@@ -42,8 +51,12 @@ class Settings(BaseSettings):
     vision_stale_after_seconds: float = 1.0
     vision_detection_target_fps: float = 5.0
     vision_segmentation_target_fps: float = 2.0
-    vision_building_roi_coordinates: str | None = None
-    vision_road_roi_coordinates: str | None = None
+    vision_building_roi_coordinates: str | None = (
+        '{"name":"building_a","x":460,"y":350,"width":340,"height":360}'
+    )
+    vision_road_roi_coordinates: str | None = (
+        '[{"name":"road_main","x":10,"y":675,"width":1035,"height":145}]'
+    )
     vision_hazard_roi_coordinates: str | None = None
     vision_road_ir_mapping: str | None = None
     vision_ir_conflict_occupancy_threshold: float | None = None

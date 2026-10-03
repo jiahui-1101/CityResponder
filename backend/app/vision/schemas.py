@@ -14,6 +14,11 @@ class FrameSourceType(str, Enum):
     IMAGE_FILE = "IMAGE_FILE"
 
 
+class CoordinateSystem(str, Enum):
+    RAW_CAMERA = "RAW_CAMERA"
+    RAW_BOARD_CROP = "RAW_BOARD_CROP"
+
+
 class FrameMetadata(BaseModel):
     """Lightweight metadata for one shared frame."""
 
@@ -22,6 +27,10 @@ class FrameMetadata(BaseModel):
     source: FrameSourceType
     width: int = Field(gt=0)
     height: int = Field(gt=0)
+    coordinate_system: CoordinateSystem = CoordinateSystem.RAW_CAMERA
+    parent_frame_id: str | None = None
+    crop_origin_x: int = Field(default=0, ge=0)
+    crop_origin_y: int = Field(default=0, ge=0)
 
 
 class ROI(BaseModel):
@@ -43,12 +52,23 @@ class BoundingBox(BaseModel):
     y2: float
 
 
+class FrozenModelIdentity(BaseModel):
+    """Auditable identity of one configured frozen inference model."""
+
+    name: str
+    version: str
+    task: str
+    weights: str
+    classes: list[str]
+
+
 class Detection(BaseModel):
     """One relevant object detection from a shared in-memory frame."""
 
     class_name: str
     confidence: float = Field(ge=0.0, le=1.0)
     bounding_box: BoundingBox
+    coordinate_system: CoordinateSystem = CoordinateSystem.RAW_BOARD_CROP
 
 
 class PolygonPoint(BaseModel):
@@ -65,6 +85,7 @@ class SegmentationDetection(BaseModel):
     confidence: float = Field(ge=0.0, le=1.0)
     bounding_box: BoundingBox
     polygon: list[PolygonPoint] = Field(min_length=1)
+    coordinate_system: CoordinateSystem = CoordinateSystem.RAW_BOARD_CROP
 
 
 class BuildingADetectionResult(BaseModel):
@@ -76,6 +97,9 @@ class BuildingADetectionResult(BaseModel):
     processing_timestamp: datetime
     inference_duration_ms: float | None = Field(default=None, ge=0)
     inference_per_second: float | None = Field(default=None, ge=0)
+    coordinate_system: CoordinateSystem = CoordinateSystem.RAW_BOARD_CROP
+    board_crop: ROI | None = None
+    model: FrozenModelIdentity | None = None
 
 
 class PersonHazardResult(BaseModel):
@@ -171,6 +195,9 @@ class RoadVisionEvidence(BaseModel):
     processing_timestamp: datetime
     inference_duration_ms: float | None = Field(default=None, ge=0)
     inference_per_second: float | None = Field(default=None, ge=0)
+    coordinate_system: CoordinateSystem = CoordinateSystem.RAW_BOARD_CROP
+    board_crop: ROI | None = None
+    model: FrozenModelIdentity | None = None
 
 
 class VisionDetectionMessage(BaseModel):
@@ -183,6 +210,9 @@ class VisionDetectionMessage(BaseModel):
     processing_timestamp: datetime
     inference_duration_ms: float | None = Field(default=None, ge=0)
     inference_per_second: float | None = Field(default=None, ge=0)
+    coordinate_system: CoordinateSystem = CoordinateSystem.RAW_BOARD_CROP
+    board_crop: ROI | None = None
+    model: FrozenModelIdentity | None = None
 
 
 class VisionRoadMessage(BaseModel):
@@ -197,9 +227,35 @@ class VisionRoadMessage(BaseModel):
     max_obstacle_extent_cm: float | None = Field(default=None, ge=0)
     contributing_classes: list[str]
     contributing_detections: list[EvidenceDetectionReference]
+    road_roi: ROI | None = None
+    raw_segmentations: list[SegmentationDetection] = Field(default_factory=list)
     processing_timestamp: datetime
     inference_duration_ms: float | None = Field(default=None, ge=0)
     inference_per_second: float | None = Field(default=None, ge=0)
+    coordinate_system: CoordinateSystem = CoordinateSystem.RAW_BOARD_CROP
+    board_crop: ROI | None = None
+    model: FrozenModelIdentity | None = None
+
+
+class UnifiedVisionResult(BaseModel):
+    """Coordinate-explicit evidence produced from one shared camera frame."""
+
+    raw_frame: FrameMetadata
+    frame: FrameMetadata
+    board_crop: ROI
+    building_roi: ROI
+    road_rois: list[ROI]
+    detections: list[Detection]
+    segmentations: list[SegmentationDetection]
+    detection_model: FrozenModelIdentity
+    segmentation_model: FrozenModelIdentity
+    processing_timestamp: datetime
+    capture_duration_ms: float = Field(ge=0)
+    crop_duration_ms: float = Field(ge=0)
+    detection_duration_ms: float = Field(ge=0)
+    segmentation_duration_ms: float = Field(ge=0)
+    postprocessing_duration_ms: float = Field(ge=0)
+    total_duration_ms: float = Field(ge=0)
 
 
 class LatestVisionResponse(BaseModel):

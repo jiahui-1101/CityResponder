@@ -71,6 +71,10 @@ def get_configured_rois(config: VisionConfig | None = None) -> dict[str, list[RO
 
     vision_config = config or get_vision_config()
     return {
+        "board": _parse_roi_value(
+            vision_config.board_crop_coordinates,
+            default_name="raw_board_crop",
+        ),
         "building_a": _parse_roi_value(
             vision_config.building_roi_coordinates,
             default_name="building_a",

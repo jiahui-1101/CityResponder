@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.events.repository import get_recent_events
 from app.live.manager import live_connection_manager
 from app.mqtt.client import mqtt_client
+from app.vision.runtime import vision_runtime_health
 
 
 class SystemComponentStatus(BaseModel):
@@ -26,6 +27,7 @@ class SystemHealthResponse(BaseModel):
     websocket: SystemComponentStatus
     sensor_activity: SystemComponentStatus
     actuator_ack_activity: SystemComponentStatus
+    vision: SystemComponentStatus
 
 
 def _activity_status(db: Session, *, event_type: str, label: str) -> SystemComponentStatus:
@@ -81,5 +83,10 @@ def get_system_health(db: Session) -> SystemHealthResponse:
             db,
             event_type="actuator_ack",
             label="actuator ACK",
+        ),
+        vision=SystemComponentStatus(
+            status=vision_runtime_health.snapshot().status,
+            last_seen=vision_runtime_health.snapshot().last_seen,
+            detail=vision_runtime_health.snapshot().detail,
         ),
     )
