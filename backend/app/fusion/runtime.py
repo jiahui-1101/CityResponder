@@ -6,6 +6,7 @@ import logging
 from collections import deque
 from datetime import datetime, timezone
 from typing import Iterable
+from uuid import uuid4
 
 from sqlalchemy.orm import Session
 
@@ -43,14 +44,26 @@ class AutomaticIncidentCoordinator:
         self._last_window: datetime | None = None
         self._last_signal_state = False
         self._last_decision_status: str | None = None
+        self._button_alert_active = False
 
     def observe(self, db: Session) -> IncidentDecision | None:
         """Consume the newest projection and persist a changed decision state."""
 
         snapshot = get_perception_snapshot(db)
+        button_alert: IncidentDecision | None = None
+        button_pressed = _is_button_pressed(snapshot)
+        if button_pressed:
+            if not self._button_alert_active:
+                button_alert = build_manual_button_alert_decision(snapshot)
+                persist_incident_decision(db, button_alert)
+                self._button_alert_active = True
+        else:
+            self._button_alert_active = False
+
         if snapshot.detection is None:
-            self._reset()
-            return None
+            if not button_pressed:
+                self._reset()
+            return button_alert
 
         window = _as_utc(snapshot.detection.frame.timestamp).replace(microsecond=0)
         if self._last_window is not None:
@@ -89,6 +102,7 @@ class AutomaticIncidentCoordinator:
         self._last_window = None
         self._last_signal_state = False
         self._last_decision_status = None
+        self._button_alert_active = False
 
 
 def build_runtime_incident_decision(
@@ -197,8 +211,20 @@ def _has_incident_signal(snapshot: PerceptionSnapshot) -> bool:
         for item in snapshot.detection.detections
     ):
         return True
+    return _is_button_pressed(snapshot)
+
+
+def _is_button_pressed(snapshot: PerceptionSnapshot) -> bool:
     button = next((item for item in snapshot.sensors if item.sensor_type == "BUTTON"), None)
-    return bool(button and button.available and button.value in (True, 1, "1", "true", "pressed", "on"))
+    if button is None or not button.available or button.value is None:
+        return False
+    if isinstance(button.value, bool):
+        return button.value
+    if isinstance(button.value, (int, float)):
+        return button.value != 0
+    if isinstance(button.value, str):
+        return button.value.strip().lower() in {"1", "true", "pressed", "on"}
+    return False
 
 
 def _as_utc(value: datetime) -> datetime:
@@ -208,3 +234,39 @@ def _as_utc(value: datetime) -> datetime:
 
 
 automatic_incident_coordinator = AutomaticIncidentCoordinator()
+
+
+def build_manual_button_alert_decision(
+    snapshot: PerceptionSnapshot,
+) -> IncidentDecision:
+    """Create a dashboard ALERT without confirming or dispatching it."""
+
+    now = datetime.now(timezone.utc)
+    return IncidentDecision(
+        decision_id=str(uuid4()),
+        evaluated_at=now,
+        confirmation_status="alert",
+        incident_confirmed=False,
+        confirmation_windows=[],
+        fusion_confidence=FusionConfidenceResult(
+            status="not_calculated",
+            confidence_score=None,
+            s_score=None,
+            t_score=None,
+            v_score=None,
+            h_score=None,
+            weights={"S": 0.30, "T": 0.20, "V": 0.35, "H": 0.15},
+            weighted_contributions={"S": None, "T": None, "V": None, "H": None},
+            reasons=["manual button alert does not bypass automatic confirmation"],
+            audit_references=[],
+            calculated_at=now,
+        ),
+        severity_score=None,
+        base_severity=None,
+        final_severity=None,
+        critical_override_applied=False,
+        decision_status="alert",
+        reasons=["manual button pressed; operator confirmation is required before dispatch"],
+        warnings=["button alert does not trigger hardware before operator confirmation"],
+        audit_references=[],
+    )

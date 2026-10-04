@@ -1,8 +1,12 @@
 """Regression coverage for the live vision-to-incident bridge."""
 
 from datetime import datetime, timedelta, timezone
+from unittest.mock import patch
 
-from app.fusion.runtime import build_runtime_incident_decision
+from app.fusion.runtime import (
+    AutomaticIncidentCoordinator,
+    build_runtime_incident_decision,
+)
 from app.sensors.schemas import LatestSensorState
 from app.vision.schemas import (
     BoundingBox,
@@ -87,3 +91,45 @@ def test_three_consecutive_fire_windows_create_incident_decision() -> None:
     assert decision.incident_confirmed is True
     assert decision.decision_status == "confirmed"
     assert decision.final_severity is not None
+
+
+def test_button_press_creates_dashboard_alert_without_vision() -> None:
+    start = datetime(2026, 10, 4, 12, 0, 0, tzinfo=timezone.utc)
+    pressed = _snapshot(start, 0).model_copy(
+        update={
+            "detection": None,
+            "person_in_hazard": None,
+            "sensors": [
+                sensor.model_copy(update={"value": True})
+                if sensor.sensor_type == "BUTTON"
+                else sensor
+                for sensor in _snapshot(start, 0).sensors
+            ],
+        }
+    )
+    released = pressed.model_copy(
+        update={
+            "sensors": [
+                sensor.model_copy(update={"value": False})
+                if sensor.sensor_type == "BUTTON"
+                else sensor
+                for sensor in pressed.sensors
+            ]
+        }
+    )
+    coordinator = AutomaticIncidentCoordinator()
+
+    with patch("app.fusion.runtime.get_perception_snapshot", side_effect=[pressed, pressed, released, pressed]), patch(
+        "app.fusion.runtime.persist_incident_decision"
+    ) as persist:
+        first = coordinator.observe(object())
+        second = coordinator.observe(object())
+        coordinator.observe(object())
+        fourth = coordinator.observe(object())
+
+    assert first is not None
+    assert first.decision_status == "alert"
+    assert first.incident_confirmed is False
+    assert second is None
+    assert fourth is not None
+    assert persist.call_count == 2
