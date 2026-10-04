@@ -235,33 +235,33 @@ flowchart LR
 
 CityResponder fuses physical IoT telemetry, deep-learning vision inferences, and historical records into a normalized confidence score:
 
-$$\mathbf{C} = 100 \times (0.30 S_{fusion} + 0.20 T_{temporal} + 0.35 V + 0.15 H)$$
+$$\mathbf{C} = 100 \times (0.30 S_{\text{fusion}} + 0.20 T_{\text{temporal}} + 0.35 V + 0.15 H)$$
 
-- **Normalized Sensor Score ($S_{fusion}$):** Computes $\max(s_{smoke}, s_{heat})$.
+- **Normalized Sensor Score ($S_{\text{fusion}}$):** Computes $\max(s_{\text{smoke}}, s_{\text{heat}})$.
   - DHT22 (Temperature): Baseline $30^\circ\text{C}$, Alarm $50^\circ\text{C}$, clamped to $[0, 1]$. Stale after 3.0 s.
   - MQ-2 (Smoke): Baseline 500, Alarm 2000 (0–4095 ADC scale), clamped to $[0, 1]$. Stale after 2.0 s with 60 s power-on warm-up isolation.
   - Fault tolerance: If one sensor goes stale, the system gracefully falls back to the active channel.
-- **Temporal Consistency ($T_{temporal}$):** Evaluates hazard persistence across the last three 1-second sliding windows:
-  $$T_{temporal} = \frac{\text{Windows with Valid Evidence}}{3}$$
-  A window is valid if $S_{fusion} \ge 0.20$, $V \ge 0.50$, or the manual button was depressed.
+- **Temporal Consistency ($T_{\text{temporal}}$):** Evaluates hazard persistence across the last three 1-second sliding windows:
+  $$T_{\text{temporal}} = \frac{\text{Windows with Valid Evidence}}{3}$$
+  A window is valid if $S_{\text{fusion}} \ge 0.20$, $V \ge 0.50$, or the manual button was depressed.
 - **Vision Score ($V$):** Evaluates YOLOv8 detection bounding boxes inside the building Region of Interest (ROI):
-  $$V = \max(\text{Confidence}_{fire}, \text{Confidence}_{smoke})$$
+  $$V = \max(\text{Confidence}_{\text{fire}}, \text{Confidence}_{\text{smoke}})$$
   Excludes overlapping double-counting and enforces a strict 1.0 s freshness limit.
 - **Historical Area Baseline ($H$):** Integrates 180-day verified historical risk:
   $$H = \frac{\text{Area Risk Score}}{100}$$
 - **Strict Auto-Confirmation Gate:** The backend automatically confirms an incident only when:
   $$C \ge 40 \quad \text{for 3 consecutive 1-second windows, supported by } \ge 2 \text{ independent channels}$$
-  Valid supporting channels require $s_{smoke} \ge 0.30$, $s_{heat} \ge 0.30$, $V \ge 0.30$, or Manual Button $= 1.0$.
+  Valid supporting channels require $s_{\text{smoke}} \ge 0.30$, $s_{\text{heat}} \ge 0.30$, $V \ge 0.30$, or Manual Button $= 1.0$.
 
 ### 2. Severity Scoring & Life-Safety Person Override
 
 Once an incident is confirmed, CityResponder computes the Resource Severity Score ($R$):
 
-$$\mathbf{R} = 100 \times (0.30 A + 0.20 S_{smoke} + 0.20 T_{heat} + 0.20 P + 0.10 Z)$$
+$$\mathbf{R} = 100 \times (0.30 A + 0.20 S_{\text{smoke}} + 0.20 T_{\text{heat}} + 0.20 P + 0.10 Z)$$
 
 - **Fire Extent ($A$):** Calculated via pixel ratio:
   $$A = \min\left(\frac{\text{Fire Bounding Box Area}}{\text{Hazard Zone Polygon Area}}, 1.0\right)$$
-- **Decoupled Telemetry ($S_{smoke}, T_{heat}$):** Severity explicitly decouples smoke and temperature scores to prevent double-counting thermal data.
+- **Decoupled Telemetry ($S_{\text{smoke}}, T_{\text{heat}}$):** Severity explicitly decouples smoke and temperature scores to prevent double-counting thermal data.
 - **Life-Safety Person Override ($P$):** Evaluates whether a person is trapped within the hazard polygon zone:
   - If YOLOv8 detects a person with confidence $\ge 0.50$ whose center coordinate falls within the hazard polygon, **$P = 1$ is triggered instantly on the very first frame**.
   - **Critical Life-Safety Rule:** When $P = 1$, the severity is forced to **Critical ($R \ge 70$)**, immediately assigning maximum rescue resources regardless of fire size.
@@ -271,11 +271,13 @@ $$\mathbf{R} = 100 \times (0.30 A + 0.20 S_{smoke} + 0.20 T_{heat} + 0.20 P + 0.
 
 CityResponder models the urban tabletop road network as a weighted directional graph and calculates the optimal response path via A\*:
 
-$$\text{edge\_cost} = \text{distance\_cm} \times \left(1 + 4 \times [0.70 O + 0.20 L + 0.10 C_{routing}]\right)$$
+$$\text{Cost}_{\text{edge}} = \text{Distance}_{\text{cm}} \times \left(1 + 4 \times [0.70 O + 0.20 L + 0.10 C_{\text{routing}}]\right)$$
+
+*(Formula: `edge_cost = distance_cm * (1 + 4 * (0.70 * O + 0.20 * L + 0.10 * C_routing))`)*
 
 - **Obstacle Ratio ($O$):** Derived from YOLOv8 semantic segmentation: $\frac{\text{Obstacle Mask Pixels}}{\text{Road ROI Pixels}}$, smoothed over a 3-frame median filter ($\approx 1.5$ s).
 - **Obstacle Length ($L$):** $\min\left(\frac{\text{Obstacle Length along Road Axis}}{\text{Road Length}}, 1.0\right)$ calibrated via ArUco markers.
-- **Road Condition ($C_{routing}$):** Proportion of potholes or surface degradation within the road corridor.
+- **Road Condition ($C_{\text{routing}}$):** Proportion of potholes or surface degradation within the road corridor.
 - **Dual-Beam IR Sensor Fusion:** `IR-A` (Route A) and `IR-B` (Route B) sample road clearance every 200 ms. An obstacle is confirmed when 5 consecutive samples are blocked (1.0 s debounce).
 - **Camera vs. IR Conflict Arbitration:**
   - `Camera BLOCKED` ($O \ge 0.80$) + `IR BLOCKED` $\implies$ **BLOCKED** (edge pruned from graph).
