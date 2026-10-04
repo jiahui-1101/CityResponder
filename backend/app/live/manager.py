@@ -16,10 +16,18 @@ class ConnectionManager:
     def __init__(self) -> None:
         self._connections: dict[WebSocket, dict[str, Any]] = {}
 
-    async def connect(self, websocket: WebSocket, *, user_id: int, role: str) -> None:
+    async def connect(
+        self,
+        websocket: WebSocket,
+        *,
+        user_id: int,
+        role: str,
+        already_accepted: bool = False,
+    ) -> None:
         """Accept and register an authenticated WebSocket connection."""
 
-        await websocket.accept()
+        if not already_accepted:
+            await websocket.accept()
         self._connections[websocket] = {"user_id": user_id, "role": role}
 
     def disconnect(self, websocket: WebSocket) -> None:

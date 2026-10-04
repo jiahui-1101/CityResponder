@@ -49,7 +49,7 @@
 | REJECTED | Operator determines it is not a fire. | Corridor released, gate CLOSE, buzzer OFF. |
 | CANCELLED | Operator cancels due to duplicate or drill. | Corridor released, gate CLOSE, buzzer OFF. |
 
-*   **Low and Medium Severities:** No hardware commands are sent, which means there is no ACK and no `FAILSAFE` state. If `NO_SAFE_ROUTE` occurs, the incident keeps its current state and the dashboard displays a warning only.
+*   **Low and Medium Severities:** Hardware actions follow the authoritative dispatch matrix: Low preserves the normal traffic cycle and requests the five-second amber affected-zone indication; Medium activates the selected-route green corridor, 500 ms ON/OFF buzzer pattern, and amber affected-zone indication while keeping the gate closed/default. These commands use the normal ACK path. The existing `NO_SAFE_ROUTE`/timeout failsafe policy is unchanged by this dispatch alignment: Low/Medium retain dashboard-warning handling rather than the High/Critical physical safe-default sequence.
 *   **Before CONFIRMED:** An automatic detection that has not passed the strict confirmation gate is not considered an incident. The system simply reverts to monitoring.
 *   **ALERT that nobody handles:**
     *   There is no automatic timeout and no automatic close for an ALERT. It stays active until the Operator acts, or until the automatic conditions are met and it becomes `CONFIRMED`. This ensures a fallback if the fire is real.

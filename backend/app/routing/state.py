@@ -5,6 +5,10 @@ from datetime import datetime, timezone, timedelta
 from statistics import median
 from typing import Literal
 
+
+CONFLICT_GRACE_SECONDS = 1.5
+RECOVERY_HOLDOFF_SECONDS = 5.0
+
 @dataclass
 class CameraFrame:
     timestamp: datetime
@@ -30,6 +34,7 @@ class EdgeState:
     
     # Grace Period & Overrides
     disagreement_start_time: datetime | None = None
+    unavailable_since: datetime | None = None
     override_expiry: datetime | None = None
 
 def compute_median_o(window: list[CameraFrame]) -> float | None:
@@ -47,6 +52,7 @@ def fuse_sensor_data(edge_state: EdgeState, now: datetime) -> None:
         if now >= edge_state.override_expiry:
             edge_state.current_state = "OPEN" # Expiry returns control to automation
             edge_state.override_expiry = None
+            edge_state.unavailable_since = None
             
     if edge_state.current_state == "MANUAL_OVERRIDE_OPEN":
         return # Skip automated logic if overridden
@@ -66,7 +72,7 @@ def fuse_sensor_data(edge_state: EdgeState, now: datetime) -> None:
     if newest_camera_time and edge_state.ir_last_timestamp:
         gap = abs((newest_camera_time - edge_state.ir_last_timestamp).total_seconds())
         if gap > 0.750:
-            edge_state.current_state = "SENSOR_CONFLICT"
+            _mark_unavailable(edge_state, "SENSOR_CONFLICT", now)
             return
             
     if not edge_state.camera_window or not edge_state.ir_last_timestamp:
@@ -75,18 +81,42 @@ def fuse_sensor_data(edge_state: EdgeState, now: datetime) -> None:
 
     # 5. Determine combined state and Grace Period
     if camera_blocked and ir_blocked:
-        edge_state.current_state = "BLOCKED"
+        _mark_unavailable(edge_state, "BLOCKED", now)
         edge_state.disagreement_start_time = None
     elif not camera_blocked and not ir_blocked:
-        edge_state.current_state = "OPEN"
         edge_state.disagreement_start_time = None
+        if (
+            edge_state.current_state in {"BLOCKED", "SENSOR_CONFLICT"}
+            and edge_state.unavailable_since is not None
+            and (now - edge_state.unavailable_since).total_seconds()
+            < RECOVERY_HOLDOFF_SECONDS
+        ):
+            return
+        edge_state.current_state = "OPEN"
+        edge_state.unavailable_since = None
     else:
         # Disagreement
         if edge_state.disagreement_start_time is None:
             edge_state.disagreement_start_time = now
         else:
-            if (now - edge_state.disagreement_start_time).total_seconds() > 1.0:
-                edge_state.current_state = "SENSOR_CONFLICT"
+            if (
+                now - edge_state.disagreement_start_time
+            ).total_seconds() >= CONFLICT_GRACE_SECONDS:
+                _mark_unavailable(edge_state, "SENSOR_CONFLICT", now)
+
+
+def _mark_unavailable(
+    edge_state: EdgeState,
+    state: Literal["BLOCKED", "SENSOR_CONFLICT"],
+    now: datetime,
+) -> None:
+    """Record when an edge first became unavailable for recovery hold-off."""
+
+    if edge_state.current_state not in {"BLOCKED", "SENSOR_CONFLICT"}:
+        edge_state.unavailable_since = now
+    elif edge_state.unavailable_since is None:
+        edge_state.unavailable_since = now
+    edge_state.current_state = state
                 
 
 def process_ir_reading(edge_state: EdgeState, is_blocked: bool, now: datetime) -> None:

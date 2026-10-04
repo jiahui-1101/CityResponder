@@ -1,0 +1,103 @@
+{
+  "generated_at": "2026-10-04T08:19:20.446Z",
+  "cases": [
+    {
+      "name": "operator-1920x1080",
+      "url": "http://localhost:5173/",
+      "width": 1920,
+      "height": 1080,
+      "screenshot": "C:\\Users\\User\\OneDrive\\Documents\\ChatGPT\\nexus\\CityResponder\\reports\\final_rehearsal\\browser\\operator-1920x1080.png",
+      "title": "CityResponder",
+      "scrollWidth": 1905,
+      "clientWidth": 1905,
+      "scrollHeight": 2150,
+      "clientHeight": 1080,
+      "text": "CityResponder\nOperational console\n\nMAIN\n\nOverview\nIncidents\nResponse / Routing\nHistory / Audit\n\nSYSTEM\n\nSITUATIONAL CLARITY\nWHEN IT MATTERS\n\nCityResponder\n\nEMERGENCY RESPONSE PLATFORM\n\nOverview\nLive updates connected\nEmergency Operator\noperator@example.com\n\nOPERATOR WORKSPACE\n\nOperational overview\n\nRead-only status from the CityResponder backend.\n\nNot refreshed yet\nRefreshing\nLive annotated camera\n\nReal shared frame with Detection V2 boxes, Segmentation V1 polygons and the locked Building A ROI\n\nSHARED REAL CAMERA PIPELINE\nLive AI view\nStale frame\n4:18:27 PM\nDetection V2 · 0 object(s)\nSegmentation V1 · 0 mask(s)\nFrame freshness exceeds 1.5 seconds. Last real frame remains visible while the shared pipeline recovers.\nDisplay-only shared stream · continuous video is not stored · selected inci",
+      "images": [
+        {
+          "alt": "Real CityResponder overhead camera with current AI annotations",
+          "complete": true,
+          "naturalWidth": 1080
+        }
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "name": "incidents-1366x768",
+      "url": "http://localhost:5173/incidents",
+      "width": 1366,
+      "height": 768,
+      "screenshot": "C:\\Users\\User\\OneDrive\\Documents\\ChatGPT\\nexus\\CityResponder\\reports\\final_rehearsal\\browser\\incidents-1366x768.png",
+      "title": "CityResponder",
+      "scrollWidth": 1366,
+      "clientWidth": 1366,
+      "scrollHeight": 768,
+      "clientHeight": 768,
+      "text": "Restoring secure session",
+      "images": [],
+      "horizontalOverflow": false
+    },
+    {
+      "name": "firefighter-390x844",
+      "url": "http://localhost:5173/response",
+      "width": 390,
+      "height": 844,
+      "screenshot": "C:\\Users\\User\\OneDrive\\Documents\\ChatGPT\\nexus\\CityResponder\\reports\\final_rehearsal\\browser\\firefighter-390x844.png",
+      "title": "CityResponder",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "scrollHeight": 844,
+      "clientHeight": 844,
+      "text": "Restoring secure session",
+      "images": [],
+      "horizontalOverflow": false
+    },
+    {
+      "name": "planner-1366x768",
+      "url": "http://localhost:5173/risk",
+      "width": 1366,
+      "height": 768,
+      "screenshot": "C:\\Users\\User\\OneDrive\\Documents\\ChatGPT\\nexus\\CityResponder\\reports\\final_rehearsal\\browser\\planner-1366x768.png",
+      "title": "CityResponder",
+      "scrollWidth": 1366,
+      "clientWidth": 1366,
+      "scrollHeight": 768,
+      "clientHeight": 768,
+      "text": "Restoring secure session",
+      "images": [],
+      "horizontalOverflow": false
+    },
+    {
+      "name": "history-1366x768",
+      "url": "http://localhost:5173/history",
+      "width": 1366,
+      "height": 768,
+      "screenshot": "C:\\Users\\User\\OneDrive\\Documents\\ChatGPT\\nexus\\CityResponder\\reports\\final_rehearsal\\browser\\history-1366x768.png",
+      "title": "CityResponder",
+      "scrollWidth": 1366,
+      "clientWidth": 1366,
+      "scrollHeight": 768,
+      "clientHeight": 768,
+      "text": "Restoring secure session",
+      "images": [],
+      "horizontalOverflow": false
+    },
+    {
+      "name": "admin-1366x768",
+      "url": "http://localhost:5173/admin",
+      "width": 1366,
+      "height": 768,
+      "screenshot": "C:\\Users\\User\\OneDrive\\Documents\\ChatGPT\\nexus\\CityResponder\\reports\\final_rehearsal\\browser\\admin-1366x768.png",
+      "title": "CityResponder",
+      "scrollWidth": 1366,
+      "clientWidth": 1366,
+      "scrollHeight": 768,
+      "clientHeight": 768,
+      "text": "Restoring secure session",
+      "images": [],
+      "horizontalOverflow": false
+    }
+  ],
+  "exceptions": [],
+  "networkFailures": []
+}

@@ -1,0 +1,29 @@
+{
+  "root_cause": [
+    "Each poll set section loading=true even when valid data was already rendered.",
+    "Live WebSocket events and scheduled refreshes could overlap.",
+    "The page-level loader interpreted background work as an initial load and replaced stable content."
+  ],
+  "before": {
+    "initial_load": "blocking skeleton",
+    "background_refresh": "blocking loading state could replace content",
+    "refresh_failure": "risk of obscuring last known state",
+    "visible_refresh_frequency": "could flash on every background request"
+  },
+  "after": {
+    "initial_load": "blocking skeleton only when no previous data exists",
+    "background_refresh": "last rendered data remains visible with non-blocking Updating status",
+    "refresh_failure": "last known data remains visible with error/stale state",
+    "request_coalescing": "existing live refresh debounce retained",
+    "websocket_auth": "token sent as first WebSocket message, not in URL; connected state waits for server acknowledgement"
+  },
+  "coverage": {
+    "static_regression_test": "frontend/scripts/check-refresh-regression.mjs",
+    "frontend_typecheck": "PASS",
+    "frontend_test": "PASS",
+    "frontend_build": "PASS",
+    "recorded_backend_to_frontend_samples": 10,
+    "recorded_backend_to_refresh_p95_ms": 671.0,
+    "target_ms": 1000
+  }
+}

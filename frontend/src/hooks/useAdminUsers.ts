@@ -7,7 +7,7 @@ export function useAdminUsers() {
   const [error, setError] = useState<string | null>(null);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<string | null>(null);
   const refresh = useCallback(async () => {
-    setLoading(true); setError(null);
+    setError(null);
     try { setUsers(await adminUserRequests.list()); setLastRefreshedAt(new Date().toISOString()); }
     catch (caught) { setError(caught instanceof Error ? caught.message : "Unable to load users"); }
     finally { setLoading(false); }

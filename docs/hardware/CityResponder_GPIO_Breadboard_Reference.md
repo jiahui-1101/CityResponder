@@ -46,12 +46,12 @@ The two ESP32 boards do **not** require direct jumper wiring between them if the
 
 | Component | Signal | ESP32 Pin |
 |---|---|---:|
-| Traffic Light 1 Red | LED signal | GPIO25 |
-| Traffic Light 1 Yellow | LED signal | GPIO26 |
-| Traffic Light 1 Green | LED signal | GPIO27 |
-| Traffic Light 2 Red | LED signal | GPIO14 |
-| Traffic Light 2 Yellow | LED signal | GPIO13 |
-| Traffic Light 2 Green | LED signal | GPIO23 |
+| Traffic Light 1 / PRIMARY Red | LED signal | GPIO14 |
+| Traffic Light 1 / PRIMARY Yellow | LED signal | GPIO13 |
+| Traffic Light 1 / PRIMARY Green | LED signal | GPIO23 |
+| Traffic Light 2 / STANDBY Red | LED signal | GPIO25 |
+| Traffic Light 2 / STANDBY Yellow | LED signal | GPIO26 |
+| Traffic Light 2 / STANDBY Green | LED signal | GPIO27 |
 | Buzzer | SIG / IN | GPIO19 |
 | SG90 Servo | PWM / Signal | GPIO18 |
 
@@ -333,7 +333,7 @@ ESP32 GPIO -> resistor -> LED long leg / anode
 LED short leg / cathode -> GND rail
 ```
 
-### Traffic Light 1
+### Traffic Light 2 — STANDBY route
 
 #### Red — GPIO25
 
@@ -365,7 +365,7 @@ LED short leg -> A26
 B26 -> GND rail
 ```
 
-### Traffic Light 2
+### Traffic Light 1 — PRIMARY / MAIN route
 
 #### Red — GPIO14
 
@@ -542,15 +542,15 @@ ESP32 #1 = SN1 Sensor Node
 - Push button uses INPUT_PULLUP
 
 ESP32 #2 = AC1 Actuator Node
-Traffic Light 1:
-- Red -> GPIO25 through 220-330Ω resistor
-- Yellow -> GPIO26 through 220-330Ω resistor
-- Green -> GPIO27 through 220-330Ω resistor
-
-Traffic Light 2:
+Traffic Light 1 — PRIMARY / MAIN route:
 - Red -> GPIO14 through 220-330Ω resistor
 - Yellow -> GPIO13 through 220-330Ω resistor
 - Green -> GPIO23 through 220-330Ω resistor
+
+Traffic Light 2 — STANDBY route:
+- Red -> GPIO25 through 220-330Ω resistor
+- Yellow -> GPIO26 through 220-330Ω resistor
+- Green -> GPIO27 through 220-330Ω resistor
 
 Other AC1:
 - Active buzzer SIG -> GPIO19

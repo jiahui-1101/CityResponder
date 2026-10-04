@@ -1,0 +1,77 @@
+{
+  "generated_at": "2026-10-04T08:21:07.647Z",
+  "cases": [
+    {
+      "name": "incidents-1366x768",
+      "url": "http://localhost:5173/incidents",
+      "width": 1366,
+      "height": 768,
+      "screenshot": "C:\\Users\\User\\OneDrive\\Documents\\ChatGPT\\nexus\\CityResponder\\reports\\final_rehearsal\\browser\\incidents-1366x768.png",
+      "scrollWidth": 1366,
+      "clientWidth": 1366,
+      "scrollHeight": 768,
+      "clientHeight": 768,
+      "text": "CityResponder\nOperational console\n\nMAIN\n\nOverview\nIncidents\nResponse / Routing\nHistory / Audit\n\nSYSTEM\n\nSITUATIONAL CLARITY\nWHEN IT MATTERS\n\nCityResponder\n\nEMERGENCY RESPONSE PLATFORM\n\nIncidents\nLive updates connected\nEmergency Operator\noperator@example.com\n\nOPERATOR WORKSPACE\n\nIncidents\n\nImmutable incident decisions and human outcomes.\n\nRefresh\nIncident history\n\nNewest automatic decisions first\n\nNo incidents recorded\n\nNo immutable incident decisions are available yet.",
+      "images": [],
+      "horizontalOverflow": false
+    },
+    {
+      "name": "firefighter-390x844",
+      "url": "http://localhost:5173/response",
+      "width": 390,
+      "height": 844,
+      "screenshot": "C:\\Users\\User\\OneDrive\\Documents\\ChatGPT\\nexus\\CityResponder\\reports\\final_rehearsal\\browser\\firefighter-390x844.png",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "scrollHeight": 1079,
+      "clientHeight": 844,
+      "text": "EMERGENCY RESPONSE PLATFORM\n\nResponse / Routing\nConnecting live updates\nFirefighter\nfirefighter@example.com\n\nFIREFIGHTER WORKSPACE\n\nResponse / Routing\n\nRead-only route and infrastructure state from immutable backend projections.\n\nNot refreshed yet\nRefreshing\nLive hazard view\n\nSimplified real camera view for route, hazard and person awareness\n\nSHARED REAL CAMERA PIPELINE\nLive AI view\nStarting\nStarting shared Detection V2 + Segmentation V1 pipeline\nNo frame timestamp\nDetection V2 · 0 object(s)\nSegmentation V1 · 0 mask(s)\nDisplay-only shared stream · continuous video is not stored · selected incident evidence remains capped at five frames\nCurrent route\n\nLatest persisted route projection; no route is inferred or recalculated\n\nLoading route state\nRecent response activity\n\nImmutable response-related events only\n\nNo response activity\n\nNo route or actuator events have been recorded yet.",
+      "images": [],
+      "horizontalOverflow": false
+    },
+    {
+      "name": "planner-1366x768",
+      "url": "http://localhost:5173/risk",
+      "width": 1366,
+      "height": 768,
+      "screenshot": "C:\\Users\\User\\OneDrive\\Documents\\ChatGPT\\nexus\\CityResponder\\reports\\final_rehearsal\\browser\\planner-1366x768.png",
+      "scrollWidth": 1366,
+      "clientWidth": 1366,
+      "scrollHeight": 768,
+      "clientHeight": 768,
+      "text": "CityResponder\nOperational console\n\nMAIN\n\nRisk Intelligence\nHistory / Audit\n\nSYSTEM\n\nSITUATIONAL CLARITY\nWHEN IT MATTERS\n\nCityResponder\n\nEMERGENCY RESPONSE PLATFORM\n\nRisk Intelligence\nLive updates connected\nCity Risk Planner\nrisk-planner@example.com\n\nCITY RISK PLANNER WORKSPACE\n\nArea risk intelligence\n\nExplainable read-only risk derived from operator-verified history.\n\nNot refreshed yet\nRefreshing\nConfigured / persisted areas\n0\nNo synthetic areas are created\nEvaluation window\n180 days\nArea Risk only\nLatest calculation\nUnavailable\nFrom immutable results\nArea risk overview\n\nNo geographic heatmap is shown without explicit area geometry.\n\nArea risk grid\nThis is an area overview, not a geographic map. Spatial area geometry is not configured.\nArea risk list\n\nScores are never classified without source-defined boundaries.\n\nLoading area risk",
+      "images": [],
+      "horizontalOverflow": false
+    },
+    {
+      "name": "history-1366x768",
+      "url": "http://localhost:5173/history",
+      "width": 1366,
+      "height": 768,
+      "screenshot": "C:\\Users\\User\\OneDrive\\Documents\\ChatGPT\\nexus\\CityResponder\\reports\\final_rehearsal\\browser\\history-1366x768.png",
+      "scrollWidth": 1351,
+      "clientWidth": 1351,
+      "scrollHeight": 1742,
+      "clientHeight": 768,
+      "text": "CityResponder\nOperational console\n\nMAIN\n\nOverview\nIncidents\nResponse / Routing\nRisk Intelligence\nHistory / Audit\n\nSYSTEM\n\nAdministration\n\nSITUATIONAL CLARITY\nWHEN IT MATTERS\n\nCityResponder\n\nEMERGENCY RESPONSE PLATFORM\n\nHistory / Audit\nLive updates connected\nSystem Administrator\nadmin@example.com\n\nIMMUTABLE AUDIT HISTORY\n\nHistory / Audit\n\nAppend-only Event-store records remain the source of truth.\n\nUpdated 10/4/2026, 4:20:57 PM\nRefresh\nFilter history\n\nQueries are applied server-side against immutable Events.\n\nEvent type\nAll event types\nincident_decision · Incident / Decision\noperator_decision · Operator Feedback\nincident_evidence_retained · Incident / Decision\nsensor_reading · Sensor / Perception\nvision_detection · Sensor / Perception\nvision_road_evidence · Sensor / Perception\nroute_version · Routing\ntraffic_command_invalidated · Routing\nactuator_command · Infrastructure / Actuator\nactuator_ack · Infrastructure / Actuator\narea_risk_calculated · Risk Intelligence\ncalibration_candidate · Calibration / Governance\ncalibration_validation · Calibration / Governance\ncalibration_version_approved · Calibration / Governance\ncalibration_version_activated · Calibration / Governance\ncalibration_",
+      "images": [],
+      "horizontalOverflow": false
+    },
+    {
+      "name": "admin-1366x768",
+      "url": "http://localhost:5173/admin",
+      "width": 1366,
+      "height": 768,
+      "screenshot": "C:\\Users\\User\\OneDrive\\Documents\\ChatGPT\\nexus\\CityResponder\\reports\\final_rehearsal\\browser\\admin-1366x768.png",
+      "scrollWidth": 1351,
+      "clientWidth": 1351,
+      "scrollHeight": 1131,
+      "clientHeight": 768,
+      "text": "CityResponder\nOperational console\n\nMAIN\n\nOverview\nIncidents\nResponse / Routing\nRisk Intelligence\nHistory / Audit\n\nSYSTEM\n\nAdministration\n\nSITUATIONAL CLARITY\nWHEN IT MATTERS\n\nCityResponder\n\nEMERGENCY RESPONSE PLATFORM\n\nAdministration\nLive updates connected\nSystem Administrator\nadmin@example.com\nCalibration Governance\nUsers & Access\nLive Diagnostics\n\nSYSTEM ADMINISTRATOR\n\nAdaptive calibration governance\n\nVersioned review and approval of calibration candidates. Live fusion remains on source baseline weights.\n\nUpdated 10/4/2026, 4:21:05 PM\nRefresh\nCalibration status\n\nGovernance state only; no adaptive version is wired into Part 3 fusion.\n\nNo adaptive calibration version is active\nPart 3 live fusion integration: disabled. Source baseline remains authoritative.\nbaseline\n\nAdaptive weights are not connected to Part 3 fusion\n\nCurrent / baseline weights\n\nBounds 0.10–0.50 · required sum 1.00 · batch setting 0.02\n\nSource baseline reference; no adaptive version is active\nReference\nS\n0.30\nT\n0.20\nV\n0.35\nH\n0.15\nMinimum 0.10 · maximum 0.50 · total 1.00\nCandidate preview\n\nOnly immutable backend candidates are shown.\n\nNo calibration candidates\n\nNo candidate index is available. Training is not expose",
+      "images": [],
+      "horizontalOverflow": false
+    }
+  ],
+  "exceptions": [],
+  "networkFailures": []
+}

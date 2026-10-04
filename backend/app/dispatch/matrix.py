@@ -30,6 +30,7 @@ class DispatchInput(BaseModel):
     person_in_hazard: bool | None
     route_id: str | None = None
     route_version: int | None = Field(default=None, gt=0)
+    selected_corridor: Literal["PRIMARY", "STANDBY"] | None = None
     route_status: str | None = None
     no_safe_route: bool | None = None
     source_references: list[FusionSourceReference] = Field(default_factory=list)

@@ -1,5 +1,7 @@
 """Authenticated REST API for Operator manual decisions."""
 
+from typing import Literal
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field, field_validator
 from pydantic import ValidationError
@@ -57,6 +59,7 @@ class OperatorDecisionApiRequest(BaseModel):
 
     action: OperatorAction
     reason: str = Field(min_length=1)
+    severity_floor: Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"] | None = None
 
     @field_validator("reason")
     @classmethod
@@ -130,9 +133,10 @@ def submit_operator_decision(
         operator_role=current_user.role,
         action=request.action,
         written_reason=request.reason,
+        severity_floor=request.severity_floor,
     )
-    result = create_operator_decision(automatic_decision, operator_request)
     try:
+        result = create_operator_decision(automatic_decision, operator_request)
         persisted_event = persist_operator_decision(db, result)
     except ValueError as exc:
         db.rollback()

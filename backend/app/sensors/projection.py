@@ -7,6 +7,7 @@ from app.sensors.schemas import LatestSensorState, sensor_message_adapter
 
 
 SUPPORTED_SENSOR_TYPES = ("MQ2", "DHT22", "BUTTON", "IR_A", "IR_B")
+SENSOR_PROJECTION_PAGE_SIZE = 100
 
 
 def get_latest_sensor_states(db: Session) -> list[LatestSensorState]:
@@ -17,23 +18,36 @@ def get_latest_sensor_states(db: Session) -> list[LatestSensorState]:
         for sensor_type in SUPPORTED_SENSOR_TYPES
     }
 
-    for event in get_recent_events(db, event_type="sensor_reading"):
-        try:
-            sensor = sensor_message_adapter.validate_python(event.payload)
-        except Exception:
-            continue
-
-        state = latest[sensor.sensor_type]
-        if state.available:
-            continue
-
-        latest[sensor.sensor_type] = LatestSensorState(
-            sensor_type=sensor.sensor_type,
-            value=event.payload.get("value"),
-            timestamp=sensor.timestamp,
-            node_id=sensor.node_id,
-            unit=event.payload.get("unit"),
-            available=True,
+    skip = 0
+    while True:
+        events = get_recent_events(
+            db,
+            event_type="sensor_reading",
+            limit=SENSOR_PROJECTION_PAGE_SIZE,
+            skip=skip,
         )
+        for event in events:
+            try:
+                sensor = sensor_message_adapter.validate_python(event.payload)
+            except Exception:
+                continue
+
+            state = latest[sensor.sensor_type]
+            if state.available:
+                continue
+
+            latest[sensor.sensor_type] = LatestSensorState(
+                sensor_type=sensor.sensor_type,
+                value=event.payload.get("value"),
+                timestamp=sensor.timestamp,
+                node_id=sensor.node_id,
+                unit=event.payload.get("unit"),
+                available=True,
+            )
+        if all(state.available for state in latest.values()):
+            break
+        if len(events) < SENSOR_PROJECTION_PAGE_SIZE:
+            break
+        skip += SENSOR_PROJECTION_PAGE_SIZE
 
     return [latest[sensor_type] for sensor_type in SUPPORTED_SENSOR_TYPES]

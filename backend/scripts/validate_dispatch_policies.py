@@ -26,43 +26,42 @@ def test_dispatch_matrix():
     )
     rec_low = policy.evaluate(inp_low)
     assert len(rec_low.dispatch_actions) == 1
-    assert rec_low.dispatch_actions[0].parameters["unit_type"] == "FIRE_UNIT"
-    assert rec_low.dispatch_actions[0].parameters["count"] == 1
-    assert len(rec_low.building_actions) == 1
-    hardware_actions = [(a.action_category, a.action_type) for a in rec_low.building_actions]
-    assert (ActionCategory.BUZZER, "ON") in hardware_actions
-    assert len(rec_low.traffic_actions) == 0
-    assert any("Trigger: LOW -> 1 Fire Unit, Buzzer ON, No Gate, No Traffic" in r for r in rec_low.reasons)
+    assert rec_low.dispatch_actions[0].action_type == "HOLD_UNIT"
+    assert rec_low.dispatch_actions[0].parameters["unit_id"] == "E1"
+    assert rec_low.traffic_actions[0].action_type == "NORMAL_CYCLE"
+    assert rec_low.building_actions[0].action_type == "ZONE_AMBER_5_SECONDS"
+    assert all(a.action_category is not ActionCategory.GATE for a in rec_low.building_actions)
     assert any("[Actor: System] | [LOW_DISPATCH]" in r for r in rec_low.reasons)
-    print("  [PASS] LOW -> 1 Fire Unit, Buzzer ON, No Gate, No Traffic")
+    print("  [PASS] LOW -> E1 held, NORMAL_CYCLE, amber 5 seconds, no gate/buzzer")
     
     # 2. MEDIUM
     inp_medium = DispatchInput(
         incident_decision_id="test",
         incident_confirmed=True,
         final_severity="MEDIUM",
-        person_in_hazard=False
+        person_in_hazard=False,
+        selected_corridor="PRIMARY",
     )
     rec_medium = policy.evaluate(inp_medium)
     assert len(rec_medium.dispatch_actions) == 1
     assert rec_medium.dispatch_actions[0].parameters["unit_type"] == "FIRE_UNIT"
-    assert rec_medium.dispatch_actions[0].parameters["count"] == 2
-    assert len(rec_medium.building_actions) == 2
-    hardware_actions = [(a.action_category, a.action_type) for a in rec_medium.building_actions]
-    assert (ActionCategory.GATE, "OPEN") in hardware_actions
-    assert (ActionCategory.BUZZER, "ON") in hardware_actions
-    assert len(rec_medium.traffic_actions) == 1
+    assert rec_medium.dispatch_actions[0].parameters["unit_id"] == "E1"
+    assert rec_medium.dispatch_actions[0].parameters["count"] == 1
     assert rec_medium.traffic_actions[0].action_type == "GREEN_CORRIDOR"
-    assert any("Trigger: MEDIUM -> 2 Fire Units, Buzzer ON, Gate OPEN, GREEN_CORRIDOR" in r for r in rec_medium.reasons)
+    assert rec_medium.traffic_actions[0].parameters["corridor"] == "PRIMARY"
+    assert any(a.action_type == "PULSE_500_MS" for a in rec_medium.building_actions)
+    assert any(a.action_type == "ZONE_AMBER_ON" for a in rec_medium.building_actions)
+    assert all(a.action_category is not ActionCategory.GATE for a in rec_medium.building_actions)
     assert any("[Actor: System] | [MEDIUM_DISPATCH]" in r for r in rec_medium.reasons)
-    print("  [PASS] MEDIUM -> 2 Fire Units, Buzzer ON, Gate OPEN, GREEN_CORRIDOR")
+    print("  [PASS] MEDIUM -> E1, selected corridor, pulsed buzzer, amber, gate closed")
     
     # 3. HIGH
     inp_high = DispatchInput(
         incident_decision_id="test",
         incident_confirmed=True,
         final_severity="HIGH",
-        person_in_hazard=False
+        person_in_hazard=False,
+        selected_corridor="PRIMARY",
     )
     rec_high = policy.evaluate(inp_high)
     assert len(rec_high.dispatch_actions) == 2
@@ -84,7 +83,8 @@ def test_dispatch_matrix():
         incident_decision_id="test",
         incident_confirmed=True,
         final_severity="CRITICAL",
-        person_in_hazard=True
+        person_in_hazard=True,
+        selected_corridor="PRIMARY",
     )
     rec_crit = policy.evaluate(inp_crit)
     assert len(rec_crit.dispatch_actions) == 3
@@ -137,6 +137,7 @@ def test_manual_override_pipeline():
         operator_role=UserRole.OPERATOR,
         action=OperatorAction.CONFIRM,
         written_reason="Operator saw smoke on dashboard",
+        severity_floor="MEDIUM",
         previous_automatic_decision_status="not_confirmed",
         resulting_operator_outcome="CONFIRM",
         action_timestamp=datetime.now(timezone.utc)
@@ -158,20 +159,21 @@ def test_manual_override_pipeline():
     # Check if the override successfully passed `not_actionable` check and failed on configuration instead
     assert res.status == "configuration_error"
     
-    # Test the matrix independently for the default MEDIUM fallback
+    # Test the matrix independently for the explicit operator MEDIUM floor
     inp_medium_fallback = DispatchInput(
         incident_decision_id="test_decision",
         incident_confirmed=True, # Manual override forced this
-        final_severity="MEDIUM", # Manual override defaulted this
-        person_in_hazard=False
+        final_severity="MEDIUM",
+        person_in_hazard=False,
+        selected_corridor="PRIMARY",
     )
     rec_medium = DefaultDispatchMatrixPolicy().evaluate(inp_medium_fallback)
     assert len(rec_medium.dispatch_actions) == 1
     assert rec_medium.dispatch_actions[0].parameters["unit_type"] == "FIRE_UNIT"
-    assert rec_medium.dispatch_actions[0].parameters["count"] == 2
+    assert rec_medium.dispatch_actions[0].parameters["count"] == 1
     
-    print("  [PASS] Manual CONFIRM defaults to MEDIUM severity when no R score exists")
-    print("  [PASS] Dispatch matrix generates MEDIUM resources and hardware actions")
+    print("  [PASS] Manual CONFIRM uses explicit MEDIUM severity floor when no R score exists")
+    print("  [PASS] Dispatch matrix generates authoritative MEDIUM response")
 
 
 def test_side_states():

@@ -12,7 +12,7 @@ export function useResponseView() {
   const [lastRefreshedAt, setLastRefreshedAt] = useState<string | null>(null);
 
   const refresh = useCallback(async (routeId = selectedRouteId) => {
-    setLoading(true); setErrors([]);
+    setErrors([]);
     const [routeResult, actuatorResult, eventResult] = await Promise.allSettled([routeRequests.list(), routeRequests.actuators(), routeRequests.events()]);
     const nextErrors: string[] = [];
     let nextRoutes = routes;

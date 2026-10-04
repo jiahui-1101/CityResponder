@@ -234,6 +234,24 @@ class IntegratedVisionPipeline:
         """Render one caller-selected frame; this method never stores video or images."""
 
         frame = processed.board_frame.copy()
+        building = processed.result.building_roi
+        cv2.rectangle(
+            frame,
+            (round(building.x), round(building.y)),
+            (round(building.x + building.width), round(building.y + building.height)),
+            (0, 200, 120),
+            2,
+        )
+        cv2.putText(
+            frame,
+            "BUILDING A ROI",
+            (round(building.x), max(18, round(building.y) - 6)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.55,
+            (0, 200, 120),
+            2,
+            cv2.LINE_AA,
+        )
         for detection in processed.result.detections:
             box = detection.bounding_box
             cv2.rectangle(
@@ -265,6 +283,17 @@ class IntegratedVisionPipeline:
                 (255, 0, 0),
                 2,
             )
+            if len(polygon):
+                cv2.putText(
+                    frame,
+                    f"{segmentation.class_name} {segmentation.confidence:.2f}",
+                    tuple(polygon[0]),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5,
+                    (255, 0, 0),
+                    1,
+                    cv2.LINE_AA,
+                )
         ok, encoded = cv2.imencode(".jpg", frame)
         if not ok:
             raise VisionIntegrationError("Unable to encode annotated evidence frame")

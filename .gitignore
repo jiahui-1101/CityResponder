@@ -3,6 +3,9 @@
 **/.pio/
 data/*.db
 **/*.db
+**/*.db-journal
+**/*.db-wal
+**/*.db-shm
 **/__pycache__/
 *.py[cod]
 **/data/incident_evidence/
@@ -20,3 +23,4 @@ firmware/ac1_mqtt/include/secrets.h
 datasets/**/labels/*.cache
 reports/validation/vision/*_stdout.log
 reports/validation/vision/*_stderr.log
+.pytest-tmp-*/

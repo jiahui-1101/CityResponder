@@ -2198,3 +2198,162 @@ The preceding aggregate run did not retain first/last values. A repeat capture w
 
 **Follow-up required:**
 - Check the backend codebase's existing enums to ensure the state list exactly matches this document (ALERT, CONFIRMED, RESPONDING, ACTIVE, CONCLUDED, VERIFIED).
+
+## 2026-10-04 12:55 — Deadline-driven provisional MQ-2 characterization
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+**Calibration boundary:**
+- The required 24-hour initial MQ-2 burn-in is **NOT MET / NOT PROVEN**. This was a time-constrained, deadline-driven `PRE_BURN_IN_ENGINEERING_BASELINE`, not a formal calibration.
+- The replacement MQ-2, final 20k upper / 10k lower divider, GPIO34 mapping, and existing SN1 wiring were preserved. Initial COM5 verification produced 15/15 nonzero readings (`134`–`176`).
+
+**Current-session warm-up:**
+- Warm-up duration: `300.09 s`; `2,998` usable samples at approximately 10 Hz; all `2,998` were nonzero.
+- Consecutive one-minute means: `132.98`, `128.44`, `125.97`, `122.95`, `120.20` ADC counts. The downward trend remained visible.
+- Warm-up first / last / min / max / mean: `143 / 119 / 53 / 174 / 126.100`.
+
+**Dedicated clean-air baseline:**
+- Duration: `60.282 s`; samples: `600`; first: `126`; last: `107`; min: `62`; max: `154`.
+- Mean: `114.340`; median and provisional `B_S`: `114`; population standard deviation: `9.595`.
+- Full-window CV: `8.392%`; final 30-second window: `300` samples, mean `112.470`, standard deviation `9.436`, CV `8.390%`.
+- Project stability metric `final 30-second CV <= 5%`: **FAIL**.
+
+**Response and threshold boundary:**
+- Controlled response test: `NOT_RUN`; a safe controlled physical source was not established for this session.
+- Provisional threshold: `UNRESOLVED`. Existing production threshold/configuration was not changed or physically validated.
+- Formal calibration remains outstanding. The sensor is usable only with limitation for raw/provisional demonstration and must not be represented as a formally calibrated fire trigger.
+
+**Restoration and health:**
+- Temporary 100 ms diagnostic reporting was restored to the original 1,000 ms interval, rebuilt, uploaded to COM5, and verified with 8/8 nonzero readings (`82`–`108`).
+- DHT22 remained valid; IR1, IR2, and button fields remained readable; no reset, brownout, watchdog, or Guru Meditation marker was observed.
+
+## 2026-10-04 — AC1 physical/logical traffic-light group correction
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+- Hardware-cycle validation was paused after the mounted traffic-light units were found to be logically reversed relative to their routes.
+- The complete R/Y/G groups were relabelled without changing the six physical GPIOs: TL1 is now PRIMARY/MAIN on red/yellow/green `GPIO14/13/23`; TL2 is now STANDBY on `GPIO25/26/27`.
+- Updated the production AC1 MQTT firmware, AC1 bring-up labels, and the authoritative hardware reference together so future diagnostics use the corrected physical/logical identity.
+- Routing policy, `GREEN_CORRIDOR` meaning, MQTT command/ACK contract, timeout/retry behavior, servo, buzzer, and failsafe logic were not changed.
+- The existing production command vocabulary still has no independent STANDBY-green/reroute action. A true reroute test cannot be claimed through production MQTT without a separately approved contract/behavior change.
+- Production firmware build and COM5 upload: PASS. Pre-upload serial identity confirmed the connected board was AC1, not SN1.
+- Post-upload serial reported `TL1_PRIMARY=14,13,23 TL2_STANDBY=25,26,27`, Wi-Fi connected at `172.20.10.3`, and MQTT subscribed to `city/commands/AC1`; no brownout, watchdog, crash, or reset loop was observed.
+- `GREEN_CORRIDOR` command `387e2f97-43f9-4a6d-ac00-c094704295dd` received its matching ACK in `181.339 ms`; the user physically confirmed PRIMARY green and STANDBY red.
+- `ALL_RED` transition command `8d1aea14-8580-4dfb-988d-cd4d47328bf9` received its matching ACK in `266.138 ms`; the user physically confirmed both routes red.
+- Failsafe-marked `ALL_RED` command `4a270ea3-5092-459e-a1b5-c5d23a1251d4` received its matching ACK in `240.933 ms`; the user physically confirmed both routes remained red.
+- The requested STANDBY-green/PRIMARY-red reroute state was **not executed** because it is not representable by the current production MQTT action vocabulary. No result was fabricated and no contract extension was made.
+
+## 2026-10-04 — AC1 servo abnormal-behavior safety audit
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+- The 20-cycle real-hardware validation was paused after production `GATE OPEN` at the recorded 120° value reached the wrong physical position and was reported to continue rotating.
+- Read-only firmware audit confirmed GPIO18, CLOSED=30°, OPEN=120°, lazy `attach(GPIO18)`, one `write(angle)` per accepted MQTT command, and no servo command in the main loop. The TL1/TL2 mapping correction did not touch servo code.
+- ESP32Servo is using its default positional-servo configuration: 50 Hz and default attach range 544–2400 µs. Production firmware contains no custom `writeMicroseconds()`, PWM frequency, or pulse range.
+- Recent immutable command history showed one HW-005 OPEN command followed by explicit CLOSE commands; no repeated OPEN command loop was found.
+- With servo power initially OFF and the gate arm relieved, the unchanged AC1 bring-up firmware was temporarily uploaded to COM5. Startup confirmed GPIO18 `NOT_ATTACHED`.
+- A single `SERVO_SET_90` command was sent. The user observed continuous rotation and powered the servo OFF. No 60°, 30°, or 120° diagnostic command followed.
+- `SERVO_RELEASE` was then sent with servo power OFF; serial confirmed GPIO18 servo state `RELEASED`.
+- The connected device does not currently behave as a normal positional SG90. A continuous-rotation unit, incorrect replacement, or failed positional-feedback mechanism is suspected; incompatible neutral pulse behavior remains a secondary possibility.
+- Safe CLOSED and OPEN angles are now `UNRESOLVED`. Production MQTT firmware has not been restored and hardware-cycle validation remains paused until a known positional servo is installed or the hardware identity is resolved.
+- User-accepted prototype disposition: servo positional control is **NOT AVAILABLE** because the connected unit exhibits continuous rotation at 90°; gate-related hardware validation is **INCOMPLETE**; final prototype status is `PASS_WITH_DOCUMENTED_LIMITATIONS`.
+
+## 2026-10-04 — Servo disposition superseded: deferred pending replacement
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+- The previous provisional final-disposition statement is superseded by the user's replacement plan. The current servo diagnostic evidence remains preserved for traceability, but it is not a final project limitation or final gate result.
+- All servo/gate validation is now `DEFERRED_PENDING_SERVO_REPLACEMENT`. Existing gate cycle IDs `HW-005`, `HW-006`, and `HW-018` remain in the original evidence and are not renumbered or overwritten.
+- No further servo commands may be sent to the current unit. Its power remains OFF; production firmware starts with the servo unattached.
+- AC1 production MQTT firmware was restored on COM5. Serial confirmed corrected traffic mapping `TL1_PRIMARY=14,13,23` and `TL2_STANDBY=25,26,27`, startup `SERVO_UNATTACHED`, Wi-Fi IP `172.20.10.3`, and MQTT subscription to `city/commands/AC1`.
+- Non-servo hardware validation may continue. A failsafe result can validate traffic `ALL_RED` and buzzer `ON`, but physical gate `CLOSED` and the complete failsafe outcome remain deferred.
+- Final hardware validation is **NOT FINALIZED** pending replacement-servo installation and calibration.
+
+## 2026-10-04 — Non-servo hardware-cycle continuation completed
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+- Completed the remaining non-servo portions of the 20-cycle evidence plan without sending any GATE/servo command.
+- `HW-019` partial safe-default: production MQTT `TRAFFIC ALL_RED` command `1580701f-bc24-40df-9253-bd9547af4fa6` received matching ACK in `412.401 ms`; `BUZZER ON` command `8eaf2660-d3d8-4e0b-ac6d-528b2a343a6a` received matching ACK in `79.618 ms`. The user physically confirmed both routes red and the buzzer sounding. Gate CLOSED was deliberately deferred.
+- `HW-020` non-servo restore: production MQTT `TRAFFIC OFF` command `8caa5e89-546c-4a98-ac68-b6b54067c93e` received matching ACK in `318.924 ms`; `BUZZER OFF` command `53176a92-6336-4471-8abf-db990fdabc28` received matching ACK in `468.315 ms`. The user physically confirmed traffic OFF and buzzer silent.
+- Formal-cycle ACK delivery succeeded for all 20 cycle IDs; because `HW-019` and `HW-020` each contain two independent non-servo commands, the command-level result is `22/22` matching ACKs. `HW-001` (`779.203 ms`), `HW-002` (`1189.592 ms`), and `HW-017` (`738.219 ms`) exceeded the 500 ms latency target.
+- Current SN1 persistence remained live during the final cycles: MQ-2 raw readings were nonzero, DHT22 was valid, IR1/IR2 were readable and clear (`HIGH`), and the button was readable and unpressed (`HIGH`).
+- Prior real reroute evidence remains valid: persistent IR1 blockage selected route `72d45850-2c25-4fd3-a249-e7b48c873771` version 2 on the ALTERNATE path, incremented from MAIN version 1, and produced a persisted `traffic_command_invalidated` event for stale version 1. The physical ALL_RED transition passed.
+- Full physical reroute remains failed/incomplete because the current production action contract has no command for STANDBY green / PRIMARY red; no command or result was fabricated.
+- Controlled retry/timeout evidence remains preserved: retry reached an ACK but uses a new command ID, leaving duplicate physical actuation risk if the first ACK is lost; controlled timeout fallback logic passed. No new real-hardware timeout was induced during this continuation.
+- Effective non-servo cycle accounting: `17` attempted, `13` passed, `4` failed (`HW-001`, `HW-002`, and `HW-017` for ACK latency; `HW-010` for unavailable standby-green reroute actuation).
+- Servo/gate cycle evidence is preserved separately and marked `DEFERRED_PENDING_SERVO_REPLACEMENT`; complete failsafe and final hardware sign-off remain unfinalized.
+
+## 2026-10-04 — Targeted final-validation software remediation
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+- Preserved the original `26 PASS / 14 FAIL` controlled-validation evidence and recorded the nine targeted reruns separately in `reports/final_validation/targeted_remediation_results.csv`.
+- `FV-028`: routing conflict grace now uses the documented `1.5 s` boundary instead of a hard-coded `1.0 s`.
+- `FV-029`: an unavailable edge now retains its first-unavailable timestamp and cannot reopen until the documented `5 s` recovery hold-off has elapsed.
+- `FV-031`: Operator CONFIRM accepts and persists an explicit `LOW`/`MEDIUM`/`HIGH`/`CRITICAL` severity floor. A floor is mandatory when calculated severity is unavailable, is valid only for CONFIRM, and is applied as a minimum rather than silently defaulting to MEDIUM.
+- `FV-032`/`FV-033`: REJECT and CANCEL now construct a valid current-schema physical release sequence; existing `TRAFFIC OFF`, `GATE CLOSE`, and `BUZZER OFF` semantics are unchanged.
+- `FV-034`: ALERT-to-CONFIRMED winner selection now uses an insert-only database table with a unique incident key and database triggers preventing claim UPDATE/DELETE. The winner claim and immutable decision event commit atomically; losing/late confirmation is logged as ignored and rejected. Both concurrent operator claims and automatic-first/late-operator behavior passed isolated SQLite transaction tests.
+- `FV-036`/`FV-037`: LOW and MEDIUM now follow `dispatch.md`: dashboard responder-resource assignments only, with no physical traffic, gate, or buzzer action. HIGH/CRITICAL mappings and failsafe behavior were not changed.
+- The lack of a production STANDBY-green command is independent of FV-037; MEDIUM is explicitly not allowed to activate a corridor. No STANDBY action or firmware protocol was added in this remediation.
+- `FV-039`: one logical actuator command now retains the same `command_id` on its single retry. The retry payload still carries `attempt_number=2` and `retry_of_command_id`, while AC1 duplicate-ID handling prevents a second physical actuation.
+- Targeted remediation tests: `10/10` passed across the nine FV scenarios, including two separate FV-034 concurrency cases. Full unittest discovery: `23/23` passed. Dispatch policy validation, requirements validation, and controlled E2E validation passed; controlled timeout E2E confirmed the first and retry publishes used the same command ID.
+- No vision model, MQ-2 calibration, servo/gate logic, GPIO assignment, TL1/TL2 mapping, SN1 telemetry contract, or failsafe action set was changed. Servo validation remains `DEFERRED_PENDING_SERVO_REPLACEMENT`.
+
+## 2026-10-04 — Final dispatch and route-aware corridor contract alignment
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+- Supersedes only the `FV-036`/`FV-037` LOW/MEDIUM policy statements in the immediately preceding remediation entry. `TEAM_TECHNICAL_REQUIREMENTS.md` remains unchanged and is the authoritative implementation contract.
+- LOW now holds E1 at station, preserves the defined normal traffic cycle (four-second green / one-second yellow), requests the affected-zone amber indication for five seconds, and issues no gate-open or emergency-buzzer action.
+- MODERATE/MEDIUM now dispatches E1, requests a 500 ms ON / 500 ms OFF buzzer pattern, keeps the gate closed/default, requests the amber affected-zone indication, and creates `GREEN_CORRIDOR` for the currently selected safe corridor.
+- `GREEN_CORRIDOR` now carries an explicit `parameters.corridor` value of `PRIMARY` or `STANDBY`. The selected A* route resolves that value from explicit routing-edge metadata. Corridor sequences retain the one-second `ALL_RED` transition, and existing route-version freshness checks reject stale traffic commands.
+- AC1 production firmware now supports both physical corridor states while preserving the corrected complete GPIO groups: PRIMARY/TL1 `GPIO14/13/23`, STANDBY/TL2 `GPIO25/26/27`. It also supports the LOW normal cycle and the MEDIUM 500 ms buzzer pulse without changing existing ON/OFF semantics. Servo GPIO, angles, and command handling were not changed or actuated.
+- The authoritative hardware map still provides no GPIO for an affected-zone amber indicator. The backend preserves the amber requirement as an explicit unmapped logical action instead of inventing a pin. Physical amber compliance therefore remains an external hardware gap.
+- Automated LOW, PRIMARY MEDIUM, STANDBY MEDIUM, ALL_RED sequencing, route-version increment, stale-command rejection, retry-idempotency, and ACK-path validations passed. AC1 firmware build passed; no upload or physical corridor test was performed in this pass.
+- Physical STANDBY-green confirmation remains `NOT_YET_CONFIRMED`. Servo/gate validation remains `DEFERRED_PENDING_SERVO_REPLACEMENT`.
+
+## 2026-10-04 — Final rehearsal software, UX, and deployment-readiness audit
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+- Fixed background-refresh presentation so existing backend state remains visible during polling/live-event refresh and on transient refresh failure; initial skeletons are retained only when no prior data exists. Added a frontend regression contract and passed typecheck/test/production build.
+- Added a role-protected real annotated-frame endpoint backed by one shared `IntegratedVisionPipeline`, and added Operator/Firefighter live AI panels. The pipeline draws the locked Building A ROI plus real detection and segmentation overlays; it does not persist continuous video and does not alter the five-frame incident evidence cap.
+- Removed JWTs from WebSocket URLs. The client now sends the token as the first WebSocket message and reports connected only after an authenticated server acknowledgement.
+- Added read indexes for the append-only event workload. Ten-sample local medians were 1.24 ms for health, 4.13 ms for incidents, 6.09 ms for routes, 5.77 ms for events, 3.53 ms for risk, and 4.38 ms for calibration.
+- Real vision frontend proof returned a valid annotated JPEG. Cold startup was approximately 14.35 seconds; cached-frame delivery was fast but is not new inference. Frames older than 1.5 seconds are now explicitly labelled stale, and the shared worker idle timeout was increased from 10 to 60 seconds to avoid repeated model reloads during brief page changes. Stable <=1 second camera-to-dashboard freshness remains unproven.
+- Backend compilation and 27/27 tests passed. Dispatch, fusion, severity, controlled E2E, and requirements validators passed. SN1 and AC1 production firmware builds passed. No firmware was flashed and no physical observation was fabricated.
+- Headless browser QA rendered Operator 1920x1080, Incidents/Planner/History/Admin 1366x768, and Firefighter 390x844 with no horizontal overflow, runtime exceptions, or failed network loads. Firefighter vision and Planner data were still loading after eight seconds during cold vision startup.
+- Created the final rehearsal evidence bundle under `reports/final_rehearsal/`. Deployment is `NO_GO`: route-aware AC1 flash/STANDBY physical proof, replacement servo/failsafe proof, missing cross-role lifecycle UI/API paths, full 40-scenario rerun, stable live-vision latency, interactive browser QA, and extended soak remain outstanding.
+- No deployment, commit, pull/rebase, or push was performed.
+
+## 2026-10-04 — Final pre-deployment remediation: lifecycle, planner, and evidence correction
+
+**Changed by:** Codex
+**Branch:** `main`
+**Commit:** not committed yet
+
+- Corrected the prior rehearsal wording: Firefighter `390x844` is a responsive-layout/live-camera result only; the prior `3.1 ms average / 601 ms maximum over 900 SN1 events` is explicitly a WebSocket-receipt-to-sensor-grid DOM-mutation proxy, not a backend-origin clock correlation; the broad `FINAL RESULT: PASS` is reclassified as `REFRESH_AND_VISION_FRONTEND_REMEDIATION: PASS`.
+- Added append-only responder lifecycle APIs and UI for `DISPATCHED → EN_ROUTE → ARRIVED → RESOLVED`, required resolution outcome fields, invalid-transition rejection, operator start/stop/safe-default actions, and operator verified-outcome closure.
+- Added append-only Planner inspection queue creation/update/list APIs and CSV export, with a real Planner queue/export section using backend data.
+- Firefighter now presents a mobile route strip with persisted nodes/version/cost, blocked-edge/reason evidence, and a reroute banner without inventing camera geometry.
+- Backend compile passed; 35 tests passed using a workspace-local pytest temp base (the default Windows pytest temp root was inaccessible); frontend typecheck, regression test, and production build passed; local `/health`, incidents, routes, inspections, and system-health API smoke checks returned HTTP 200.
+- The browser computer-use helper was unavailable in this environment, so no interactive console/network PASS was fabricated.
+- Servo/gate remains `DEFERRED_PENDING_SERVO_REPLACEMENT`. PRIMARY green/STANDBY red, ALL_RED, buzzer ON/OFF, and prior stale-route software evidence remain preserved. Current physical STANDBY-green and physical stale-command proof are `NOT_YET_CONFIRMED`; deployment remains `NO_GO` and the local/hybrid topology is retained.
+- No firmware, GPIO, servo, MQ-2 calibration, vision model, or production deployment was changed. No commit or push was performed.

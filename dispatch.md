@@ -1,20 +1,36 @@
 ## Dispatch Matrix
 
-### TBD-DISPATCH-01: Responder/Resource Mapping by Severity
-*   **Low (R = 0–29):** 1 Fire unit, 0 Ambulances, 0 Rescue units.   
-*   **Medium (R = 30–49):** 2 Fire units, 0 Ambulances, 0 Rescue units.   
-*   **High (R = 50–69):** 2 Fire units, 1 Ambulance, 0 Rescue units.   
-*   **Critical (R = 70–80 or P = 1):** 2 Fire units, 1 Ambulance, 1 Rescue unit.   
+### DISPATCH-01: Responder/Resource Mapping by Severity
+`TEAM_TECHNICAL_REQUIREMENTS.md` is the implementation contract. Its current
+severity bands and actions supersede the uncoordinated dashboard-only decision.
+
+* **Low (R = 0–24):** Keep E1 at station and notify the Operator.
+* **Moderate / MEDIUM (R = 25–49):** Dispatch E1.
+* **High (R = 50–74):** Dispatch E1 as urgent.
+* **Critical (R = 75–100 or P = 1):** Dispatch E1 at highest priority.
 
 ### TBD-DISPATCH-02: Person-Evidence Escalation Beyond the Critical Override
 *   **Trigger condition (P = 1):** When YOLO detects a person inside the hazard polygon zone with a confidence ≥ 0.50, `P` is set to 1, and the incident severity is directly forced to Critical.   
 *   **1-frame confirmation rule:** The team decided that only 1 frame of person detection is required to trigger the escalation, without waiting for 2-3 frames. Because smoke can quickly obscure a person, life safety must be prioritized.   
 *   **Notes and testing:** The 0.50 confidence is the standard detection threshold and not an additional safety limit. This single-frame rule must be verified during testing to ensure the overall false dispatch rate remains within the target of ≤ 10%.   
 
-### TBD-DISPATCH-03: Exact Traffic, Gate, Buzzer, and Other Building-Action Matrix
-*   **Hardware action matrix:**
-    *   **Low / Medium:** No traffic corridor is activated (no corridor), the gate stays closed, and the buzzer is OFF. Responder units are assigned/displayed in the dashboard only; no physical sandbox action is triggered.
-    *   **High / Critical:** The traffic corridor is activated (GREEN_CORRIDOR), the gate is OPEN, and the buzzer is ON.
+### DISPATCH-03: Exact Traffic, Gate, Buzzer, and Building-Action Matrix
+* **Low:** Keep the defined normal traffic cycle (four-second green and
+  one-second yellow), do not open the gate, perform no emergency buzzer action,
+  and show the amber affected-zone indicator for five seconds.
+* **Moderate / MEDIUM:** Activate `GREEN_CORRIDOR` on the selected safe route,
+  pulse the buzzer 500 ms ON / 500 ms OFF, keep the gate closed/default, and
+  keep the amber affected-zone indicator active.
+* **High / Critical:** Preserve the master-contract urgent response: activate
+  the selected-route `GREEN_CORRIDOR`, open the configured safe entrance, and
+  activate the continuous building warning outputs.
+* The authoritative hardware GPIO map currently has no affected-zone LED pin.
+  The amber action remains a required, explicitly unmapped output; no GPIO may
+  be invented to make the implementation appear complete.
+* `GREEN_CORRIDOR` is route-aware. Its command parameters must identify either
+  `PRIMARY` or `STANDBY`. A corridor switch must apply ALL_RED for at least one
+  second before the selected route becomes green. PRIMARY means PRIMARY green /
+  STANDBY red; STANDBY means PRIMARY red / STANDBY green.
 *   **Auto and manual race condition handling:**
     *   Pressing the manual button only generates an `ALERT`, and dispatching begins only after the Operator confirms it.
     *   The severity for a manual dispatch does not default to Critical; the system prioritizes using the calculated `R` score. If `R` cannot be calculated, the severity chosen by the Operator serves as the "floor".

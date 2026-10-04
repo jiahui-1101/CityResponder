@@ -21,12 +21,14 @@ namespace {
 constexpr char NODE_ID[] = "AC1";
 constexpr char COMMAND_TOPIC[] = "city/commands/AC1";
 constexpr char ACK_TOPIC[] = "city/acks/AC1";
-constexpr uint8_t TL1_RED_PIN = 25;
-constexpr uint8_t TL1_YELLOW_PIN = 26;
-constexpr uint8_t TL1_GREEN_PIN = 27;
-constexpr uint8_t TL2_RED_PIN = 14;
-constexpr uint8_t TL2_YELLOW_PIN = 13;
-constexpr uint8_t TL2_GREEN_PIN = 23;
+// Logical route mapping follows the physical mounting: TL1 is PRIMARY/MAIN
+// and TL2 is STANDBY. Keep each complete R/Y/G group together.
+constexpr uint8_t TL1_RED_PIN = 14;
+constexpr uint8_t TL1_YELLOW_PIN = 13;
+constexpr uint8_t TL1_GREEN_PIN = 23;
+constexpr uint8_t TL2_RED_PIN = 25;
+constexpr uint8_t TL2_YELLOW_PIN = 26;
+constexpr uint8_t TL2_GREEN_PIN = 27;
 constexpr uint8_t BUZZER_PIN = 19;
 constexpr uint8_t SERVO_PIN = 18;
 constexpr int GATE_CLOSED_ANGLE = 30;
@@ -43,6 +45,16 @@ bool timeReported = false;
 Servo gateServo;
 bool gateServoAttached = false;
 String lastAppliedCommandId;
+enum class TrafficMode {
+  STATIC,
+  NORMAL_CYCLE,
+};
+TrafficMode trafficMode = TrafficMode::STATIC;
+unsigned long trafficPhaseStartedAt = 0;
+uint8_t trafficPhase = 0;
+bool buzzerPulseActive = false;
+unsigned long buzzerLastToggleAt = 0;
+bool buzzerOn = false;
 
 bool credentialsConfigured() {
   return String(CITYRESPONDER_WIFI_SSID) != "YOUR_WIFI_SSID" &&
@@ -51,6 +63,7 @@ bool credentialsConfigured() {
 }
 
 void allLedsOff() {
+  trafficMode = TrafficMode::STATIC;
   digitalWrite(TL1_RED_PIN, LOW);
   digitalWrite(TL1_YELLOW_PIN, LOW);
   digitalWrite(TL1_GREEN_PIN, LOW);
@@ -60,6 +73,7 @@ void allLedsOff() {
 }
 
 void allRed() {
+  trafficMode = TrafficMode::STATIC;
   digitalWrite(TL1_RED_PIN, HIGH);
   digitalWrite(TL1_YELLOW_PIN, LOW);
   digitalWrite(TL1_GREEN_PIN, LOW);
@@ -69,13 +83,90 @@ void allRed() {
 }
 
 void mainRouteGreen() {
-  // Existing route semantics prefer MAIN (TL1); ALTERNATE (TL2) is stopped.
+  trafficMode = TrafficMode::STATIC;
   digitalWrite(TL1_RED_PIN, LOW);
   digitalWrite(TL1_YELLOW_PIN, LOW);
   digitalWrite(TL1_GREEN_PIN, HIGH);
   digitalWrite(TL2_RED_PIN, HIGH);
   digitalWrite(TL2_YELLOW_PIN, LOW);
   digitalWrite(TL2_GREEN_PIN, LOW);
+}
+
+void standbyRouteGreen() {
+  trafficMode = TrafficMode::STATIC;
+  digitalWrite(TL1_RED_PIN, HIGH);
+  digitalWrite(TL1_YELLOW_PIN, LOW);
+  digitalWrite(TL1_GREEN_PIN, LOW);
+  digitalWrite(TL2_RED_PIN, LOW);
+  digitalWrite(TL2_YELLOW_PIN, LOW);
+  digitalWrite(TL2_GREEN_PIN, HIGH);
+}
+
+void applyNormalTrafficPhase() {
+  switch (trafficPhase) {
+    case 0:  // PRIMARY green for four seconds.
+      mainRouteGreen();
+      break;
+    case 1:  // PRIMARY yellow for one second.
+      digitalWrite(TL1_RED_PIN, LOW);
+      digitalWrite(TL1_YELLOW_PIN, HIGH);
+      digitalWrite(TL1_GREEN_PIN, LOW);
+      digitalWrite(TL2_RED_PIN, HIGH);
+      digitalWrite(TL2_YELLOW_PIN, LOW);
+      digitalWrite(TL2_GREEN_PIN, LOW);
+      break;
+    case 2:  // STANDBY green for four seconds.
+      standbyRouteGreen();
+      break;
+    default:  // STANDBY yellow for one second.
+      digitalWrite(TL1_RED_PIN, HIGH);
+      digitalWrite(TL1_YELLOW_PIN, LOW);
+      digitalWrite(TL1_GREEN_PIN, LOW);
+      digitalWrite(TL2_RED_PIN, LOW);
+      digitalWrite(TL2_YELLOW_PIN, HIGH);
+      digitalWrite(TL2_GREEN_PIN, LOW);
+      break;
+  }
+  trafficMode = TrafficMode::NORMAL_CYCLE;
+  trafficPhaseStartedAt = millis();
+}
+
+void startNormalTrafficCycle() {
+  trafficPhase = 0;
+  applyNormalTrafficPhase();
+}
+
+void updateNormalTrafficCycle() {
+  if (trafficMode != TrafficMode::NORMAL_CYCLE) {
+    return;
+  }
+  const unsigned long duration = (trafficPhase == 0 || trafficPhase == 2) ? 4000 : 1000;
+  if (millis() - trafficPhaseStartedAt >= duration) {
+    trafficPhase = (trafficPhase + 1) % 4;
+    applyNormalTrafficPhase();
+  }
+}
+
+void setBuzzer(bool on) {
+  buzzerPulseActive = false;
+  buzzerOn = on;
+  digitalWrite(BUZZER_PIN, on ? LOW : HIGH);
+}
+
+void startBuzzerPulse() {
+  buzzerPulseActive = true;
+  buzzerOn = true;
+  buzzerLastToggleAt = millis();
+  digitalWrite(BUZZER_PIN, LOW);
+}
+
+void updateBuzzerPulse() {
+  if (!buzzerPulseActive || millis() - buzzerLastToggleAt < 500) {
+    return;
+  }
+  buzzerLastToggleAt = millis();
+  buzzerOn = !buzzerOn;
+  digitalWrite(BUZZER_PIN, buzzerOn ? LOW : HIGH);
 }
 
 void setGateAngle(int angle) {
@@ -150,8 +241,8 @@ void commandCallback(char *, byte *payload, unsigned int length) {
     return;
   }
 
-  // Backend retries use a new command_id, while broker redelivery can repeat
-  // the same command_id. ACK duplicates without re-actuating hardware.
+  // Backend retries and broker redelivery preserve command_id. ACK duplicates
+  // without re-actuating hardware.
   if (commandId == lastAppliedCommandId) {
     publishAck(commandId, "ACK", "DUPLICATE_ALREADY_APPLIED");
     return;
@@ -164,7 +255,24 @@ void commandCallback(char *, byte *payload, unsigned int length) {
     return;
   }
   if (category == "TRAFFIC" && action == "GREEN_CORRIDOR") {
-    mainRouteGreen();
+    String corridor;
+    if (!readString(command["payload"]["parameters"]["corridor"], corridor)) {
+      publishAck(commandId, "REJECTED", "CORRIDOR_REQUIRED");
+      return;
+    }
+    if (corridor == "PRIMARY") {
+      mainRouteGreen();
+    } else if (corridor == "STANDBY") {
+      standbyRouteGreen();
+    } else {
+      publishAck(commandId, "REJECTED", "INVALID_CORRIDOR");
+      return;
+    }
+    publishAck(commandId, "ACK");
+    return;
+  }
+  if (category == "TRAFFIC" && action == "NORMAL_CYCLE") {
+    startNormalTrafficCycle();
     publishAck(commandId, "ACK");
     return;
   }
@@ -174,12 +282,17 @@ void commandCallback(char *, byte *payload, unsigned int length) {
     return;
   }
   if (category == "BUZZER" && action == "ON") {
-    digitalWrite(BUZZER_PIN, LOW);
+    setBuzzer(true);
     publishAck(commandId, "ACK");
     return;
   }
   if (category == "BUZZER" && action == "OFF") {
-    digitalWrite(BUZZER_PIN, HIGH);
+    setBuzzer(false);
+    publishAck(commandId, "ACK");
+    return;
+  }
+  if (category == "BUZZER" && action == "PULSE_500_MS") {
+    startBuzzerPulse();
     publishAck(commandId, "ACK");
     return;
   }
@@ -253,7 +366,7 @@ void setup() {
     pinMode(pin, OUTPUT);
   }
   allLedsOff();
-  digitalWrite(BUZZER_PIN, HIGH);
+  setBuzzer(false);
   pinMode(SERVO_PIN, INPUT);
 
   Serial.begin(115200);
@@ -261,7 +374,7 @@ void setup() {
   Serial.println();
   Serial.println("=== CityResponder AC1 MQTT ===");
   Serial.println("node=AC1 mode=MQTT_SAFE_STARTUP");
-  Serial.println("TL1=25,26,27 TL2=14,13,23 BUZZER=19(active-low) SERVO=18 gate_closed=30 gate_open=120");
+  Serial.println("TL1_PRIMARY=14,13,23 TL2_STANDBY=25,26,27 BUZZER=19(active-low) SERVO=18 gate_closed=30 gate_open=120");
   Serial.println("startup=ALL_LEDS_OFF BUZZER_OFF SERVO_UNATTACHED");
   Serial.printf("MQTT command=%s ack=%s qos=1 retain=0 duplicate_policy=UNSPECIFIED\n", COMMAND_TOPIC, ACK_TOPIC);
   Serial.printf("credentials_configured=%s\n", credentialsConfigured() ? "YES" : "NO");
@@ -278,6 +391,8 @@ void loop() {
   if (mqttClient.connected()) {
     mqttClient.loop();
   }
+  updateNormalTrafficCycle();
+  updateBuzzerPulse();
   if (!timeReported && time(nullptr) >= 1700000000) {
     timeReported = true;
     Serial.printf("AC1 time synchronized timestamp=%s\n", timestampUtc().c_str());

@@ -10,7 +10,7 @@ export function useAreaRisk() {
   const [lastRefreshedAt, setLastRefreshedAt] = useState<string | null>(null);
 
   const refresh = useCallback(async (areaId = selectedAreaId) => {
-    setLoading(true); setError(null);
+    setError(null);
     try {
       const nextAreas = await riskRequests.areas();
       setAreas(nextAreas);

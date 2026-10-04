@@ -1,0 +1,9 @@
+cycle_number,original_result,effective_status,reason,original_evidence_preserved
+1,completed,FAIL_ACK_LATENCY_OVER_500MS,"Physical ALL_RED passed; measured ACK latency 779.203 ms exceeded the 500 ms target",YES
+2,completed,FAIL_ACK_LATENCY_OVER_500MS,"Physical traffic OFF passed; measured ACK latency 1189.592 ms exceeded the 500 ms target",YES
+5,failed,DEFERRED_PENDING_SERVO_REPLACEMENT,"Gate OPEN physical result is retained for diagnostic traceability but is not finalized while the servo is pending replacement",YES
+6,completed,DEFERRED_PENDING_SERVO_REPLACEMENT,"Earlier gate CLOSE observation is retained but gate validation is reopened pending replacement-servo calibration",YES
+10,failed,FAIL_REROUTE_ACTUATION_UNAVAILABLE,"IR persistence, route-version increment, stale-command rejection, ALL_RED, MQTT, and ACK passed; the current production contract cannot command STANDBY green / PRIMARY red",YES
+17,failed,FAIL_ACK_LATENCY_OVER_500MS,"Physical traffic OFF passed; measured ACK latency 738.219 ms exceeded the 500 ms target",YES
+18,interrupted,DEFERRED_PENDING_SERVO_REPLACEMENT,"Matching ACK is retained; no physical gate result was finalized before the servo safety pause",YES
+19,completed_non_servo,PARTIAL_NON_SERVO_PASS_GATE_DEFERRED,"Traffic ALL_RED and buzzer ON were physically confirmed; the gate-CLOSED failsafe component was deliberately not commanded and remains deferred",YES

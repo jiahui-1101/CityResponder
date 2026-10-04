@@ -20,7 +20,11 @@ def get_verified_history_window(
     evaluated_at = evaluation_time or datetime.now(timezone.utc)
     window_end = evaluated_at
     window_start = evaluated_at - timedelta(days=180)
-    events = list(db.scalars(select(Event).where(Event.event_type == "operator_decision")).all())
+    events = list(
+        db.scalars(
+            select(Event).where(Event.event_type.in_({"operator_decision", "operator_feedback"}))
+        ).all()
+    )
     eligible: list[VerifiedIncidentReference] = []
     excluded = 0
     excluded_reasons: list[str] = []
@@ -46,14 +50,23 @@ def get_verified_history_window(
             excluded += 1
             excluded_reasons.append(f"event {event.id}: no explicit area_id")
             continue
-        action = payload.get("action")
-        if action not in {"CONFIRM", "REJECT", "CANCEL"}:
-            excluded += 1
-            excluded_reasons.append(f"event {event.id}: unsupported operator action")
-            continue
+        if event.event_type == "operator_feedback":
+            action = payload.get("outcome")
+            if action not in {"VERIFIED_FIRE", "VERIFIED_FALSE_ALARM"}:
+                excluded += 1
+                excluded_reasons.append(f"event {event.id}: unsupported verified outcome")
+                continue
+            operator_action = action
+        else:
+            action = payload.get("action")
+            if action not in {"CONFIRM", "REJECT", "CANCEL"}:
+                excluded += 1
+                excluded_reasons.append(f"event {event.id}: unsupported operator action")
+                continue
+            operator_action = str(action)
         eligible.append(VerifiedIncidentReference(
             incident_decision_id=str(payload.get("incident_decision_id", event.entity_id)),
-            operator_action=str(action),
+            operator_action=operator_action,
             operator_id=payload.get("operator_id"),
             action_timestamp=action_time,
             event_id=event.id,
