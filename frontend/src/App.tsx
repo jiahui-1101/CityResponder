@@ -13,7 +13,6 @@ import { LiveConnectionProvider } from "./live/LiveConnectionContext";
 import { RiskPlannerPage } from "./pages/RiskPlannerPage";
 import { AdminCalibrationPage } from "./pages/AdminCalibrationPage";
 import { HistoryAuditPage } from "./pages/HistoryAuditPage";
-import { PublicShowcaseApp } from "./pages/PublicShowcaseApp";
 
 function ProtectedShell() {
   const { user } = useAuth();
@@ -22,7 +21,6 @@ function ProtectedShell() {
 }
 
 export default function App() {
-  if (import.meta.env.VITE_PUBLIC_SHOWCASE === "true") return <PublicShowcaseApp />;
   const routeRoles = (path: string) => navigationItems.find((item) => item.path === path)?.allowedRoles ?? [];
   return <AuthProvider><LiveConnectionProvider><BrowserRouter><Routes>
     <Route path="/login" element={<LoginPage />} />

@@ -118,11 +118,14 @@ The system provides dedicated, role-tailored workflows:
 ### Public Showcase / Local Hardware Demo
 
 - GitHub Repository: https://github.com/jiahui-1101/CityResponder
-- Public Showcase — pending GitHub Pages activation: https://jiahui-1101.github.io/CityResponder/
+- Public Frontend (Vercel): https://city-responder.vercel.app/login
+- Public Backend (temporary Cloudflare Quick Tunnel): https://device-refers-indianapolis-filling.trycloudflare.com
 - Local Hardware Demo: http://127.0.0.1:5173
 - Local Backend: http://127.0.0.1:8020
 
-The real prototype remains local/hybrid because the USB webcam, Mosquitto broker, SN1, and AC1 are physically connected to the demo machine. GitHub Pages, when activated, hosts only the static showcase and does not provide live hardware access.
+Vercel production must set `VITE_API_BASE_URL` to the exact HTTPS backend tunnel URL; the frontend derives the authenticated WSS endpoint from that value. This Quick Tunnel is temporary and is available only while the demo laptop, FastAPI, and cloudflared process are running.
+
+The real prototype remains local/hybrid because the USB webcam, Mosquitto broker, SN1, and AC1 are physically connected to the demo machine. The public Vercel frontend connects to that backend through the temporary secure HTTPS Cloudflare Tunnel while the demo machine and local services are running.
 
 ---
 
