@@ -24,3 +24,19 @@ datasets/**/labels/*.cache
 reports/validation/vision/*_stdout.log
 reports/validation/vision/*_stderr.log
 .pytest-tmp-*/
+
+# Test/build caches and local tooling artifacts
+**/.pytest_cache/
+**/.mypy_cache/
+.coverage
+htmlcov/
+**/.vite/
+
+# Logs, temporary files, and OS/editor metadata
+*.log
+temp/
+tmp/
+.DS_Store
+Thumbs.db
+*.swp
+*~
