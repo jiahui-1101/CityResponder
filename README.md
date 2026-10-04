@@ -29,6 +29,7 @@
 - [Technical Stack](#technical-stack)
 - [Installation & Setup](#installation--setup)
 - [Environment Variables](#environment-variables)
+- [Development Accounts & Demo Credentials](#development-accounts--demo-credentials)
 - [Controlled Simulation & Testing](#controlled-simulation--testing)
 - [API Reference](#api-reference)
 - [Project Structure](#project-structure)
@@ -389,6 +390,17 @@ CityResponder features four distinct role-based access control (RBAC) personas:
 └─────────────────────┴──────────┴─────────────┴──────────────┴──────────┘
 ```
 
+### Demo Role Credentials & Login Accounts
+
+For local demonstration and evaluation, the backend seeds four default role accounts configured via `.env` (shared password: `DEV_SEED_PASSWORD=CityResponderDev123!`):
+
+| Role | Environment Variable | Default Email | Password | Primary Interface |
+|---|---|---|---|---|
+| **Operator** | `DEV_OPERATOR_EMAIL` | `operator@example.com` | `CityResponderDev123!` | `/` (Live Incident Queue & Triage) |
+| **Firefighter** | `DEV_FIREFIGHTER_EMAIL` | `firefighter@example.com` | `CityResponderDev123!` | `/response` (Turn-by-Turn Routing HUD) |
+| **Risk Planner** | `DEV_RISK_PLANNER_EMAIL` | `risk-planner@example.com` | `CityResponderDev123!` | `/risk` (180-Day Area Risk Intelligence) |
+| **System Administrator** | `DEV_ADMIN_EMAIL` | `admin@example.com` | `CityResponderDev123!` | `/admin` (Calibration & User RBAC) |
+
 ### 1. Emergency Operator Workflow
 1. Monitors the live municipal queue on `/` and `/incidents`.
 2. Receives instantaneous visual alerts when a manual button or sensor threshold triggers.
@@ -608,7 +620,12 @@ Push-Location frontend
 npm run dev
 ```
 
-Open your browser to **[http://localhost:5173](http://localhost:5173)**.  
+Open your browser to **[http://localhost:5173](http://localhost:5173)** and log in using any role account (password: `CityResponderDev123!`):
+- **Operator:** `operator@example.com`
+- **Firefighter:** `firefighter@example.com`
+- **City Risk Planner:** `risk-planner@example.com`
+- **System Administrator:** `admin@example.com`
+
 Check backend liveness at **[http://localhost:8010/health](http://localhost:8010/health)**.
 
 ---
@@ -661,16 +678,26 @@ EVIDENCE_STORAGE_DIR=./data/incident_evidence
 
 ---
 
-## Development Accounts
+## Development Accounts & Demo Credentials
 
-When starting with a fresh database, the backend automatically seeds four local development accounts using credentials from `.env`:
+When starting with a fresh database, the backend automatically seeds four local development accounts using the credentials configured in `.env`:
 
-| Role | Default Email | Password | Primary Interface |
-|---|---|---|---|
-| **Operator** | `operator@example.com` | `CityResponderDev123!` | `/` (Live Incident Queue & Triage) |
-| **Firefighter** | `firefighter@example.com` | `CityResponderDev123!` | `/response` (Turn-by-Turn Routing HUD) |
-| **Risk Planner** | `risk-planner@example.com` | `CityResponderDev123!` | `/risk` (180-Day Area Risk Intelligence) |
-| **System Administrator** | `admin@example.com` | `CityResponderDev123!` | `/admin` (Calibration & User RBAC) |
+```env
+DEV_SEED_PASSWORD=CityResponderDev123!
+DEV_OPERATOR_EMAIL=operator@example.com
+DEV_FIREFIGHTER_EMAIL=firefighter@example.com
+DEV_RISK_PLANNER_EMAIL=risk-planner@example.com
+DEV_ADMIN_EMAIL=admin@example.com
+```
+
+| Role | Environment Variable | Default Email | Password | Primary Interface & Workflow |
+|---|---|---|---|---|
+| **Operator** | `DEV_OPERATOR_EMAIL` | `operator@example.com` | `CityResponderDev123!` | `/` (Live Incident Queue & Triage) |
+| **Firefighter** | `DEV_FIREFIGHTER_EMAIL` | `firefighter@example.com` | `CityResponderDev123!` | `/response` (Turn-by-Turn Routing HUD) |
+| **Risk Planner** | `DEV_RISK_PLANNER_EMAIL` | `risk-planner@example.com` | `CityResponderDev123!` | `/risk` (180-Day Area Risk Intelligence) |
+| **System Administrator** | `DEV_ADMIN_EMAIL` | `admin@example.com` | `CityResponderDev123!` | `/admin` (Calibration & User RBAC) |
+
+These accounts allow instant evaluation of all role-specific workflows without manual sign-up. If custom emails or passwords are required, update these variables in `.env` before initiating database seeding.
 
 ---
 
