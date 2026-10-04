@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     environment: str = "development"
     log_level: str = "INFO"
     host: str = "127.0.0.1"
-    port: int = 8010
+    port: int = 8020
     cors_allowed_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
     database_url: str = "sqlite:///./data/cityresponder.db"
     mqtt_host: str = "127.0.0.1"

@@ -443,3 +443,32 @@ button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: no
 .diagnostic-target { display:flex; align-items:center; gap:.55rem; margin-top:.75rem; color:var(--color-grey-700); }
 @media (max-width: 900px) { .diagnostic-summary, .diagnostic-detail-grid { grid-template-columns:repeat(2, minmax(0,1fr)); } }
 @media (max-width: 640px) { .diagnostic-summary, .diagnostic-stat-grid, .diagnostic-detail-grid { grid-template-columns:1fr; } }
+.showcase-page { min-height: 100vh; padding: 24px clamp(20px, 5vw, 76px); color: var(--color-black); background: linear-gradient(135deg, #f8fbfa 0%, #eef5f2 48%, #fffdf8 100%); }
+.showcase-nav { display: flex; align-items: center; justify-content: space-between; gap: 20px; max-width: 1180px; margin: 0 auto; padding: 8px 0 24px; }
+.showcase-nav > div { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+.showcase-nav a { color: var(--color-grey-700); font-size: 14px; text-decoration: none; }
+.showcase-nav a:hover { color: var(--color-info); }
+.showcase-brand { color: var(--color-black) !important; font-size: 19px !important; font-weight: 800; letter-spacing: -.03em; }
+.showcase-hero, .showcase-grid, .showcase-results, .showcase-role { max-width: 1180px; margin: 0 auto; }
+.showcase-hero { padding: clamp(48px, 10vw, 120px) 0 64px; }
+.showcase-kicker { color: var(--color-info); font-size: 13px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+.showcase-hero h1, .showcase-role h1 { max-width: 780px; margin: 12px 0 18px; font-size: clamp(42px, 8vw, 86px); line-height: .96; letter-spacing: -.07em; }
+.showcase-lead { max-width: 720px; color: var(--color-grey-700); font-size: clamp(19px, 2.4vw, 28px); line-height: 1.35; }
+.showcase-notice { display: grid; gap: 6px; max-width: 760px; margin: 28px 0; padding: 17px 19px; border: 1px solid rgba(33,106,138,.2); border-radius: 14px; background: rgba(255,255,255,.72); color: var(--color-grey-700); line-height: 1.5; }
+.showcase-notice strong { color: var(--color-info); }
+.showcase-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.showcase-button { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 17px; border-radius: 9px; background: var(--color-black); color: white; font-weight: 700; text-decoration: none; }
+.showcase-button.secondary { background: transparent; border: 1px solid rgba(18,18,18,.2); color: var(--color-black); }
+.showcase-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.showcase-card { padding: 22px; border: 1px solid rgba(18,18,18,.1); border-radius: 14px; background: rgba(255,255,255,.72); box-shadow: 0 10px 30px rgba(18,18,18,.04); }
+.showcase-card h2 { margin: 0 0 9px; font-size: 17px; }
+.showcase-card p, .showcase-card li { color: var(--color-grey-700); line-height: 1.55; }
+.showcase-card ul { display: grid; gap: 12px; margin: 0; padding-left: 20px; }
+.showcase-results { margin-top: 52px; padding: 28px 0 72px; }
+.showcase-results h2 { font-size: 28px; }
+.showcase-results p { max-width: 850px; color: var(--color-grey-700); line-height: 1.6; }
+.showcase-boundary { padding-left: 15px; border-left: 3px solid #d4952e; }
+.showcase-role { padding: clamp(46px, 8vw, 100px) 0; }
+.showcase-role .showcase-card { max-width: 720px; margin-bottom: 24px; }
+.showcase-footer { max-width: 1180px; margin: 0 auto; padding: 24px 0 6px; color: var(--color-grey-500); font-size: 12px; }
+@media (max-width: 620px) { .showcase-nav { align-items: flex-start; flex-direction: column; } .showcase-hero h1, .showcase-role h1 { font-size: 52px; } }
