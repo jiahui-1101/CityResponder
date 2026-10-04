@@ -4,7 +4,7 @@
 
 ## 1. S_fusion (Sensor Normalization)
 The `S_fusion` score represents the maximum value between normalized smoke and heat levels[cite: 18]. 
-*   **DHT22 (Temperature):** The normal baseline is 30°C, and the alarm threshold is 50°C[cite: 18]. Data becomes stale after 3.0 s[cite: 18].
+*   **DHT22 (Temperature):** The normal baseline is 30°C, and the demo alarm threshold is 40°C. Readings at or above 40°C produce the maximum heat score. Data becomes stale after 3.0 s[cite: 18].
 *   **MQ-2 (Smoke):** The normal baseline is 500, and the alarm threshold is 2000 on a 0–4095 analog scale[cite: 18]. Data becomes stale after 2.0 s[cite: 18].
 *   **Calculation:** Each sensor's reading is normalized to a 0–1 scale and clamped[cite: 18]. `S_fusion = max(s_smoke, s_heat)`[cite: 18]. 
 *   **Fallback:** If one sensor is stale, the system uses the remaining available sensor[cite: 18]. If both are stale, `S_fusion` is unavailable and the `C` score is not calculated[cite: 18].

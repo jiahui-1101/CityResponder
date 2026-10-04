@@ -63,14 +63,14 @@ def normalize_smoke_score(mq2_reading: float) -> float:
 # ---------------------------------------------------------------------------
 # TBD-SEV-03: Temperature Score (T_heat) — Pure DHT22
 # ---------------------------------------------------------------------------
-# Normalize using: normal_baseline = 30.0 C, alarm_baseline = 50.0 C.
+# Normalize using: normal_baseline = 30.0 C, alarm_baseline = 40.0 C.
 # T_heat = (reading - normal) / (alarm - normal), clamped [0.0, 1.0].
 # Variable is named T_heat to prevent collision with Fire Fusion's
 # temporal consistency T.
 # ---------------------------------------------------------------------------
 
 SEV_DHT22_NORMAL: float = 30.0  # TBD-SEV-03
-SEV_DHT22_ALARM: float = 50.0   # TBD-SEV-03
+SEV_DHT22_ALARM: float = 40.0   # TBD-SEV-03
 
 
 def normalize_t_heat_score(dht22_reading: float) -> float:

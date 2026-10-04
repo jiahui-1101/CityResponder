@@ -78,6 +78,54 @@ Record tester, hardware and firmware versions, backend commit, environment, requ
 - Controlled dashboard latency: 10/10 under 1 second
 - Production UI fake/mock audit: PASS
 
+## 2026-10-04 21:29 — Lower DHT22 demo alarm threshold to 40°C
+
+**Changed by:** Codex, per user demo calibration decision
+**Branch:** `main`
+**Commit:** not committed yet
+
+**Requirement / area:**
+- Fire Fusion sensor normalization (TBD-FUSION-01)
+- Severity temperature score (TBD-SEV-03)
+
+**Files changed:**
+- `backend/app/fusion/policies.py`
+- `backend/app/severity/policies.py`
+- `backend/scripts/validate_fusion_policies.py`
+- `backend/scripts/validate_severity_policies.py`
+- `fire_fusion.md`
+- `severity.md`
+- `README.md`
+- `TEAM_CHANGE_LOG.md`
+
+**Previous behavior / value:**
+- The DHT22 normal baseline was 30°C and its maximum alarm score was reached at 50°C.
+
+**New behavior / value:**
+- The 30°C baseline is unchanged; the demo alarm threshold is 40°C.
+- A DHT22 reading at or above 40°C now produces a normalized heat score of 1.0 in both Fire Fusion and Severity.
+- Existing multi-channel, three-window fire confirmation rules remain unchanged.
+
+**Why this changed:**
+- The current demonstration uses a candle, so the prior 50°C threshold was too high for reliable demo heat evidence.
+
+**Source / decision reference:**
+- User demo calibration decision on 2026-10-04.
+
+**Validation performed:**
+- `python scripts/validate_fusion_policies.py`
+- `python scripts/validate_severity_policies.py`
+- Targeted backend regression tests.
+
+**Requirement status after change:**
+- PASS
+
+**Impact on teammates:**
+- Use 40°C as the DHT22 demo alarm threshold in test scenarios and explanations; do not use the superseded 50°C value.
+
+**Follow-up required:**
+- Reconfirm the threshold if the demo heat source or sensor placement changes.
+
 ## 2026-10-03 — Detection pilot dataset integrity cleanup and QA
 
 **Changed by:** Codex

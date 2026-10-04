@@ -36,7 +36,7 @@ from app.vision.schemas import Detection, FreshnessItem
 # ---------------------------------------------------------------------------
 # TBD-FUSION-01: Sensor Normalization (S)
 # ---------------------------------------------------------------------------
-# DHT22 (Temperature): normal = 30 °C, alarm = 50 °C.
+# DHT22 (Temperature): normal = 30 °C, alarm = 40 °C.
 # MQ-2 (Smoke):        normal = 500,    alarm = 2000.
 # Normalize = (reading − normal) / (alarm − normal), clamp [0.0, 1.0].
 # S = max(s_smoke, s_heat).
@@ -49,7 +49,7 @@ from app.vision.schemas import Detection, FreshnessItem
 MQ2_NORMAL: float = 500.0
 MQ2_ALARM: float = 2000.0
 DHT22_NORMAL: float = 30.0
-DHT22_ALARM: float = 50.0
+DHT22_ALARM: float = 40.0
 MQ2_STALE_SECONDS: float = 2.0    # already matches config default
 DHT22_STALE_SECONDS: float = 3.0  # already matches config default
 

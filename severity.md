@@ -20,7 +20,7 @@
 
 * **Decision:** Severity does not use the Fusion `T_temporal` score.
 * **Definition:** Severity uses `T_heat`, representing the pure DHT22 temperature score.
-* **Normalization:** Normal baseline = 30°C; alarm threshold = 50°C.
+* **Normalization:** Normal baseline = 30°C; demo alarm threshold = 40°C. Readings at or above 40°C produce the maximum heat score.
 * **Range:** `T_heat` is normalized to 0–1.
 
 ### TBD-SEV-04: Production hazard-zone geometry and boundary rule

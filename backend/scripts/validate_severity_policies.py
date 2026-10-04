@@ -39,10 +39,10 @@ print("TBD-SEV-03: Temperature Score (T_heat) - Pure DHT22")
 print("=" * 60)
 
 assert normalize_t_heat_score(30) == 0.0, "DHT22 at normal should be 0.0"
-assert normalize_t_heat_score(50) == 1.0, "DHT22 at alarm should be 1.0"
-assert normalize_t_heat_score(40) == 0.5, "DHT22 midpoint should be 0.5"
+assert normalize_t_heat_score(40) == 1.0, "DHT22 at alarm should be 1.0"
+assert normalize_t_heat_score(35) == 0.5, "DHT22 midpoint should be 0.5"
 assert normalize_t_heat_score(20) == 0.0, "DHT22 below normal clamped to 0.0"
-assert normalize_t_heat_score(60) == 1.0, "DHT22 above alarm clamped to 1.0"
+assert normalize_t_heat_score(50) == 1.0, "DHT22 above alarm clamped to 1.0"
 print("  [PASS] T_heat normalization (pure DHT22)")
 
 
@@ -161,12 +161,12 @@ print("=" * 60)
 print("Core Formula: R = 100 * (0.30*A + 0.20*S + 0.20*T_heat + 0.20*P + 0.10*Z)")
 print("=" * 60)
 
-# MQ2=1250 -> S=0.5, DHT22=40 -> T_heat=0.5
+# MQ2=1250 -> S=0.5, DHT22=35 -> T_heat=0.5
 # Fire 100x100 in 400x300 -> A=0.0833
 # P=0 (no person), Z=normal-risk=0.60
 result = calculate_severity(
     mq2_reading=1250,
-    dht22_reading=40,
+    dht22_reading=35,
     detections=[fire_det],  # Fire only, no person
     hazard_zone=hazard,
     zone_label="normal-risk",
@@ -194,7 +194,7 @@ print(f"         A={result.a_score:.4f} S={result.s_score:.4f} T_heat={result.t_
 # High severity scenario
 result2 = calculate_severity(
     mq2_reading=1800,    # S = 0.8667
-    dht22_reading=48,    # T_heat = 0.90
+    dht22_reading=48,    # T_heat = 1.0 (above alarm)
     detections=[
         Detection(class_name="Fire", confidence=0.9,
                   bounding_box=BoundingBox(x1=0, y1=0, x2=300, y2=250)),
@@ -222,7 +222,7 @@ from app.fusion.policies import MQ2_NORMAL, MQ2_ALARM, DHT22_NORMAL, DHT22_ALARM
 assert SEV_MQ2_NORMAL == MQ2_NORMAL == 500.0
 assert SEV_MQ2_ALARM == MQ2_ALARM == 2000.0
 assert SEV_DHT22_NORMAL == DHT22_NORMAL == 30.0
-assert SEV_DHT22_ALARM == DHT22_ALARM == 50.0
+assert SEV_DHT22_ALARM == DHT22_ALARM == 40.0
 print("  [PASS] Same baseline constants, different variable semantics")
 print("  - Fusion S = max(smoke, heat); Severity S = pure MQ-2")
 print("  - Fusion T = temporal consistency; Severity T_heat = pure DHT22")

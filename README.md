@@ -248,7 +248,7 @@ CityResponder fuses physical IoT telemetry, deep-learning vision inferences, and
 $$\mathbf{C} = 100 \times (0.30 S_{\text{fusion}} + 0.20 T_{\text{temporal}} + 0.35 V + 0.15 H)$$
 
 - **Normalized Sensor Score ($S_{\text{fusion}}$):** Computes $\max(s_{\text{smoke}}, s_{\text{heat}})$.
-  - DHT22 (Temperature): Baseline $30^\circ\text{C}$, Alarm $50^\circ\text{C}$, clamped to $[0, 1]$. Stale after 3.0 s.
+  - DHT22 (Temperature): Baseline $30^\circ\text{C}$, demo alarm $40^\circ\text{C}$, clamped to $[0, 1]$. A reading at or above $40^\circ\text{C}$ produces the maximum heat score. Stale after 3.0 s.
   - MQ-2 (Smoke): raw/provisional ADC telemetry only; formal calibration and production thresholds remain incomplete. Stale after 2.0 s with 60 s power-on warm-up isolation.
   - Fault tolerance: If one sensor goes stale, the system gracefully falls back to the active channel.
 - **Temporal Consistency ($T_{\text{temporal}}$):** Evaluates hazard persistence across the last three 1-second sliding windows:
