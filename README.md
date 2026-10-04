@@ -223,10 +223,10 @@ flowchart LR
         DASH_ADMIN["Admin Calibration Governance"]
     end
 
-    EDGE_LAYER <-->|MQTT Topics| COMM_LAYER
-    COMM_LAYER <--> CORE_LAYER
-    CORE_LAYER <--> PERSISTENCE
-    CORE_LAYER <-->|WebSocket & REST API| UI_LAYER
+    SN1_NODE <-->|MQTT Topics| MOSQUITTO
+    MOSQUITTO <--> EVENT_BUS
+    EVENT_BUS <--> DB
+    EVENT_BUS <-->|WebSocket & REST API| DASH_OP
 ```
 
 ### Architecture Layers
@@ -880,35 +880,6 @@ CityResponder/
 ├── TEAM_CHANGE_LOG.md          # Complete project audit log & change ledger
 └── README.md                   # Project documentation
 ```
-
----
-
-## Real-Life Deployment Budget
-
-Estimated bill of materials (BOM) for deploying CityResponder on an urban emergency intersection prototype in Malaysia:
-
-| Component | Quantity | Unit Cost (RM) | Total (RM) | Role in System |
-|---|:---:|---:|---:|---|
-| **ESP32 DevKit V1 Microcontroller** | 2 | RM 22.00 | RM 44.00 | SN1 (Sensors) & AC1 (Actuators) edge nodes |
-| **MQ-2 Gas / Smoke Sensor Module** | 1 | RM 8.50 | RM 8.50 | Analog smoke and combustible gas detection |
-| **DHT22 Digital Temperature / Humidity**| 1 | RM 14.00 | RM 14.00 | High-accuracy ambient thermal sensing |
-| **Active Infrared Obstacle Sensors (Pair)**| 2 | RM 4.50 | RM 9.00 | `IR-A` and `IR-B` dual road blockage detection |
-| **Emergency Push Button + Resistor** | 1 | RM 1.50 | RM 1.50 | Manual physical ALERT trigger |
-| **Traffic Light LED Modules (R/Y/G)** | 2 | RM 6.00 | RM 12.00 | Dual intersection traffic preemption lights |
-| **SG90 9g Micro Servo Motor** | 1 | RM 7.50 | RM 7.50 | Automated emergency facility barrier gate |
-| **Active 5V Buzzer Module** | 1 | RM 3.00 | RM 3.00 | High-decibel emergency warning siren |
-| **MB102 Solderless Breadboards (Pair)** | 2 | RM 7.00 | RM 14.00 | Circuit prototyping and rail power distribution |
-| **Resistor Assortment (Voltage Divider)**| 1 pack | RM 3.50 | RM 3.50 | 5V to 3.3V analog protection for MQ-2 |
-| **DuPont Jumper Wires (M-M / M-F / F-F)**| 1 set | RM 6.50 | RM 6.50 | Electrical signal and ground interconnects |
-| **Overhead 1080p USB Camera (Wide-Angle)**| 1 | RM 65.00 | RM 65.00 | Top-down YOLOv8 perception coverage |
-| **5V 3A DC Regulated Power Adapter** | 2 | RM 12.00 | RM 24.00 | Clean external power for servos and ESP32s |
-| **Tabletop Sandbox Road & Building Props**| 1 set | RM 45.00 | RM 45.00 | Calibrated building and dual-route model |
-| **Total Estimated Prototype Cost** | — | — | **RM 257.50** | *(Approx. ~$58.00 USD)* |
-
-### Wiring & Engineering Rules
-- **Logic Voltage:** ESP32 GPIO operates at 3.3V logic. The project MQ-2 AO path uses the verified 20kΩ upper / 10kΩ lower voltage divider before connecting to `GPIO34`.
-- **Inductive Loads:** Never drive the SG90 servo motor directly from an ESP32 GPIO pin; power it via the 5V VIN rail or external regulator.
-- **Sensor Calibration:** Analog baselines must be calibrated to ambient room lighting and local air conditions before running live detection.
 
 ---
 
