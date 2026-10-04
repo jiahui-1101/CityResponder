@@ -28,9 +28,12 @@ export default function App() {
     <Route path="/login" element={<LoginPage />} />
     <Route element={<RequireAuth><ProtectedShell /></RequireAuth>}>
       <Route index element={<RoleLanding />} />
+      <Route path="operator" element={<RequireRole allowedRoles={["OPERATOR", "ADMIN"]}><OperatorOverviewPage /></RequireRole>} />
       <Route path="incidents" element={<RequireRole allowedRoles={routeRoles("/incidents")}><IncidentsPage /></RequireRole>} />
       <Route path="incidents/:decisionId" element={<RequireRole allowedRoles={routeRoles("/incidents")}><OperatorIncidentPage /></RequireRole>} />
+      <Route path="responder" element={<RequireRole allowedRoles={["FIREFIGHTER", "OPERATOR", "ADMIN"]}><FirefighterResponsePage /></RequireRole>} />
       <Route path="response" element={<RequireRole allowedRoles={routeRoles("/response")}><FirefighterResponsePage /></RequireRole>} />
+      <Route path="planner" element={<RequireRole allowedRoles={["RISK_PLANNER", "ADMIN"]}><RiskPlannerPage /></RequireRole>} />
       <Route path="risk" element={<RequireRole allowedRoles={routeRoles("/risk")}><RiskPlannerPage /></RequireRole>} />
       <Route path="history" element={<RequireRole allowedRoles={routeRoles("/history")}><HistoryAuditPage /></RequireRole>} />
       <Route path="admin" element={<RequireRole allowedRoles={routeRoles("/admin")}><AdminCalibrationPage /></RequireRole>} />
