@@ -674,10 +674,10 @@ When starting with a fresh database, the backend automatically seeds four local 
 
 | Role | Default Email | Password | Primary Interface |
 |---|---|---|---|
-| **Operator** | `operator@example.com` | Configure locally in `.env` | `/` (Live Incident Queue & Triage) |
-| **Firefighter** | `firefighter@example.com` | Configure locally in `.env` | `/response` (Turn-by-Turn Routing HUD) |
-| **Risk Planner** | `risk-planner@example.com` | Configure locally in `.env` | `/risk` (180-Day Area Risk Intelligence) |
-| **System Administrator** | `admin@example.com` | Configure locally in `.env` | `/admin` (Calibration & User RBAC) |
+| **Operator** | `operator@example.com` | `CityResponderDev123!` | `/` (Live Incident Queue & Triage) |
+| **Firefighter** | `firefighter@example.com` | `CityResponderDev123!` | `/response` (Turn-by-Turn Routing HUD) |
+| **Risk Planner** | `risk-planner@example.com` | `CityResponderDev123!` | `/risk` (180-Day Area Risk Intelligence) |
+| **System Administrator** | `admin@example.com` | `CityResponderDev123!` | `/admin` (Calibration & User RBAC) |
 
 ---
 
