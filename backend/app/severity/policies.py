@@ -92,7 +92,7 @@ def normalize_t_heat_score(dht22_reading: float) -> float:
 # ---------------------------------------------------------------------------
 
 PERSON_MIN_CONFIDENCE: float = 0.50  # TBD-SEV-04
-FIRE_CLASS_NAMES: frozenset[str] = frozenset({"fire", "Fire"})
+FIRE_CLASS_NAMES: frozenset[str] = frozenset({"fire"})
 
 
 def calculate_fire_extent_score(
@@ -110,7 +110,7 @@ def calculate_fire_extent_score(
 
     max_fire_bbox_area: float = 0.0
     for det in detections:
-        if det.class_name in FIRE_CLASS_NAMES:
+        if det.class_name.strip().lower() in FIRE_CLASS_NAMES:
             bbox_width = abs(det.bounding_box.x2 - det.bounding_box.x1)
             bbox_height = abs(det.bounding_box.y2 - det.bounding_box.y1)
             fire_bbox_area = bbox_width * bbox_height
