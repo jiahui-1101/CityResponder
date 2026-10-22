@@ -2,12 +2,12 @@
 #include <ESP32Servo.h>
 
 namespace {
-constexpr uint8_t TL1_RED_PIN = 25;
-constexpr uint8_t TL1_YELLOW_PIN = 26;
-constexpr uint8_t TL1_GREEN_PIN = 27;
-constexpr uint8_t TL2_RED_PIN = 14;
-constexpr uint8_t TL2_YELLOW_PIN = 13;
-constexpr uint8_t TL2_GREEN_PIN = 23;
+constexpr uint8_t TL1_RED_PIN = 14;
+constexpr uint8_t TL1_YELLOW_PIN = 13;
+constexpr uint8_t TL1_GREEN_PIN = 23;
+constexpr uint8_t TL2_RED_PIN = 25;
+constexpr uint8_t TL2_YELLOW_PIN = 26;
+constexpr uint8_t TL2_GREEN_PIN = 27;
 constexpr uint8_t BUZZER_PIN = 19;
 constexpr uint8_t SERVO_PIN = 18;
 
@@ -188,8 +188,8 @@ void printStartupBanner() {
   Serial.println();
   Serial.println("=== CityResponder AC1 bring-up ===");
   Serial.println("node=AC1 serial=115200 mode=MANUAL_ONLY");
-  Serial.println("TL1 RED=GPIO25 YELLOW=GPIO26 GREEN=GPIO27");
-  Serial.println("TL2 RED=GPIO14 YELLOW=GPIO13 GREEN=GPIO23");
+  Serial.println("TL1 PRIMARY RED=GPIO14 YELLOW=GPIO13 GREEN=GPIO23");
+  Serial.println("TL2 STANDBY RED=GPIO25 YELLOW=GPIO26 GREEN=GPIO27");
   Serial.println("BUZZER SIG=GPIO19 polarity=UNVERIFIED startup=RELEASED");
   Serial.println("SERVO SIGNAL=GPIO18 state=NOT_ATTACHED angle=UNDEFINED");
   Serial.println("LED startup state=ALL_OFF");

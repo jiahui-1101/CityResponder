@@ -2,6 +2,7 @@
 
 from datetime import datetime, timezone
 from enum import Enum
+from typing import Literal
 from uuid import uuid4
 
 from pydantic import BaseModel, Field, field_validator
@@ -24,6 +25,7 @@ class OperatorDecisionRequest(BaseModel):
     operator_role: UserRole
     action: OperatorAction
     written_reason: str
+    severity_floor: Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"] | None = None
     action_timestamp: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
@@ -45,6 +47,7 @@ class OperatorDecisionResult(BaseModel):
     operator_role: UserRole
     action: OperatorAction
     written_reason: str
+    severity_floor: Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"] | None = None
     previous_automatic_decision_status: str
     resulting_operator_outcome: str
     action_timestamp: datetime
@@ -61,6 +64,13 @@ def create_operator_decision(
 
     if request.operator_role not in {UserRole.OPERATOR, UserRole.ADMIN}:
         raise PermissionError("only OPERATOR or ADMIN may perform manual decisions")
+    if request.action is OperatorAction.CONFIRM:
+        if incident_decision.final_severity is None and request.severity_floor is None:
+            raise ValueError(
+                "severity_floor is required when confirming without a calculated severity"
+            )
+    elif request.severity_floor is not None:
+        raise ValueError("severity_floor is valid only for CONFIRM")
 
     action_id = str(uuid4())
     audit_reference = FusionSourceReference(
@@ -75,6 +85,7 @@ def create_operator_decision(
         operator_role=request.operator_role,
         action=request.action,
         written_reason=request.written_reason,
+        severity_floor=request.severity_floor,
         previous_automatic_decision_status=incident_decision.decision_status,
         resulting_operator_outcome=request.action.value,
         action_timestamp=request.action_timestamp,

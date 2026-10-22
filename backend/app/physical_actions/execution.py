@@ -329,6 +329,7 @@ async def _execute_normal_with_ack(
                 node_id=spec.target_node_id,
                 command_type="PHYSICAL_ACTION",
                 payload=payload,
+                command_id=last_command_id,
             )
             command_id = command.get("command_id")
             last_command_id = command_id

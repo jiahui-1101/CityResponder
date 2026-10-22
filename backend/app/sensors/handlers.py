@@ -7,6 +7,7 @@ from pydantic import ValidationError
 
 from app.core.database import SessionLocal
 from app.events.repository import append_event
+from app.fusion.runtime import automatic_incident_coordinator
 from app.live.service import publish_live_update_from_thread
 from app.sensors.schemas import sensor_message_adapter
 
@@ -36,6 +37,10 @@ def handle_sensor_message(topic: str, payload: Any) -> None:
             entity_id=sensor.node_id,
             payload=payload,
         )
+        try:
+            automatic_incident_coordinator.observe(db)
+        except Exception:
+            logger.exception("Automatic incident fusion failed for %s", topic)
     except Exception:
         db.rollback()
         logger.exception("Failed to store sensor message from %s", topic)

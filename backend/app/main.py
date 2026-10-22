@@ -5,13 +5,13 @@ from contextlib import asynccontextmanager
 
 from datetime import datetime
 
-from fastapi import Depends, FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Response, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from app.auth.admin_router import router as admin_router
-from app.auth.dependencies import authenticate_token, require_authenticated_role
-from app.auth.models import User
+from app.auth.dependencies import authenticate_token, require_any_role, require_authenticated_role
+from app.auth.models import User, UserRole
 from app.auth.router import router as auth_router
 from app.auth.service import seed_development_users
 from app.actuators.handlers import handle_ack_message
@@ -33,8 +33,11 @@ from app.routing.router import router as routing_router
 from app.area_risk.router import router as area_risk_router
 from app.calibration.router import router as calibration_router
 from app.evidence.router import router as evidence_router
+from app.lifecycle.router import router as lifecycle_router
+from app.inspections.router import router as inspections_router
 from app.severity.router import router as severity_router
 from app.vision.handlers import handle_detection_message, handle_road_message
+from app.vision.live import shared_vision_frames
 from app.vision.freshness import get_perception_freshness
 from app.vision.projection import get_latest_vision_state
 from app.vision.schemas import (
@@ -63,9 +66,14 @@ async def lifespan(_: FastAPI):
     mqtt_client.subscribe("city/vision/road", handle_road_message)
     mqtt_client.subscribe("city/acks/#", handle_ack_message)
     mqtt_client.start()
+    # Warm the one shared camera/model pipeline in its daemon worker. API
+    # startup stays responsive and concurrent browser requests cannot create a
+    # second camera or model initialization.
+    shared_vision_frames.start()
     try:
         yield
     finally:
+        shared_vision_frames.stop()
         mqtt_client.stop()
         clear_live_event_loop()
 
@@ -81,6 +89,15 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=[
+        "X-CityResponder-Frame-Id",
+        "X-CityResponder-Frame-Timestamp",
+        "X-CityResponder-Detection-Model",
+        "X-CityResponder-Segmentation-Model",
+        "X-CityResponder-Detection-Count",
+        "X-CityResponder-Segmentation-Count",
+        "ETag",
+    ],
 )
 app.include_router(auth_router)
 app.include_router(admin_router)
@@ -89,6 +106,8 @@ app.include_router(routing_router)
 app.include_router(area_risk_router)
 app.include_router(calibration_router)
 app.include_router(evidence_router)
+app.include_router(lifecycle_router)
+app.include_router(inspections_router)
 
 
 @app.get("/health")
@@ -205,18 +224,65 @@ def perception_snapshot(
     return get_perception_snapshot(db)
 
 
+@app.get("/api/vision/live-frame")
+def live_annotated_vision_frame(
+    if_none_match: str | None = Header(default=None),
+    _current_user: User = Depends(
+        require_any_role(UserRole.OPERATOR, UserRole.FIREFIGHTER)
+    ),
+) -> Response:
+    """Return the latest shared annotated frame without persisting video."""
+
+    try:
+        frame = shared_vision_frames.latest()
+    except TimeoutError as exc:
+        state, _detail = shared_vision_frames.status()
+        raise HTTPException(
+            status_code=503,
+            detail="Camera warming up" if state == "initializing" else str(exc),
+            headers={"Retry-After": "2"},
+        ) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    etag = f'"{frame.sequence}"'
+    if if_none_match == etag:
+        return Response(status_code=304, headers={"Cache-Control": "no-store", "ETag": etag})
+    metadata = frame.metadata
+    return Response(
+        content=frame.jpeg,
+        media_type="image/jpeg",
+        headers={
+            "Cache-Control": "no-store",
+            "ETag": etag,
+            "X-CityResponder-Frame-Id": str(metadata.get("frame_id", "")),
+            "X-CityResponder-Frame-Timestamp": str(metadata.get("timestamp", "")),
+            "X-CityResponder-Detection-Model": str(
+                metadata.get("detection_model", {}).get("version", "unknown")
+            ),
+            "X-CityResponder-Segmentation-Model": str(
+                metadata.get("segmentation_model", {}).get("version", "unknown")
+            ),
+            "X-CityResponder-Detection-Count": str(len(metadata.get("detections", []))),
+            "X-CityResponder-Segmentation-Count": str(len(metadata.get("segmentations", []))),
+        },
+    )
+
+
 @app.websocket("/ws/live")
 async def live_updates(websocket: WebSocket) -> None:
     """Keep an authenticated client connected to receive live updates."""
 
-    token = websocket.query_params.get("token")
+    await websocket.accept()
     db = SessionLocal()
     try:
-        if not token:
+        message = await asyncio.wait_for(websocket.receive_json(), timeout=5.0)
+        if not isinstance(message, dict):
+            raise HTTPException(status_code=401, detail="Missing access token")
+        token = message.get("token")
+        if message.get("type") != "authenticate" or not isinstance(token, str):
             raise HTTPException(status_code=401, detail="Missing access token")
         current_user = authenticate_token(token, db)
-    except HTTPException:
-        await websocket.accept()
+    except (HTTPException, asyncio.TimeoutError, ValueError, WebSocketDisconnect):
         await websocket.close(code=1008)
         return
     finally:
@@ -226,6 +292,13 @@ async def live_updates(websocket: WebSocket) -> None:
         websocket,
         user_id=current_user.id,
         role=current_user.role.value,
+        already_accepted=True,
+    )
+    await websocket.send_json(
+        {
+            "event_type": "connection_authenticated",
+            "payload": {"status": "connected"},
+        }
     )
     try:
         while True:

@@ -43,8 +43,8 @@
 
 ## Track & Problem Statement
 
-**Domain:** Smart City Infrastructure, Intelligent Transportation Systems (ITS) & Urban Emergency Response  
-**Solution Type:** Full-Stack IoT Platform + Computer Vision Pipeline + Event-Sourced Backend + Real-Time Operational Dashboard + Physical Tabletop Actuation  
+**Domain:** Smart City Infrastructure, Intelligent Transportation Systems (ITS) & Urban Emergency Response
+**Solution Type:** Full-Stack IoT Platform + Computer Vision Pipeline + Event-Sourced Backend + Real-Time Operational Dashboard + Physical Tabletop Actuation
 
 Municipal emergency dispatch and fire response systems face critical operational bottlenecks:
 
@@ -57,7 +57,7 @@ Municipal emergency dispatch and fire response systems face critical operational
 - **Multimodal Fusion Engine:** Integrates physical smoke and heat sensing, overhead YOLOv8 computer vision, temporal consistency, and 180-day historical area risk into a calibrated confidence score ($C$).
 - **Life-Safety Person-in-Hazard Escalation:** Features single-frame YOLO person detection inside calibrated building hazard polygons, immediately overriding incident severity to **Critical** to protect human life.
 - **Dynamic Hazard-Aware A\* Routing:** Combines live road obstacle and pothole segmentation with dual-beam IR sensors, automatically resolving sensor-camera conflicts and rerouting responders in sub-millisecond compute time.
-- **Physical Actuator Integration (AC1 Node):** Preempts urban traffic with a green wave corridor, opens physical servo barrier gates, and triggers emergency sirens with guaranteed 500 ms ACK timeouts and safe-default failsafes.
+- **Physical Actuator Integration (AC1 Node):** Preempts urban traffic with route-aware green corridors and triggers emergency sirens through MQTT command/ACK handling. Gate movement remains deferred pending replacement of the unsuitable servo.
 - **Immutable Event-Sourced Ledger:** Enforces tamper-evident accountability where every state transition, camera snapshot hash, and operator command is permanently recorded for forensic review, 180-day risk heatmaps, and bounded simplex calibration.
 
 ---
@@ -105,15 +105,28 @@ The system provides dedicated, role-tailored workflows:
 
 | Resource | Scope / Access | Status |
 |---|---|---|
-| **Local Web Dashboard** | `http://localhost:5173` (Vite / React 18) | Verified Stable |
-| **Backend REST API** | `http://127.0.0.1:8010` (FastAPI / Uvicorn) | Verified Stable |
-| **Interactive API Documentation** | `http://127.0.0.1:8010/docs` (Swagger UI) | 29/29 Endpoints Verified |
-| **Live Streaming Channel** | `ws://127.0.0.1:8010/ws/live?token=<JWT>` | Real-Time Sync Verified |
+| **Local Web Dashboard** | `http://127.0.0.1:5173` (Vite / React) | Verified Stable |
+| **Backend REST API** | `http://127.0.0.1:8020` (FastAPI / Uvicorn) | Verified Stable |
+| **Interactive API Documentation** | `http://127.0.0.1:8020/docs` (Swagger UI) | 29/29 Endpoints Verified |
+| **Live Streaming Channel** | `ws://127.0.0.1:8020/ws/live?token=<JWT>` | Real-Time Sync Verified |
 | **MQTT Broker** | `localhost:1883` (Eclipse Mosquitto) | Wire Protocol Active |
 | **Controlled Routing Benchmark** | 150/150 cycles under 1.0s (Median 0.055 ms) | **PASS** (`reports/validation/step18_response_timing.md`) |
-| **Controlled Dashboard Latency** | 10/10 samples under 1.0s (Median 612 ms) | **PASS** (`reports/validation/step16_manual_live_latency.json`) |
+| **WebSocket → DOM Proxy** | 3.1 ms average / 601 ms maximum | **Measured proxy; strict backend-origin → DOM is UNMEASURED** (`reports/final_rehearsal/frontend_refresh_before_after.json`) |
+| **Controlled Validation** | Original 26/40; targeted remediation 9/9; projected 35/40 (87.5%) | Original and targeted evidence preserved separately (`reports/final_validation/`) |
 | **End-to-End E2E Lifecycle** | Scenarios A, B, C under controlled fixtures | **PASS** (`reports/validation/step17_e2e_cycle.md`) |
 | **Software Deep Audit** | 328 requirements audited; 251 PASS, 0 FAIL | **FROZEN / ZERO FAIL** (`reports/validation/final_deep_audit.md`) |
+
+### Public Showcase / Local Hardware Demo
+
+- GitHub Repository: https://github.com/jiahui-1101/CityResponder
+- Public Frontend (Vercel): https://city-responder.vercel.app/login
+- Public Backend (temporary Cloudflare Quick Tunnel): https://device-refers-indianapolis-filling.trycloudflare.com
+- Local Hardware Demo: http://127.0.0.1:5173
+- Local Backend: http://127.0.0.1:8020
+
+Vercel production must set `VITE_API_BASE_URL` to the exact HTTPS backend tunnel URL; the frontend derives the authenticated WSS endpoint from that value. This Quick Tunnel is temporary and is available only while the demo laptop, FastAPI, and cloudflared process are running.
+
+The real prototype remains local/hybrid because the USB webcam, Mosquitto broker, SN1, and AC1 are physically connected to the demo machine. The public Vercel frontend connects to that backend through the temporary secure HTTPS Cloudflare Tunnel while the demo machine and local services are running.
 
 ---
 
@@ -142,7 +155,7 @@ flowchart TD
     subgraph ACTUATION["4. Field Actuation (ESP32 AC1 Node)"]
         AC1["ESP32 AC1 Controller"]
         TL["Dual Traffic Lights (Green Wave Preemption)"]
-        GATE["SG90 Servo Barrier Gate (Auto-Open)"]
+        GATE["SG90 Servo Barrier Gate (validation deferred)"]
         SIREN["Active Alarm Siren / Buzzer"]
         ACK["500ms ACK Response / Retry / Failsafe"]
     end
@@ -162,11 +175,11 @@ flowchart TD
     FUSION -->|Auto Gate PASS or Manual Button| SEVERITY
     SEVERITY --> ROUTING
     ROUTING -->|Dispatch Commands| MQTT
-    MQTT -->|city/actuators/ac1/commands| AC1
+    MQTT -->|city/commands/AC1| AC1
     AC1 --> TL
     AC1 --> GATE
     AC1 --> SIREN
-    AC1 -->|city/acks/ac1| MQTT
+    AC1 -->|city/acks/AC1| MQTT
     MQTT -->|ACK Verification| INGEST
     INGEST --> WS
     WS --> OP
@@ -214,19 +227,19 @@ flowchart LR
         DASH_ADMIN["Admin Calibration Governance"]
     end
 
-    EDGE_LAYER <-->|MQTT Topics| COMM_LAYER
-    COMM_LAYER <--> CORE_LAYER
-    CORE_LAYER <--> PERSISTENCE
-    CORE_LAYER <-->|WebSocket & REST API| UI_LAYER
+    SN1_NODE <-->|MQTT Topics| MOSQUITTO
+    MOSQUITTO <--> EVENT_BUS
+    EVENT_BUS <--> DB
+    EVENT_BUS <-->|WebSocket & REST API| DASH_OP
 ```
 
 ### Architecture Layers
 
-1. **Edge Sensing & Vision Perception Layer:** Dual ESP32 DevKit V1 microcontrollers operate independently over 2.4 GHz Wi-Fi. SN1 ingests analog smoke, digital ambient temperature, dual IR barrier beams, and an emergency manual push button. The overhead vision pipeline ingests 1080p frames at 30 FPS, applying custom YOLOv8 models for real-time bounding box detection and pixel-level semantic segmentation.
+1. **Edge Sensing & Vision Perception Layer:** Dual ESP32 DevKit V1 microcontrollers operate independently over 2.4 GHz Wi-Fi. SN1 ingests analog smoke, digital ambient temperature, dual IR barrier beams, and an emergency manual push button. The overhead vision pipeline ingests a native 1920x1080 source at approximately 29 FPS, applying custom YOLOv8 models for real-time bounding box detection and pixel-level semantic segmentation.
 2. **Communications & Messaging Layer:** Eclipse Mosquitto coordinates asynchronous, low-latency publish-subscribe traffic. A dual-heartbeat and Last Will and Testament (LWT) mechanism guarantees instant fail-safe state triggering if network connection drops.
 3. **Core Backend Intelligence Layer:** Built on FastAPI (Python 3.11) with SQLAlchemy ORM and Pydantic v2 validation. Incorporates mathematical normalization, temporal sliding windows, geometric polygon containment, and A\* pathfinding.
 4. **Immutable Persistence & Evidence Layer:** Strict event-sourcing paradigm where no historical event or reading is ever overwritten. Stored evidence frames are cryptographically hashed using SHA-256 and purged automatically after 180 days under strict administrative audit policies.
-5. **Presentation & Operational Dashboard Layer:** Built on React 18, Vite, and TypeScript with native WebSocket live streaming, delivering synchronized UI updates across all four municipal roles in under 1 second.
+5. **Presentation & Operational Dashboard Layer:** Built on React, Vite, and TypeScript with native WebSocket live streaming. The measured receipt-to-DOM proxy is documented separately; strict backend-origin-to-DOM latency is not independently measured.
 
 ---
 
@@ -239,8 +252,8 @@ CityResponder fuses physical IoT telemetry, deep-learning vision inferences, and
 $$\mathbf{C} = 100 \times (0.30 S_{\text{fusion}} + 0.20 T_{\text{temporal}} + 0.35 V + 0.15 H)$$
 
 - **Normalized Sensor Score ($S_{\text{fusion}}$):** Computes $\max(s_{\text{smoke}}, s_{\text{heat}})$.
-  - DHT22 (Temperature): Baseline $30^\circ\text{C}$, Alarm $50^\circ\text{C}$, clamped to $[0, 1]$. Stale after 3.0 s.
-  - MQ-2 (Smoke): Baseline 500, Alarm 2000 (0–4095 ADC scale), clamped to $[0, 1]$. Stale after 2.0 s with 60 s power-on warm-up isolation.
+  - DHT22 (Temperature): Baseline $30^\circ\text{C}$, demo alarm $40^\circ\text{C}$, clamped to $[0, 1]$. A reading at or above $40^\circ\text{C}$ produces the maximum heat score. Stale after 3.0 s.
+  - MQ-2 (Smoke): raw/provisional ADC telemetry only; formal calibration and production thresholds remain incomplete. Stale after 2.0 s with 60 s power-on warm-up isolation.
   - Fault tolerance: If one sensor goes stale, the system gracefully falls back to the active channel.
 - **Temporal Consistency ($T_{\text{temporal}}$):** Evaluates hazard persistence across the last three 1-second sliding windows:
   $$T_{\text{temporal}} = \frac{\text{Windows with Valid Evidence}}{3}$$
@@ -293,11 +306,12 @@ The AC1 Actuator Node controls physical infrastructure on the smart city tableto
 
 - **High / Critical Incidents:**
   - **Traffic Light Corridor (TL1 & TL2):** Preempts civilian traffic with a green wave for emergency responders (`GREEN_CORRIDOR`).
-  - **SG90 Barrier Gate:** Automatically actuates from 0° (Closed) to 90° (Open) to grant facility access.
+  - **SG90 Barrier Gate:** Gate actions remain `DEFERRED_PENDING_SERVO_REPLACEMENT`; no final production angles are claimed.
   - **Emergency Buzzer:** Sounds an active audible alert to clear pedestrians and cross traffic.
-- **Low / Medium Incidents:** Dispatches responder units on dashboard screens only; physical traffic lights and barriers remain unaffected to prevent unnecessary urban disruption.
+- **Low Incidents:** Dispatches responder units on dashboard screens only; physical traffic remains unaffected.
+- **Medium Incidents:** Uses the selected route-aware `GREEN_CORRIDOR`, pulses the buzzer, keeps the gate closed/default, and shows the affected-zone indicator where mapped.
 - **500 ms ACK Watchdog & Safe-Default Failsafe:**
-  - AC1 must return an MQTT acknowledgement within 500 ms.
+  - AC1 has a 500 ms ACK target; historical hardware samples include values above that target.
   - If unacknowledged, exactly one retry is dispatched.
   - On second timeout or `NO_SAFE_ROUTE`, AC1 triggers the **Safe Default**: Traffic Lights turn **ALL_RED**, Barrier Gate **CLOSES**, and Buzzer turns **ON**.
   - A mandatory 1000 ms transition interval is enforced during signal switching to ensure safety clearance.
@@ -447,7 +461,7 @@ CityResponder physically decouples sensing from actuation across two distinct ES
       ┌──────────┼──────────┐                       ┌──────────┼──────────┐
       ▼          ▼          ▼                       ▼          ▼          ▼
    MQ-2 Smoke  DHT22 Temp  IR-A & IR-B         Traffic Lights  Servo Gate  Buzzer
-   (GPIO34)    (GPIO4)     (GPIO32/33)         (GPIO25/26/27)  (GPIO18)   (GPIO19)
+   (GPIO34)    (GPIO4)     (GPIO32/33)         (PRIMARY 14/13/23; STANDBY 25/26/27) (GPIO18) (GPIO19)
 ```
 
 ### 1. ESP32 #1 — SN1 (Sensor Node) Pinout
@@ -467,14 +481,10 @@ CityResponder physically decouples sensing from actuation across two distinct ES
 
 | Actuator Component | Signal Function | ESP32 Pin | Power Rail | Operating Logic |
 |---|---|---:|---|---|
-| **Traffic Light 1 (Red)** | Digital Out | `GPIO25` | 3.3V / 5V | High = Active |
-| **Traffic Light 1 (Yellow)** | Digital Out | `GPIO26` | 3.3V / 5V | High = Active (Transition) |
-| **Traffic Light 1 (Green)** | Digital Out | `GPIO27` | 3.3V / 5V | High = Active (Corridor) |
-| **Traffic Light 2 (Red)** | Digital Out | `GPIO14` | 3.3V / 5V | High = Active |
-| **Traffic Light 2 (Yellow)** | Digital Out | `GPIO13` | 3.3V / 5V | High = Active (Transition) |
-| **Traffic Light 2 (Green)** | Digital Out | `GPIO23` | 3.3V / 5V | High = Active (Corridor) |
-| **Active Siren / Buzzer** | Digital / PWM | `GPIO19` | 3.3V / 5V | High = Alarm Sounding |
-| **SG90 Servo Barrier Gate** | PWM Control | `GPIO18` | 5V / VIN | 0° = Closed, 90° = Open |
+| **PRIMARY traffic light (R/Y/G)** | Digital Out | `GPIO14 / GPIO13 / GPIO23` | 3.3V / 5V | High = Active |
+| **STANDBY traffic light (R/Y/G)** | Digital Out | `GPIO25 / GPIO26 / GPIO27` | 3.3V / 5V | High = Active |
+| **Active Siren / Buzzer** | Digital / PWM | `GPIO19` | 3.3V / 5V | LOW = sounding; HIGH = off |
+| **SG90 Servo Barrier Gate** | PWM Control | `GPIO18` | 5V / VIN | Positional replacement pending |
 
 ### 3. MQTT Wire Protocol
 
@@ -482,8 +492,8 @@ CityResponder physically decouples sensing from actuation across two distinct ES
 city/sensors/sn1/telemetry      SN1 -> Backend: {"smoke_raw": 1420, "temperature_c": 52.4, "ir_a": 0, "ir_b": 1, "button": 0}
 city/vision/detection           Cam -> Backend: {"timestamp": 1775304000.12, "fire": 0.88, "smoke": 0.65, "person_in_hazard": 1}
 city/vision/road                Cam -> Backend: {"timestamp": 1775304000.15, "road_a_occupancy": 0.12, "road_b_occupancy": 0.85}
-city/actuators/ac1/commands     Backend -> AC1: {"command_id": "cmd_912", "version": 4, "corridor": "GREEN_A", "gate": "OPEN", "buzzer": "ON"}
-city/acks/ac1                   AC1 -> Backend: {"command_id": "cmd_912", "status": "ACK", "execution_ms": 14}
+city/commands/AC1               Backend -> AC1: {"command_id": "cmd_912", "version": 4, "action": "TRAFFIC", "parameters": {"corridor": "PRIMARY"}}
+city/acks/AC1                   AC1 -> Backend: {"command_id": "cmd_912", "status": "ACK", "execution_ms": 14}
 ```
 
 ---
@@ -505,9 +515,9 @@ city/acks/ac1                   AC1 -> Backend: {"command_id": "cmd_912", "statu
 | Severity Level | Score Range | Assigned Fire Units | Ambulances | Rescue Squads | Infrastructure Actuation |
 |---|---|---:|---:|---:|---|
 | **Low** | $R = 0 - 29$ | 1 Unit | 0 | 0 | Dashboard display only (No physical change) |
-| **Medium** | $R = 30 - 49$ | 2 Units | 0 | 0 | Dashboard display only (No physical change) |
-| **High** | $R = 50 - 69$ | 2 Units | 1 Ambulance | 0 | **GREEN CORRIDOR** + Gate **OPEN** + Buzzer **ON** |
-| **Critical** | $R \ge 70$ or $\mathbf{P = 1}$ | 2 Units | 1 Ambulance | 1 Rescue Squad | **GREEN CORRIDOR** + Gate **OPEN** + Buzzer **ON** |
+| **Medium** | $R = 30 - 49$ | 2 Units | 0 | 0 | **GREEN CORRIDOR** + buzzer pulse; gate remains closed/default |
+| **High** | $R = 50 - 69$ | 2 Units | 1 Ambulance | 0 | **GREEN CORRIDOR** + Gate **OPEN** + Buzzer **ON** (gate physical validation deferred) |
+| **Critical** | $R \ge 70$ or $\mathbf{P = 1}$ | 2 Units | 1 Ambulance | 1 Rescue Squad | **GREEN CORRIDOR** + Gate **OPEN** + Buzzer **ON** (gate physical validation deferred) |
 
 ### 3. Camera vs. IR Conflict Truth Table
 
@@ -608,10 +618,10 @@ mosquitto -v
 
 ### 5. Launch the Stack
 
-**Terminal 1 — Backend (Port 8010):**
+**Terminal 1 — Backend (Port 8020):**
 ```powershell
 Push-Location backend
-..\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8010 --reload
+..\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8020 --reload
 ```
 
 **Terminal 2 — Frontend (Port 5173):**
@@ -620,13 +630,8 @@ Push-Location frontend
 npm run dev
 ```
 
-Open your browser to **[http://localhost:5173](http://localhost:5173)** and log in using any role account (password: `CityResponderDev123!`):
-- **Operator:** `operator@example.com`
-- **Firefighter:** `firefighter@example.com`
-- **City Risk Planner:** `risk-planner@example.com`
-- **System Administrator:** `admin@example.com`
-
-Check backend liveness at **[http://localhost:8010/health](http://localhost:8010/health)**.
+Open your browser to **[http://localhost:5173](http://localhost:5173)**.
+Check backend liveness at **[http://127.0.0.1:8020/health](http://127.0.0.1:8020/health)**.
 
 ---
 
@@ -639,7 +644,7 @@ APP_NAME=CityResponder Backend
 ENVIRONMENT=development
 LOG_LEVEL=INFO
 HOST=127.0.0.1
-PORT=8010
+PORT=8020
 CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 DATABASE_URL=sqlite:///./data/cityresponder.db
 
@@ -648,12 +653,12 @@ MQTT_HOST=127.0.0.1
 MQTT_PORT=1883
 
 # Security & JWT Secrets
-JWT_SECRET_KEY=development-only-change-this-secret
+JWT_SECRET_KEY=replace-with-a-long-random-local-secret
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 
 # Development Seed Accounts
-DEV_SEED_PASSWORD=CityResponderDev123!
+DEV_SEED_PASSWORD=replace-with-local-development-password
 DEV_OPERATOR_EMAIL=operator@example.com
 DEV_FIREFIGHTER_EMAIL=firefighter@example.com
 DEV_RISK_PLANNER_EMAIL=risk-planner@example.com
@@ -877,7 +882,7 @@ CityResponder/
 │   └── ac1_bringup/            # AC1 hardware actuation bring-up sketch
 │
 ├── datasets/                   # Pilot vision datasets (detection & segmentation)
-│   ├── cityresponder_detection_pilot/      # 272 verified training images
+│   ├── cityresponder_detection_pilot/      # Session-aware pilot data, QA, and labels
 │   └── cityresponder_segmentation_pilot/   # Road obstacle & pothole masks
 │
 ├── docs/
@@ -903,35 +908,6 @@ CityResponder/
 
 ---
 
-## Real-Life Deployment Budget
-
-Estimated bill of materials (BOM) for deploying CityResponder on an urban emergency intersection prototype in Malaysia:
-
-| Component | Quantity | Unit Cost (RM) | Total (RM) | Role in System |
-|---|:---:|---:|---:|---|
-| **ESP32 DevKit V1 Microcontroller** | 2 | RM 22.00 | RM 44.00 | SN1 (Sensors) & AC1 (Actuators) edge nodes |
-| **MQ-2 Gas / Smoke Sensor Module** | 1 | RM 8.50 | RM 8.50 | Analog smoke and combustible gas detection |
-| **DHT22 Digital Temperature / Humidity**| 1 | RM 14.00 | RM 14.00 | High-accuracy ambient thermal sensing |
-| **Active Infrared Obstacle Sensors (Pair)**| 2 | RM 4.50 | RM 9.00 | `IR-A` and `IR-B` dual road blockage detection |
-| **Emergency Push Button + Resistor** | 1 | RM 1.50 | RM 1.50 | Manual physical ALERT trigger |
-| **Traffic Light LED Modules (R/Y/G)** | 2 | RM 6.00 | RM 12.00 | Dual intersection traffic preemption lights |
-| **SG90 9g Micro Servo Motor** | 1 | RM 7.50 | RM 7.50 | Automated emergency facility barrier gate |
-| **Active 5V Buzzer Module** | 1 | RM 3.00 | RM 3.00 | High-decibel emergency warning siren |
-| **MB102 Solderless Breadboards (Pair)** | 2 | RM 7.00 | RM 14.00 | Circuit prototyping and rail power distribution |
-| **Resistor Assortment (Voltage Divider)**| 1 pack | RM 3.50 | RM 3.50 | 5V to 3.3V analog protection for MQ-2 |
-| **DuPont Jumper Wires (M-M / M-F / F-F)**| 1 set | RM 6.50 | RM 6.50 | Electrical signal and ground interconnects |
-| **Overhead 1080p USB Camera (Wide-Angle)**| 1 | RM 65.00 | RM 65.00 | Top-down YOLOv8 perception coverage |
-| **5V 3A DC Regulated Power Adapter** | 2 | RM 12.00 | RM 24.00 | Clean external power for servos and ESP32s |
-| **Tabletop Sandbox Road & Building Props**| 1 set | RM 45.00 | RM 45.00 | Calibrated building and dual-route model |
-| **Total Estimated Prototype Cost** | — | — | **RM 257.50** | *(Approx. ~$58.00 USD)* |
-
-### Wiring & Engineering Rules
-- **Logic Voltage:** ESP32 GPIO operates at 3.3V logic. 5V sensor outputs (such as MQ-2 AO) must utilize a 2-resistor voltage divider (e.g. 1kΩ / 2kΩ) before connecting to `GPIO34`.
-- **Inductive Loads:** Never drive the SG90 servo motor directly from an ESP32 GPIO pin; power it via the 5V VIN rail or external regulator.
-- **Sensor Calibration:** Analog baselines must be calibrated to ambient room lighting and local air conditions before running live detection.
-
----
-
 ## Project Materials & Audit Evidence
 
 Controlled validation reports and formal specifications available within the repository:
@@ -940,9 +916,9 @@ Controlled validation reports and formal specifications available within the rep
 |---|---|---|
 | **Final Deep Audit Report** | `reports/validation/final_deep_audit.md` | **328 requirements audited; 251 PASS, 0 FAIL**; implementation frozen |
 | **Response Timing Benchmark** | `reports/validation/step18_response_timing.md` | **150/150 routing samples $<1.0$ s**; median calculation: **0.055 ms** |
-| **Manual Live UI Latency** | `reports/validation/step16_manual_live_latency.json` | **10/10 samples $<1.0$ s**; median event-to-UI refresh: **612 ms** |
+| **Frontend Live Latency Evidence** | `reports/final_rehearsal/frontend_refresh_before_after.json` | WebSocket receipt → DOM proxy: **3.1 ms average / 601 ms maximum**; strict backend-origin → DOM is unmeasured |
 | **End-to-End E2E Lifecycle** | `reports/validation/step17_e2e_cycle.md` | **PASS** across Scenarios A, B, and C (normal, reroute, failsafe) |
-| **Detection Dataset Integrity** | `reports/validation/vision/` | 272 verified frames across Fire, Smoke, Person, Negative classes |
+| **Detection Dataset Integrity** | `reports/validation/vision/` | Session-aware pilot manifests, QA, split, and model evidence |
 | **Hardware GPIO Reference** | `docs/hardware/CityResponder_GPIO_Breadboard_Reference.md` | Pinout authority and rail wiring rules for SN1 and AC1 |
 | **Formal Policy Specifications** | Root `.md` files (`fire_fusion.md`, `routing.md`, etc.) | Full mathematical formulas, state tables, and TBD governance |
 
@@ -982,7 +958,14 @@ Equip field responders with an offline-first PWA utilizing IndexedDB and Service
 
 CityResponder is not a conceptual mockup or disconnected UI prototype; it is an **empirically verified, closed-loop urban emergency response platform**:
 
-1. **Closed-Loop Edge-to-Actuator Reality:** Sensor telemetry moves from physical ESP32 inputs through MQTT into FastAPI, drives dynamic A* pathfinding and severity scoring, and immediately triggers physical traffic signal preemption and servo barrier actuation with 500 ms ACK verification.
+1. **Closed-Loop Edge-to-Actuator Reality:** Sensor telemetry moves from physical ESP32 inputs through MQTT into FastAPI, drives dynamic A* pathfinding and severity scoring, and has been physically validated for PRIMARY, ALL_RED, and STANDBY traffic corridors. Gate validation remains deferred pending servo replacement.
 2. **Deterministic Life-Safety Governance:** Life-safety is prioritized above all else. A single frame of a trapped human immediately forces severity to Critical, while sensor conflicts automatically prune roads to protect emergency responders.
 3. **Tamper-Evident Event Sourcing:** Forensic accountability is guaranteed by an immutable append-only ledger and SHA-256 hashed evidence frames, satisfying strict municipal audit standards.
-4. **Empirically Proven Latency:** Controlled benchmarks prove sub-millisecond route optimization (median 0.055 ms) and sub-second dashboard synchronization (median 612 ms), meeting real-world emergency dispatch requirements.
+4. **Measured Performance:** Controlled evidence reports sub-millisecond route optimization (median 0.055 ms) and a measured WebSocket receipt → DOM proxy of 3.1 ms average / 601 ms maximum. Strict backend-origin → DOM latency remains unmeasured.
+
+## Known Evidence Boundaries
+
+- MQ-2 readings are raw/provisional; formal burn-in and calibration are incomplete.
+- Servo/gate validation is `DEFERRED_PENDING_SERVO_REPLACEMENT`; old test angles are not production claims.
+- Vision evidence comes from a tabletop prototype; real-world generalization is not claimed.
+- Strict backend-origin → DOM latency was not independently measured.

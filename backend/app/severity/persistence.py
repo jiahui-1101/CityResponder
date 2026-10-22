@@ -1,9 +1,10 @@
 """Immutable persistence adapters for automatic and manual decisions."""
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.events.models import Event
+from app.events.models import Event, IncidentTransitionClaim
 from app.events.repository import append_event, get_events_for_entity
 from app.live.service import publish_live_update_from_thread
 from app.severity.decision import IncidentDecision
@@ -11,6 +12,10 @@ from app.severity.operator import OperatorDecisionResult
 
 
 INCIDENT_ENTITY_TYPE = "incident"
+
+
+class IncidentTransitionConflict(ValueError):
+    """Raised when another transaction already won incident confirmation."""
 
 
 def persist_incident_decision(
@@ -32,15 +37,44 @@ def persist_incident_decision(
         )
 
     payload = decision.model_dump(mode="json")
-    event = append_event(
-        db,
-        event_type="incident_decision",
-        entity_type=INCIDENT_ENTITY_TYPE,
-        entity_id=decision.decision_id,
-        payload=payload,
-        reason_code="incident_decision",
-        human_readable_reason=_join_reasons(decision.reasons, decision.warnings),
-    )
+    if decision.incident_confirmed is True:
+        event = Event(
+            event_type="incident_decision",
+            entity_type=INCIDENT_ENTITY_TYPE,
+            entity_id=decision.decision_id,
+            payload=payload,
+            reason_code="incident_decision",
+            human_readable_reason=_join_reasons(decision.reasons, decision.warnings),
+        )
+        if not _commit_confirmation_claim(
+            db,
+            incident_id=decision.decision_id,
+            winner_type="AUTOMATIC",
+            winner_id=decision.decision_id,
+            event=event,
+        ):
+            ignored = append_event(
+                db,
+                event_type="incident_decision_ignored",
+                entity_type=INCIDENT_ENTITY_TYPE,
+                entity_id=decision.decision_id,
+                payload={**payload, "ignored_reason": "confirmation already claimed"},
+                reason_code="CONFIRM_IGNORED_ALREADY_CONFIRMED",
+                human_readable_reason="automatic confirmation ignored; another confirmation committed first",
+            )
+            raise IncidentTransitionConflict(
+                f"incident {decision.decision_id} confirmation already claimed; ignored event {ignored.id}"
+            )
+    else:
+        event = append_event(
+            db,
+            event_type="incident_decision",
+            entity_type=INCIDENT_ENTITY_TYPE,
+            entity_id=decision.decision_id,
+            payload=payload,
+            reason_code="incident_decision",
+            human_readable_reason=_join_reasons(decision.reasons, decision.warnings),
+        )
     publish_live_update_from_thread({"event_type": "incident_decision", "entity_type": INCIDENT_ENTITY_TYPE, "entity_id": decision.decision_id, "event_id": event.id, "backend_event_at": event.created_at.isoformat(), "payload": payload})
     return event
 
@@ -66,15 +100,86 @@ def persist_operator_decision(
         )
 
     payload = operator_decision.model_dump(mode="json")
-    return append_event(
-        db,
+    if operator_decision.action.value != "CONFIRM":
+        return append_event(
+            db,
+            event_type="operator_decision",
+            entity_type=INCIDENT_ENTITY_TYPE,
+            entity_id=operator_decision.incident_decision_id,
+            payload=payload,
+            reason_code=f"operator_{operator_decision.action.value.lower()}",
+            human_readable_reason=operator_decision.written_reason,
+        )
+
+    automatic_event = db.scalar(
+        select(Event).where(
+            Event.event_type == "incident_decision",
+            Event.entity_type == INCIDENT_ENTITY_TYPE,
+            Event.entity_id == operator_decision.incident_decision_id,
+        )
+    )
+    automatic_confirmed = bool(
+        automatic_event is not None
+        and automatic_event.payload.get("incident_confirmed") is True
+    )
+    event = Event(
         event_type="operator_decision",
         entity_type=INCIDENT_ENTITY_TYPE,
         entity_id=operator_decision.incident_decision_id,
         payload=payload,
-        reason_code=f"operator_{operator_decision.action.value.lower()}",
+        reason_code="operator_confirm",
         human_readable_reason=operator_decision.written_reason,
     )
+    claimed = False
+    if not automatic_confirmed:
+        claimed = _commit_confirmation_claim(
+            db,
+            incident_id=operator_decision.incident_decision_id,
+            winner_type="OPERATOR",
+            winner_id=operator_decision.action_id,
+            event=event,
+        )
+    if not claimed:
+        ignored = append_event(
+            db,
+            event_type="operator_decision_ignored",
+            entity_type=INCIDENT_ENTITY_TYPE,
+            entity_id=operator_decision.incident_decision_id,
+            payload={**payload, "ignored_reason": "confirmation already claimed"},
+            reason_code="CONFIRM_IGNORED_ALREADY_CONFIRMED",
+            human_readable_reason="confirm ignored, already confirmed",
+        )
+        raise IncidentTransitionConflict(
+            f"incident {operator_decision.incident_decision_id} confirmation already claimed; ignored event {ignored.id}"
+        )
+    return event
+
+
+def _commit_confirmation_claim(
+    db: Session,
+    *,
+    incident_id: str,
+    winner_type: str,
+    winner_id: str,
+    event: Event,
+) -> bool:
+    """Atomically insert the winner and its immutable event in one transaction."""
+
+    db.add(
+        IncidentTransitionClaim(
+            incident_id=incident_id,
+            winner_type=winner_type,
+            winner_id=winner_id,
+        )
+    )
+    db.add(event)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        return False
+    db.refresh(event)
+    return True
 
 
 def _join_reasons(reasons: list[str], warnings: list[str]) -> str | None:

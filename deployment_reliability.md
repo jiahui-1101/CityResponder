@@ -16,8 +16,8 @@ Source basis: Proposal sections 2, 4.3, 5.1, and the setup/run steps (host works
 Deployment environment (from the proposal's setup steps):
 - One host workstation, Windows 10/11 or Linux, Python 3.11+, Node.js 20+.
 - Eclipse Mosquitto broker on `localhost:1883`.
-- FastAPI backend (Uvicorn) on `127.0.0.1:8010`, React dashboard on port `5173`.
-- Two ESP32 nodes: SN1 (sensors) and AC1 (actuators), one overhead camera (720p, 1280x720 at 30 FPS).
+- FastAPI backend (Uvicorn) on `127.0.0.1:8020` (the current local runtime port), React dashboard on port `5173`.
+- Two ESP32 nodes: SN1 (sensors) and AC1 (actuators), one overhead camera using the locked native 1920x1080 mode at approximately 29 FPS.
 - SQLite as the only database.
 
 Event rates (already stated in the proposal):

@@ -1,0 +1,290 @@
+{
+  "harness": "CityResponder Step 16 requirements validation",
+  "generated_at": "2026-10-04T08:05:59.443027+00:00",
+  "checks": [
+    {
+      "name": "role_redirects",
+      "status": "PASS",
+      "details": {
+        "correct": 4,
+        "total": 4,
+        "routes": {
+          "OPERATOR": "/",
+          "FIREFIGHTER": "/response",
+          "RISK_PLANNER": "/risk",
+          "ADMIN": "/admin"
+        }
+      }
+    },
+    {
+      "name": "endpoint_blocking",
+      "status": "PASS",
+      "details": {
+        "passed": 24,
+        "total": 24,
+        "matrix": [
+          {
+            "path": "/api/incidents",
+            "role": "OPERATOR",
+            "expected": 200,
+            "actual": 200
+          },
+          {
+            "path": "/api/incidents",
+            "role": "FIREFIGHTER",
+            "expected": 200,
+            "actual": 200
+          },
+          {
+            "path": "/api/incidents",
+            "role": "RISK_PLANNER",
+            "expected": 200,
+            "actual": 200
+          },
+          {
+            "path": "/api/incidents",
+            "role": "ADMIN",
+            "expected": 200,
+            "actual": 200
+          },
+          {
+            "path": "/api/routes",
+            "role": "OPERATOR",
+            "expected": 200,
+            "actual": 200
+          },
+          {
+            "path": "/api/routes",
+            "role": "FIREFIGHTER",
+            "expected": 200,
+            "actual": 200
+          },
+          {
+            "path": "/api/routes",
+            "role": "RISK_PLANNER",
+            "expected": 200,
+            "actual": 200
+          },
+          {
+            "path": "/api/routes",
+            "role": "ADMIN",
+            "expected": 200,
+            "actual": 200
+          },
+          {
+            "path": "/api/risk/areas",
+            "role": "OPERATOR",
+            "expected": 403,
+            "actual": 403
+          },
+          {
+            "path": "/api/risk/areas",
+            "role": "FIREFIGHTER",
+            "expected": 403,
+            "actual": 403
+          },
+          {
+            "path": "/api/risk/areas",
+            "role": "RISK_PLANNER",
+            "expected": 200,
+            "actual": 200
+          },
+          {
+            "path": "/api/risk/areas",
+            "role": "ADMIN",
+            "expected": 200,
+            "actual": 200
+          },
+          {
+            "path": "/api/admin/users",
+            "role": "OPERATOR",
+            "expected": 403,
+            "actual": 403
+          },
+          {
+            "path": "/api/admin/users",
+            "role": "FIREFIGHTER",
+            "expected": 403,
+            "actual": 403
+          },
+          {
+            "path": "/api/admin/users",
+            "role": "RISK_PLANNER",
+            "expected": 403,
+            "actual": 403
+          },
+          {
+            "path": "/api/admin/users",
+            "role": "ADMIN",
+            "expected": 200,
+            "actual": 200
+          },
+          {
+            "path": "/api/admin/calibration",
+            "role": "OPERATOR",
+            "expected": 403,
+            "actual": 403
+          },
+          {
+            "path": "/api/admin/calibration",
+            "role": "FIREFIGHTER",
+            "expected": 403,
+            "actual": 403
+          },
+          {
+            "path": "/api/admin/calibration",
+            "role": "RISK_PLANNER",
+            "expected": 403,
+            "actual": 403
+          },
+          {
+            "path": "/api/admin/calibration",
+            "role": "ADMIN",
+            "expected": 200,
+            "actual": 200
+          },
+          {
+            "path": "/api/incidents/validation-missing/operator-decision",
+            "role": "OPERATOR",
+            "expected": 404,
+            "actual": 404
+          },
+          {
+            "path": "/api/incidents/validation-missing/operator-decision",
+            "role": "ADMIN",
+            "expected": 404,
+            "actual": 404
+          },
+          {
+            "path": "/api/incidents/validation-missing/operator-decision",
+            "role": "FIREFIGHTER",
+            "expected": 403,
+            "actual": 403
+          },
+          {
+            "path": "/api/incidents/validation-missing/operator-decision",
+            "role": "RISK_PLANNER",
+            "expected": 403,
+            "actual": 403
+          }
+        ]
+      }
+    },
+    {
+      "name": "immutable_event_store",
+      "status": "PASS",
+      "details": {
+        "append": true,
+        "update_blocked": true,
+        "delete_blocked": true
+      }
+    },
+    {
+      "name": "operator_decision_contract",
+      "status": "PASS",
+      "details": {
+        "blank_reason_rejected": true,
+        "event_type": "operator_decision",
+        "actor_preserved": true,
+        "reason_preserved": true
+      }
+    },
+    {
+      "name": "routing_safety_contract",
+      "status": "PASS",
+      "details": {
+        "hard_blocked": true,
+        "excluded": true,
+        "version_increment": 2,
+        "no_safe_route_transition_version": 3,
+        "stale_traffic_invalidated": true
+      }
+    },
+    {
+      "name": "actuator_safety_contract",
+      "status": "PASS",
+      "details": {
+        "ack_correlation": "acknowledged",
+        "timeout": "timeout",
+        "timeout_ms": 500,
+        "retry_and_safe_default_implementation_present": true
+      }
+    },
+    {
+      "name": "privacy_contract",
+      "status": "PASS",
+      "details": {
+        "retained": 5,
+        "sixth_rejected": true,
+        "traversal_rejected": true,
+        "continuous_video_archive": false
+      }
+    },
+    {
+      "name": "area_risk_contract",
+      "status": "PASS",
+      "details": {
+        "weights": {
+          "F": 0.3,
+          "R": 0.25,
+          "E": 0.2,
+          "A": 0.15,
+          "M": 0.1
+        },
+        "full_score": true,
+        "missing_score": null,
+        "window_days": 180
+      }
+    },
+    {
+      "name": "calibration_governance_contract",
+      "status": "PASS",
+      "details": {
+        "weights_bounded": true,
+        "training_count": 30,
+        "validation_count": 15,
+        "candidate_without_policy": "not_evaluated",
+        "non_admin_approval": "covered by live RBAC matrix"
+      }
+    },
+    {
+      "name": "live_latency_evidence",
+      "status": "PASS",
+      "details": {
+        "run_type": "manual_controlled_run",
+        "sample_count": 10,
+        "within_1000ms": 10,
+        "local_ms": {
+          "median": 612.0,
+          "p95": 636.1,
+          "max": 636.1
+        },
+        "backend_event_to_refresh_ms": {
+          "median": 627.0,
+          "p95": 671.0,
+          "max": 671.0
+        },
+        "scope": "MQ2 sensor -> Operator Overview authoritative REST refresh",
+        "note": "Recorded evidence only; not a production benchmark or generated test result."
+      }
+    }
+  ],
+  "status_policy": [
+    "PASS",
+    "FAIL",
+    "BLOCKED",
+    "TBD_SOURCE"
+  ],
+  "unresolved": [
+    "S/T/V/H production normalization/support policy",
+    "severity component normalization/boundaries",
+    "F/R/E/A/M semantics",
+    "area mapping",
+    "risk thresholds",
+    "calibration loss/gradient semantics",
+    "validation metric/threshold",
+    "final adaptive-weight integration",
+    "real ESP32 physical ACK reliability",
+    "full 40-scenario fire-verification benchmark"
+  ]
+}

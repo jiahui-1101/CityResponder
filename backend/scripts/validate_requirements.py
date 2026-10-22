@@ -304,7 +304,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--base-url", default=os.getenv("CITYRESPONDER_API_URL", "http://127.0.0.1:8010"))
+    parser.add_argument("--base-url", default=os.getenv("CITYRESPONDER_API_URL", "http://127.0.0.1:8020"))
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     result = asyncio.run(run(args))

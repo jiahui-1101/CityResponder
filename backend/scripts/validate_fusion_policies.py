@@ -56,17 +56,17 @@ assert _normalize_sensor(1250, 500, 2000) == 0.5, "MQ2 midpoint should be 0.5"
 assert _normalize_sensor(100, 500, 2000) == 0.0, "MQ2 below normal clamped to 0.0"
 assert _normalize_sensor(3000, 500, 2000) == 1.0, "MQ2 above alarm clamped to 1.0"
 
-assert _normalize_sensor(30, 30, 50) == 0.0, "DHT22 at normal should be 0.0"
-assert _normalize_sensor(50, 30, 50) == 1.0, "DHT22 at alarm should be 1.0"
-assert _normalize_sensor(40, 30, 50) == 0.5, "DHT22 midpoint should be 0.5"
-assert _normalize_sensor(20, 30, 50) == 0.0, "DHT22 below normal clamped to 0.0"
-assert _normalize_sensor(60, 30, 50) == 1.0, "DHT22 above alarm clamped to 1.0"
+assert _normalize_sensor(30, 30, 40) == 0.0, "DHT22 at normal should be 0.0"
+assert _normalize_sensor(40, 30, 40) == 1.0, "DHT22 at alarm should be 1.0"
+assert _normalize_sensor(35, 30, 40) == 0.5, "DHT22 midpoint should be 0.5"
+assert _normalize_sensor(20, 30, 40) == 0.0, "DHT22 below normal clamped to 0.0"
+assert _normalize_sensor(50, 30, 40) == 1.0, "DHT22 above alarm clamped to 1.0"
 print("  [PASS] Normalization clamping")
 
 # Test S = max(s_smoke, s_heat)
 policy = FireSensorNormalizationPolicy()
 score, status = policy.score_with_freshness(
-    mq2_sensor(1250), dht22_sensor(40),
+    mq2_sensor(1250), dht22_sensor(35),
     fresh("MQ2"), fresh("DHT22"),
 )
 assert status == "available"
@@ -76,7 +76,7 @@ print("  [PASS] S = max(s_smoke, s_heat)")
 
 # Test stale: one stale uses other
 score, status = policy.score_with_freshness(
-    mq2_sensor(1250), dht22_sensor(40),
+    mq2_sensor(1250), dht22_sensor(35),
     stale("MQ2"), fresh("DHT22"),
 )
 assert status == "available"
@@ -85,7 +85,7 @@ print("  [PASS] One sensor stale: use the other")
 
 # Test stale: both stale → unavailable
 score, status = policy.score_with_freshness(
-    mq2_sensor(1250), dht22_sensor(40),
+    mq2_sensor(1250), dht22_sensor(35),
     stale("MQ2"), stale("DHT22"),
 )
 assert score is None
@@ -230,7 +230,7 @@ engine = FireFusionEngine(
 )
 result = engine.evaluate(
     mq2=mq2_sensor(1250),       # s_smoke = 0.5
-    dht22=dht22_sensor(40),     # s_heat = 0.5
+    dht22=dht22_sensor(35),     # s_heat = 0.5
     mq2_freshness=fresh("MQ2"),
     dht22_freshness=fresh("DHT22"),
     detections=[
@@ -269,7 +269,7 @@ windows = []
 for _ in range(3):
     r = engine.evaluate(
         mq2=mq2_sensor(1800),       # s_smoke ≈ 0.867
-        dht22=dht22_sensor(48),      # s_heat = 0.90
+        dht22=dht22_sensor(48),      # s_heat = 1.0 (above alarm)
         mq2_freshness=fresh("MQ2"),
         dht22_freshness=fresh("DHT22"),
         detections=[

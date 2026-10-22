@@ -39,7 +39,7 @@ type LiveContextValue = {
   lastMessageAt: string | null;
   lastBackendEventAt: string | null;
   subscribe: (eventTypes: string[] | "*", handler: LiveHandler) => () => void;
-  measureRefresh: (event: LiveEvent, affectedPage: string, refresh: () => unknown, coalescedEventCount: number) => void;
+  measureRefresh: (event: LiveEvent, affectedPage: string, refresh: () => unknown, coalescedEventCount: number) => Promise<void>;
   samples: LiveLatencySample[];
   clearSamples: () => void;
 };
@@ -134,15 +134,20 @@ export function LiveConnectionProvider({ children }: { children: ReactNode }) {
       const url = new URL(getApiBaseUrl());
       url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
       url.pathname = "/ws/live";
-      url.search = `token=${encodeURIComponent(token)}`;
       setStatus("connecting");
       const socket = new WebSocket(url.toString());
       socketRef.current = socket;
-      socket.onopen = () => { attemptRef.current = 0; setStatus("connected"); };
+      socket.onopen = () => {
+        socket.send(JSON.stringify({ type: "authenticate", token }));
+      };
       socket.onmessage = (message) => {
         try {
           const event = toLiveEvent(JSON.parse(message.data as string));
           if (!event) return;
+          if (event.eventType === "connection_authenticated") {
+            attemptRef.current = 0;
+            setStatus("connected");
+          }
           setLastMessageAt(event.receivedAt);
           if (event.backendTimestamp) setLastBackendEventAt(event.backendTimestamp);
           [...(handlersRef.current.get(event.eventType) ?? []), ...(handlersRef.current.get("*") ?? [])].forEach((handler) => handler(event));

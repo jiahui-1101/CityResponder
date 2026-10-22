@@ -62,7 +62,7 @@ class ControlledDispatchPolicy:
         return DispatchRecommendation(
             status="recommended",
             dispatch_actions=[],
-            traffic_actions=[ActionRecommendation(action_category="TRAFFIC", action_type="GREEN_CORRIDOR", reason="controlled integration fixture")],
+            traffic_actions=[ActionRecommendation(action_category="TRAFFIC", action_type="GREEN_CORRIDOR", parameters={"corridor": "PRIMARY"}, reason="controlled integration fixture")],
             building_actions=[
                 ActionRecommendation(action_category="GATE", action_type="OPEN", reason="controlled integration fixture"),
                 ActionRecommendation(action_category="BUZZER", action_type="ON", reason="controlled integration fixture"),
@@ -80,8 +80,16 @@ class MockActuatorTransport:
         self.acknowledge_safe_defaults = acknowledge_safe_defaults
         self.commands: list[dict[str, Any]] = []
 
-    def publish(self, db, *, node_id: str, command_type: str, payload: dict[str, Any]) -> dict[str, str]:
-        command_id = str(uuid4())
+    def publish(
+        self,
+        db,
+        *,
+        node_id: str,
+        command_type: str,
+        payload: dict[str, Any],
+        command_id: str | None = None,
+    ) -> dict[str, str]:
+        command_id = command_id or str(uuid4())
         command = {"command_id": command_id, "node_id": node_id, "command_type": command_type, "payload": payload}
         self.commands.append(command)
         event = append_event(db, event_type="actuator_command", entity_type="actuator", entity_id=node_id, payload=command)
@@ -107,7 +115,7 @@ def _fixture_incident() -> Any:
 
 def _topology_and_evidence(*, blocked: bool = False):
     now = datetime.now(timezone.utc)
-    topology = build_routing_topology([RoutingNode(node_id="A"), RoutingNode(node_id="B")], [RoutingEdge(edge_id="edge-1", from_node="A", to_node="B", distance_cm=100, road_roi_name="road-1", bidirectional=True)], road_roi_to_edge={"road-1": "edge-1"})
+    topology = build_routing_topology([RoutingNode(node_id="A"), RoutingNode(node_id="B")], [RoutingEdge(edge_id="edge-1", from_node="A", to_node="B", distance_cm=100, road_roi_name="road-1", bidirectional=True, metadata={"corridor": "PRIMARY"})], road_roi_to_edge={"road-1": "edge-1"})
     evidence = RoadEdgeEvidence(road_edge_id="edge-1", road_roi_name="road-1", frame_id="fixture-frame", frame_timestamp=now, frame_source="CAMERA", occupancy_ratio=.9 if blocked else .1, occupied_pixels=90 if blocked else 10, obstacle_count=1 if blocked else 0, max_obstacle_extent_px=20, mapped_ir_sensor="IR_A" if blocked else None, ir_timestamp=now if blocked else None, ir_value=True if blocked else None, time_delta_ms=10 if blocked else None, time_matched=True if blocked else None, conflict=False, conflict_reason="controlled integration fixture", freshness=FreshnessItem(source_type="road", source_id="road-1", available=True, stale=False, age_seconds=0, timestamp=now), available=True, stale=False)
     samples = [IRSample(sensor_type="IR_A", timestamp=now, value=True) for _ in range(5)] if blocked else []
     return topology, evidence, samples
@@ -137,13 +145,23 @@ def _run_scenario(*, name: str, blocked: bool, acknowledge_normal: bool) -> dict
 def _operator_verification() -> dict[str, Any]:
     engine, db = isolated_db()
     try:
-        incident = _fixture_incident()
+        incident = _fixture_incident().model_copy(
+            update={
+                "decision_id": "manual-alert-fixture",
+                "confirmation_status": "not_confirmed",
+                "incident_confirmed": False,
+                "severity_score": None,
+                "base_severity": None,
+                "final_severity": None,
+                "decision_status": "not_confirmed",
+            }
+        )
         persist_incident_decision(db, incident)
-        request = OperatorDecisionRequest(operator_id=1, operator_role=UserRole.OPERATOR, action=OperatorAction.CONFIRM, written_reason="Controlled integration validation confirmation")
+        request = OperatorDecisionRequest(operator_id=1, operator_role=UserRole.OPERATOR, action=OperatorAction.CONFIRM, written_reason="Controlled integration validation confirmation", severity_floor="MEDIUM")
         decision = create_operator_decision(incident, request)
         event = persist_operator_decision(db, decision)
         db.commit()
-        return {"status": "PASS", "action": decision.action.value, "operator_id": decision.operator_id, "reason_preserved": event.payload["written_reason"], "event_id": event.id, "event_type": event.event_type}
+        return {"status": "PASS", "action": decision.action.value, "operator_id": decision.operator_id, "severity_floor": decision.severity_floor, "reason_preserved": event.payload["written_reason"], "event_id": event.id, "event_type": event.event_type}
     finally:
         db.close(); engine.dispose()
 

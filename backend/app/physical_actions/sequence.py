@@ -84,6 +84,11 @@ def sequence_physical_actions(plan: PhysicalActionPlan) -> PhysicalCommandSequen
     green = [
         spec for spec in traffic if spec.action_type is ActionType.GREEN_CORRIDOR
     ]
+    other_traffic = [
+        spec
+        for spec in traffic
+        if spec.action_type not in {ActionType.ALL_RED, ActionType.GREEN_CORRIDOR}
+    ]
     phases: list[PhysicalCommandPhase] = []
     warnings = list(plan.warnings)
     safety_commands = list(all_red)
@@ -103,6 +108,13 @@ def sequence_physical_actions(plan: PhysicalActionPlan) -> PhysicalCommandSequen
             PhysicalCommandPhase(
                 phase=SequencePhase.TRAFFIC_CORRIDOR,
                 command_specs=green,
+            )
+        )
+    if other_traffic:
+        phases.append(
+            PhysicalCommandPhase(
+                phase=SequencePhase.TRAFFIC_CORRIDOR,
+                command_specs=other_traffic,
             )
         )
     if building:

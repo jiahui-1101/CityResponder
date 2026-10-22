@@ -7,6 +7,7 @@ from pydantic import ValidationError
 
 from app.core.database import SessionLocal
 from app.events.repository import append_event
+from app.fusion.runtime import automatic_incident_coordinator
 from app.live.service import publish_live_update_from_thread
 from app.vision.schemas import VisionDetectionMessage, VisionRoadMessage
 
@@ -79,6 +80,13 @@ def _store_and_publish(
             entity_id=entity_id,
             payload=payload,
         )
+        # Vision events are the trigger for the automatic incident bridge.
+        # Keep this isolated from ingestion so a fusion/persistence error
+        # cannot discard an otherwise valid raw vision event.
+        try:
+            automatic_incident_coordinator.observe(db)
+        except Exception:
+            logger.exception("Automatic incident fusion failed for %s", topic)
     except Exception:
         db.rollback()
         logger.exception("Failed to store vision message from %s", topic)

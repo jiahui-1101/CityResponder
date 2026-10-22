@@ -21,20 +21,27 @@ class ActionCategory(str, Enum):
 class ActionType(str, Enum):
     ALL_RED = "ALL_RED"
     GREEN_CORRIDOR = "GREEN_CORRIDOR"
+    NORMAL_CYCLE = "NORMAL_CYCLE"
     OPEN = "OPEN"
     CLOSE = "CLOSE"
     ON = "ON"
     OFF = "OFF"
+    PULSE_500_MS = "PULSE_500_MS"
 
 
 _CATEGORY_TYPES: dict[ActionCategory, set[ActionType]] = {
     ActionCategory.TRAFFIC: {
         ActionType.ALL_RED,
         ActionType.GREEN_CORRIDOR,
+        ActionType.NORMAL_CYCLE,
         ActionType.OFF,
     },
     ActionCategory.GATE: {ActionType.OPEN, ActionType.CLOSE},
-    ActionCategory.BUZZER: {ActionType.ON, ActionType.OFF},
+    ActionCategory.BUZZER: {
+        ActionType.ON,
+        ActionType.OFF,
+        ActionType.PULSE_500_MS,
+    },
 }
 
 
@@ -64,4 +71,11 @@ class PhysicalActionCommandSpec(BaseModel):
             )
         if not self.target_node_id.strip():
             raise ValueError("target_node_id is required")
+        if self.action_type is ActionType.GREEN_CORRIDOR:
+            corridor = self.parameters.get("corridor")
+            if corridor not in {"PRIMARY", "STANDBY"}:
+                raise ValueError(
+                    "GREEN_CORRIDOR requires parameters.corridor "
+                    "to be PRIMARY or STANDBY"
+                )
         return self

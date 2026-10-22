@@ -18,7 +18,7 @@ class RouteProjection(BaseModel):
 
     route_id: str
     latest_version: int
-    previous_version: int | None
+    previous_version: int | None = None
     status: str
     source_node_id: str
     destination_node_id: str
@@ -41,6 +41,7 @@ class RouteIndexItem(BaseModel):
 
     route_id: str
     latest_version: int
+    previous_version: int | None
     status: str
     source_node_id: str
     destination_node_id: str
@@ -129,6 +130,7 @@ def get_route_index(db: Session, *, skip: int = 0, limit: int = 20) -> list[Rout
             RouteIndexItem(
                 route_id=projection.route_id,
                 latest_version=projection.latest_version,
+                previous_version=projection.previous_version,
                 status=projection.status,
                 source_node_id=projection.source_node_id,
                 destination_node_id=projection.destination_node_id,

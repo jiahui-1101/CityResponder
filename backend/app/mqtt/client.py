@@ -14,13 +14,6 @@ from app.core.config import get_settings
 logger = logging.getLogger(__name__)
 MessageHandler = Callable[[str, Any], None]
 
-DEFAULT_SUBSCRIPTION_TOPICS = (
-    "city/sensors/#",
-    "city/vision/#",
-    "city/acks/#",
-)
-
-
 class MQTTClient:
     """Own one MQTT connection and safely re-subscribe after reconnects."""
 
@@ -52,9 +45,6 @@ class MQTTClient:
         self._started = True
         self._stopping = False
         self._connected_event.clear()
-        for topic in DEFAULT_SUBSCRIPTION_TOPICS:
-            self._subscriptions.setdefault(topic, [])
-
         try:
             self._client.loop_start()
             self._client.connect_async(self._host, self._port)

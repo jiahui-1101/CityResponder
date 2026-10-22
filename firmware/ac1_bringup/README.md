@@ -4,8 +4,8 @@ This isolated PlatformIO project provides manual, serial-controlled validation o
 
 Authoritative GPIO mapping:
 
-- Traffic Light 1: red GPIO25, yellow GPIO26, green GPIO27
-- Traffic Light 2: red GPIO14, yellow GPIO13, green GPIO23
+- Traffic Light 1 (PRIMARY/MAIN route): red GPIO14, yellow GPIO13, green GPIO23
+- Traffic Light 2 (STANDBY route): red GPIO25, yellow GPIO26, green GPIO27
 - Buzzer signal: GPIO19; physical trigger polarity is unverified
 - SG90 signal: GPIO18; the firmware never attaches or moves the servo
 

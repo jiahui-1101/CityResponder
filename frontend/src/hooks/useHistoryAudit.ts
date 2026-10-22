@@ -12,7 +12,7 @@ export function useHistoryAudit() {
   const [error, setError] = useState<string | null>(null);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<string | null>(null);
   const refresh = useCallback(async (nextFilters = filters) => {
-    setLoading(true); setError(null); setSkip(0);
+    setError(null); setSkip(0);
     try { const result = await listEvents(nextFilters, 0, PAGE_SIZE); setEvents(result); setHasMore(result.length === PAGE_SIZE); setLastRefreshedAt(new Date().toISOString()); }
     catch (caught) { setError(caught instanceof Error ? caught.message : "Unable to load audit history"); }
     finally { setLoading(false); }

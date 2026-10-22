@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 
 
 class DefaultDispatchMatrixPolicy:
-    """Implements TBD-DISPATCH-01 and TBD-DISPATCH-03b rules."""
+    """Implements the authoritative Feature 2 dispatch matrix."""
 
     version: str = "1.0.0-jiabao-dispatch"
 
@@ -19,15 +19,15 @@ class DefaultDispatchMatrixPolicy:
         if severity == "LOW":
             dispatch_actions.append(
                 ActionRecommendation(
-                    action_type="DISPATCH_UNIT",
-                    parameters={"unit_type": "FIRE_UNIT", "count": 1}
+                    action_type="HOLD_UNIT",
+                    parameters={"unit_id": "E1", "status": "AT_STATION"},
                 )
             )
         elif severity == "MEDIUM":
             dispatch_actions.append(
                 ActionRecommendation(
                     action_type="DISPATCH_UNIT",
-                    parameters={"unit_type": "FIRE_UNIT", "count": 2}
+                    parameters={"unit_id": "E1", "unit_type": "FIRE_UNIT", "count": 1},
                 )
             )
         elif severity == "HIGH":
@@ -70,7 +70,24 @@ class DefaultDispatchMatrixPolicy:
         building_actions: list[ActionRecommendation] = []
         traffic_actions: list[ActionRecommendation] = []
         
-        if severity in ("LOW", "MEDIUM", "HIGH", "CRITICAL"):
+        if severity == "MEDIUM":
+            building_actions.append(
+                ActionRecommendation(
+                    action_category=ActionCategory.BUZZER,
+                    action_type="PULSE_500_MS",
+                )
+            )
+            # The master contract requires this output, but the authoritative
+            # hardware map has no zone-indicator GPIO. Preserve it as an
+            # explicit unmapped recommendation instead of inventing a pin.
+            building_actions.append(
+                ActionRecommendation(
+                    action_type="ZONE_AMBER_ON",
+                    parameters={"output": "AMBER_ZONE_LED"},
+                    reason="ZONE_INDICATOR_GPIO_UNMAPPED",
+                )
+            )
+        elif severity in ("HIGH", "CRITICAL"):
             building_actions.append(
                 ActionRecommendation(
                     action_category=ActionCategory.BUZZER,
@@ -79,16 +96,37 @@ class DefaultDispatchMatrixPolicy:
             )
             
         if severity in ("MEDIUM", "HIGH", "CRITICAL"):
+            if dispatch_input.selected_corridor is None:
+                raise ValueError(
+                    f"{severity} requires an explicit selected corridor"
+                )
+            traffic_actions.append(
+                ActionRecommendation(
+                    action_category=ActionCategory.TRAFFIC,
+                    action_type="GREEN_CORRIDOR",
+                    parameters={"corridor": dispatch_input.selected_corridor},
+                )
+            )
+
+        if severity in ("HIGH", "CRITICAL"):
             building_actions.append(
                 ActionRecommendation(
                     action_category=ActionCategory.GATE,
                     action_type="OPEN",
                 )
             )
+        elif severity == "LOW":
             traffic_actions.append(
                 ActionRecommendation(
                     action_category=ActionCategory.TRAFFIC,
-                    action_type="GREEN_CORRIDOR",
+                    action_type="NORMAL_CYCLE",
+                )
+            )
+            building_actions.append(
+                ActionRecommendation(
+                    action_type="ZONE_AMBER_5_SECONDS",
+                    parameters={"output": "AMBER_ZONE_LED", "duration_ms": 5000},
+                    reason="ZONE_INDICATOR_GPIO_UNMAPPED",
                 )
             )
             
@@ -100,9 +138,9 @@ class DefaultDispatchMatrixPolicy:
             reasons.append(f"[{timestamp_str}] | [Actor: System] | [PERSON_ESCALATION]")
         else:
             if severity == "LOW":
-                reasons.append("Trigger: LOW -> 1 Fire Unit, Buzzer ON, No Gate, No Traffic")
+                reasons.append("Trigger: LOW -> E1 held at station, NORMAL_CYCLE, amber zone indication for 5 seconds")
             elif severity == "MEDIUM":
-                reasons.append("Trigger: MEDIUM -> 2 Fire Units, Buzzer ON, Gate OPEN, GREEN_CORRIDOR")
+                reasons.append("Trigger: MEDIUM -> dispatch E1, selected-route GREEN_CORRIDOR, buzzer 500 ms pulse, amber zone indication, gate remains closed")
             elif severity == "HIGH":
                 reasons.append("Trigger: HIGH -> 2 Fire, 1 Ambulance, Buzzer ON, Gate OPEN, GREEN_CORRIDOR")
             elif severity == "CRITICAL":

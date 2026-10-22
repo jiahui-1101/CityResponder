@@ -1,7 +1,7 @@
 import { apiRequest } from "./client";
 
 export type ComponentStatus = { status: string; last_seen: string | null; detail: string | null; connected_clients?: number | null };
-export type SystemHealth = { backend: ComponentStatus; database: ComponentStatus; mqtt: ComponentStatus; websocket: ComponentStatus; sensor_activity: ComponentStatus; actuator_ack_activity: ComponentStatus };
+export type SystemHealth = { backend: ComponentStatus; database: ComponentStatus; mqtt: ComponentStatus; websocket: ComponentStatus; sensor_activity: ComponentStatus; actuator_ack_activity: ComponentStatus; vision: ComponentStatus };
 export type SensorState = { sensor_type: "MQ2" | "DHT22" | "BUTTON" | "IR_A" | "IR_B"; value: unknown; timestamp: string | null; node_id: string | null; unit: string | null; available: boolean };
 export type FreshnessItem = { source_type: string; source_id: string | null; available: boolean; stale: boolean | null; age_seconds: number | null; timestamp: string | null };
 export type PerceptionFreshness = { mq2: FreshnessItem; dht22: FreshnessItem; button: FreshnessItem; ir_a: FreshnessItem; ir_b: FreshnessItem; detection: FreshnessItem; road_evidence: FreshnessItem[] };

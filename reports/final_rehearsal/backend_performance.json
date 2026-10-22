@@ -1,0 +1,58 @@
+{
+  "measured_at": "2026-10-04T08:12:00Z",
+  "topology": "Windows local demo host; FastAPI non-reload process; SQLite; local Mosquitto; local USB camera",
+  "database_context": {
+    "events_approximate": 34662,
+    "sensor_readings_approximate": 34567,
+    "indexes_added": [
+      "created_at,id",
+      "event_type,created_at,id",
+      "entity_type,entity_id,created_at,id",
+      "event_type,entity_type,entity_id,created_at,id"
+    ]
+  },
+  "api_latency_ms_10_samples": {
+    "/health": {"median": 1.24, "p95": 1.69, "max": 1.86},
+    "/api/system/health": {"median": 4.76, "p95": 6.08, "max": 6.84},
+    "/api/incidents?limit=100": {"median": 4.13, "p95": 4.91, "max": 4.94},
+    "/api/routes?limit=100": {"median": 6.09, "p95": 6.79, "max": 7.43},
+    "/api/events?limit=100": {"median": 5.77, "p95": 6.08, "max": 7.96},
+    "/api/risk/areas": {"median": 3.53, "p95": 4.10, "max": 4.23},
+    "/api/admin/calibration": {"median": 4.38, "p95": 4.61, "max": 4.71}
+  },
+  "frontend_event_path": {
+    "evidence_source": "requirements validator recorded controlled run",
+    "samples": 10,
+    "backend_event_to_refresh_median_ms": 627.0,
+    "backend_event_to_refresh_p95_ms": 671.0,
+    "target_ms": 1000,
+    "status": "PASS_FOR_RECORDED_RUN"
+  },
+  "vision_live_path": {
+    "cold_start_ms": 14354.0,
+    "cached_delivery_median_observed_ms": 4.4,
+    "cached_delivery_is_not_new_inference": true,
+    "steady_observation": "The shared pipeline produced real updated frames after warm-up, but observed freshness was variable and a 10-second idle timeout repeatedly forced model cold starts.",
+    "remediation": "Shared worker idle timeout increased to 60 seconds; cached real frames remain visible and are explicitly marked stale after 1.5 seconds.",
+    "camera_to_dashboard_target_ms": 1000,
+    "status": "FAIL_COLD_START_AND_NOT_PROVEN_STABLE"
+  },
+  "short_integrated_soak": {
+    "duration_seconds": 15.51,
+    "api_samples": 60,
+    "api_median_ms": 4.08,
+    "api_max_ms": 45.38,
+    "live_frame_requests": 30,
+    "http_errors": 0,
+    "notes": "Short software/runtime observation only; not a substitute for the requested extended physical soak. Model warm-up increased process memory and longer-term steady memory was not proven."
+  },
+  "mqtt_ack_historical_real_hardware": {
+    "published_cycles": 20,
+    "cycles_with_ack": 20,
+    "success_rate_percent": 100.0,
+    "latency_samples": 22,
+    "over_500_ms": [779.203, 1189.592, 738.219],
+    "target_ms": 500,
+    "status": "ACK_SUCCESS_PASS_LATENCY_TARGET_FAIL_ON_3_SAMPLES"
+  }
+}

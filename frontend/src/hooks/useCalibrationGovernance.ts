@@ -8,7 +8,7 @@ export function useCalibrationGovernance() {
   const [error, setError] = useState<string | null>(null);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<string | null>(null);
   const refresh = useCallback(async () => {
-    setLoading(true); setError(null);
+    setError(null);
     const result = await Promise.allSettled([calibrationRequests.governance(), calibrationRequests.candidates()]);
     const failures: string[] = [];
     if (result[0].status === "fulfilled") setGovernance(result[0].value); else failures.push(result[0].reason instanceof Error ? result[0].reason.message : "Unable to load governance state");

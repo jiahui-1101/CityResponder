@@ -11,6 +11,7 @@ from app.events.repository import get_recent_events
 from app.live.manager import live_connection_manager
 from app.mqtt.client import mqtt_client
 from app.vision.runtime import vision_runtime_health
+from app.vision.live import shared_vision_frames
 
 
 class SystemComponentStatus(BaseModel):
@@ -73,6 +74,27 @@ def get_system_health(db: Session) -> SystemHealthResponse:
         else "MQTT broker connection not ready",
     )
 
+    vision_runtime = vision_runtime_health.snapshot()
+    live_state, live_error = shared_vision_frames.status()
+    if live_state == "initializing" and vision_runtime.status != "available":
+        vision_status = SystemComponentStatus(
+            status="warming",
+            last_seen=vision_runtime.last_seen,
+            detail="Shared AI camera pipeline is initializing",
+        )
+    elif live_state == "error":
+        vision_status = SystemComponentStatus(
+            status="unavailable",
+            last_seen=vision_runtime.last_seen,
+            detail=live_error or vision_runtime.detail,
+        )
+    else:
+        vision_status = SystemComponentStatus(
+            status=vision_runtime.status,
+            last_seen=vision_runtime.last_seen,
+            detail=vision_runtime.detail,
+        )
+
     return SystemHealthResponse(
         backend=SystemComponentStatus(status="healthy", detail="Backend is running"),
         database=database,
@@ -84,9 +106,5 @@ def get_system_health(db: Session) -> SystemHealthResponse:
             event_type="actuator_ack",
             label="actuator ACK",
         ),
-        vision=SystemComponentStatus(
-            status=vision_runtime_health.snapshot().status,
-            last_seen=vision_runtime_health.snapshot().last_seen,
-            detail=vision_runtime_health.snapshot().detail,
-        ),
+        vision=vision_status,
     )

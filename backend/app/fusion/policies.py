@@ -36,7 +36,7 @@ from app.vision.schemas import Detection, FreshnessItem
 # ---------------------------------------------------------------------------
 # TBD-FUSION-01: Sensor Normalization (S)
 # ---------------------------------------------------------------------------
-# DHT22 (Temperature): normal = 30 °C, alarm = 50 °C.
+# DHT22 (Temperature): normal = 30 °C, alarm = 40 °C.
 # MQ-2 (Smoke):        normal = 500,    alarm = 2000.
 # Normalize = (reading − normal) / (alarm − normal), clamp [0.0, 1.0].
 # S = max(s_smoke, s_heat).
@@ -49,7 +49,7 @@ from app.vision.schemas import Detection, FreshnessItem
 MQ2_NORMAL: float = 500.0
 MQ2_ALARM: float = 2000.0
 DHT22_NORMAL: float = 30.0
-DHT22_ALARM: float = 50.0
+DHT22_ALARM: float = 40.0
 MQ2_STALE_SECONDS: float = 2.0    # already matches config default
 DHT22_STALE_SECONDS: float = 3.0  # already matches config default
 
@@ -197,8 +197,8 @@ class FireTemporalNormalizationPolicy:
 
 VISION_MIN_CONFIDENCE: float = 0.50  # TBD-FUSION-03
 VISION_STALE_SECONDS: float = 1.0    # TBD-FUSION-03 (matches config default)
-FIRE_CLASS_NAMES: frozenset[str] = frozenset({"fire", "Fire"})
-SMOKE_CLASS_NAMES: frozenset[str] = frozenset({"smoke", "Smoke"})
+FIRE_CLASS_NAMES: frozenset[str] = frozenset({"fire"})
+SMOKE_CLASS_NAMES: frozenset[str] = frozenset({"smoke"})
 
 
 class FireVisionNormalizationPolicy:
@@ -219,10 +219,11 @@ class FireVisionNormalizationPolicy:
 
         for det in detections:
             # TBD-FUSION-03: Do NOT include Person confidence
-            if det.class_name in FIRE_CLASS_NAMES:
+            normalized_class = det.class_name.strip().lower()
+            if normalized_class in FIRE_CLASS_NAMES:
                 if det.confidence >= VISION_MIN_CONFIDENCE:  # TBD-FUSION-03
                     max_fire = max(max_fire, det.confidence)
-            elif det.class_name in SMOKE_CLASS_NAMES:
+            elif normalized_class in SMOKE_CLASS_NAMES:
                 if det.confidence >= VISION_MIN_CONFIDENCE:  # TBD-FUSION-03
                     max_smoke = max(max_smoke, det.confidence)
             # Any other class (Person, etc.) is explicitly ignored — TBD-FUSION-03

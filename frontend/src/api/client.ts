@@ -5,7 +5,9 @@ export class ApiError extends Error {
   }
 }
 
-export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8010").replace(/\/$/, "");
+// Local development supplies VITE_API_BASE_URL via the ignored .env.local file.
+// A same-origin fallback keeps static/public builds independent of localhost.
+export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? window.location.origin).replace(/\/$/, "");
 export const ACCESS_TOKEN_KEY = "cityresponder.access_token";
 
 export function getStoredAccessToken() {

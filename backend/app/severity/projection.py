@@ -85,8 +85,7 @@ def get_incident_history_projection(
 
     final_severity = automatic.final_severity
     if latest is not None and latest.resulting_operator_outcome == "CONFIRM":
-        if final_severity is None:
-            final_severity = "MEDIUM"
+        final_severity = _higher_severity(final_severity, latest.severity_floor)
 
     return IncidentHistoryProjection(
         incident_id=decision_id,
@@ -184,3 +183,12 @@ def _latest_operator_action(
         return None
     latest_event = max(ordered, key=lambda event: (event.created_at, event.id))
     return by_action_id[latest_event.payload["action_id"]]
+
+
+def _higher_severity(current: str | None, floor: str | None) -> str | None:
+    order = {"LOW": 0, "MEDIUM": 1, "HIGH": 2, "CRITICAL": 3}
+    if current is None:
+        return floor
+    if floor is None:
+        return current
+    return floor if order[floor] > order[current] else current

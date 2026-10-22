@@ -42,6 +42,25 @@ def initialize_database() -> None:
     ensure_database_directory(settings.database_url)
     with engine.begin() as connection:
         Base.metadata.create_all(connection)
+        # Read models project the append-only event stream by type/entity and
+        # newest timestamp. These indexes keep live dashboards responsive as
+        # high-rate sensor telemetry grows; they do not mutate event records.
+        connection.exec_driver_sql(
+            "CREATE INDEX IF NOT EXISTS ix_events_created_at_id "
+            "ON events (created_at DESC, id DESC)"
+        )
+        connection.exec_driver_sql(
+            "CREATE INDEX IF NOT EXISTS ix_events_type_created_at_id "
+            "ON events (event_type, created_at DESC, id DESC)"
+        )
+        connection.exec_driver_sql(
+            "CREATE INDEX IF NOT EXISTS ix_events_entity_created_at_id "
+            "ON events (entity_type, entity_id, created_at DESC, id DESC)"
+        )
+        connection.exec_driver_sql(
+            "CREATE INDEX IF NOT EXISTS ix_events_type_entity_created_at_id "
+            "ON events (event_type, entity_type, entity_id, created_at DESC, id DESC)"
+        )
         connection.exec_driver_sql(
             """
             CREATE TRIGGER IF NOT EXISTS prevent_event_update
@@ -57,6 +76,24 @@ def initialize_database() -> None:
             BEFORE DELETE ON events
             BEGIN
                 SELECT RAISE(ABORT, 'event records are append-only');
+            END;
+            """
+        )
+        connection.exec_driver_sql(
+            """
+            CREATE TRIGGER IF NOT EXISTS prevent_incident_transition_claim_update
+            BEFORE UPDATE ON incident_transition_claims
+            BEGIN
+                SELECT RAISE(ABORT, 'incident transition claims are insert-only');
+            END;
+            """
+        )
+        connection.exec_driver_sql(
+            """
+            CREATE TRIGGER IF NOT EXISTS prevent_incident_transition_claim_delete
+            BEFORE DELETE ON incident_transition_claims
+            BEGIN
+                SELECT RAISE(ABORT, 'incident transition claims are insert-only');
             END;
             """
         )

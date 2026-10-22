@@ -1,6 +1,7 @@
 import { apiBinaryRequest, apiRequest } from "./client";
 
 export type OperatorAction = "CONFIRM" | "REJECT" | "CANCEL";
+export type SeverityFloor = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 export type OperatorDecision = { action_id: string; incident_decision_id: string; operator_id: number; operator_role: string; action: OperatorAction; written_reason: string; previous_automatic_decision_status: string; resulting_operator_outcome: string; action_timestamp: string; reasons: string[]; warnings: string[] };
 export type FusionConfidence = { status: string; confidence_score: number | null; s_score: number | null; t_score: number | null; v_score: number | null; h_score: number | null; weights: Record<string, number>; weighted_contributions: Record<string, number | null>; reasons: string[]; calculated_at: string };
 export type AutomaticDecision = { decision_id: string; evaluated_at: string; confirmation_status: string; incident_confirmed: boolean | null; fusion_confidence: FusionConfidence; severity_score: number | null; base_severity: string | null; final_severity: string | null; critical_override_applied: boolean; decision_status: string; reasons: string[]; warnings: string[]; audit_references: Array<Record<string, unknown>> };
@@ -13,7 +14,7 @@ export const incidentRequests = {
   list: () => apiRequest<IncidentIndexItem[]>("/api/incidents?limit=100"),
   projection: (decisionId: string) => apiRequest<IncidentProjection>(`/api/incidents/${encodeURIComponent(decisionId)}`),
   history: (decisionId: string) => apiRequest<EventRecord[]>(`/api/incidents/${encodeURIComponent(decisionId)}/history`),
-  operatorDecision: (decisionId: string, action: OperatorAction, reason: string) => apiRequest<OperatorDecision>(`/api/incidents/${encodeURIComponent(decisionId)}/operator-decision`, { method: "POST", body: JSON.stringify({ action, reason }) }),
+  operatorDecision: (decisionId: string, action: OperatorAction, reason: string, severityFloor?: SeverityFloor) => apiRequest<OperatorDecision>(`/api/incidents/${encodeURIComponent(decisionId)}/operator-decision`, { method: "POST", body: JSON.stringify({ action, reason, ...(severityFloor ? { severity_floor: severityFloor } : {}) }) }),
   evidence: (decisionId: string) => apiRequest<IncidentEvidenceFrame[]>(`/api/incidents/${encodeURIComponent(decisionId)}/evidence`),
   evidenceImage: (decisionId: string, evidenceId: string) => apiBinaryRequest(`/api/incidents/${encodeURIComponent(decisionId)}/evidence/${encodeURIComponent(evidenceId)}`),
 };

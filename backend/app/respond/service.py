@@ -17,6 +17,7 @@ from app.dispatch.matrix import (
 from app.fusion.schemas import FusionSourceReference
 from app.physical_actions.execution import (
     PhysicalSequenceExecutionResult,
+    build_cancellation_specs,
     build_safe_default_specs,
     execute_ack_gated_sequence,
     execute_safe_default_specs_once,
@@ -117,8 +118,10 @@ class RespondOrchestrationService:
         if latest_action is not None:
             if getattr(latest_action, "action", None) == "CONFIRM" or getattr(latest_action, "resulting_operator_outcome", None) == "CONFIRM":
                 effective_confirmed = True
-                if effective_severity is None:
-                    effective_severity = "MEDIUM"
+                effective_severity = _higher_severity(
+                    effective_severity,
+                    getattr(latest_action, "severity_floor", None),
+                )
             elif getattr(latest_action, "action", None) in ("REJECT", "CANCEL") or getattr(latest_action, "resulting_operator_outcome", None) in ("REJECT", "CANCEL"):
                 effective_confirmed = False
 
@@ -131,8 +134,6 @@ class RespondOrchestrationService:
             execution = None
             sequence = None
             if safe_default_trigger and request.execute_physical and request.db:
-                from app.physical_actions.execution import build_cancellation_specs
-                from app.physical_actions.sequence import PhysicalCommandSequence
                 from uuid import uuid4
                 specs = build_cancellation_specs(
                     target_node_id=DEFAULT_ACTUATOR_NODE_ID,
@@ -142,10 +143,14 @@ class RespondOrchestrationService:
                 )
                 sequence = PhysicalCommandSequence(
                     sequence_id=str(uuid4()),
+                    status="planned",
                     route_id=None,
                     route_version=None,
-                    recommendation_id=request.incident_decision.decision_id,
-                    commands=[], # Handled purely by the specs runner
+                    ordered_command_specs=specs,
+                    source_plan_reference=request.incident_decision.decision_id,
+                    generated_at=datetime.now(timezone.utc),
+                    reasons=[f"operator {safe_default_trigger.lower()} release actions"],
+                    audit_references=list(request.audit_references),
                 )
                 execution = _run_safe_defaults(request.db, specs, sequence.sequence_id, None)
 
@@ -347,6 +352,7 @@ class RespondOrchestrationService:
             person_in_hazard=request.person_in_hazard,
             route_id=routed.route_id,
             route_version=routed.version,
+            selected_corridor=_selected_corridor_for_route(routed, request.topology),
             route_status=routed.route_status,
             no_safe_route=routed.no_safe_route,
             source_references=request.audit_references,
@@ -486,3 +492,44 @@ def run_respond_phase(request: RespondPhaseInput) -> RespondPhaseResult:
     """Convenience wrapper for the stateless Respond orchestrator."""
 
     return RespondOrchestrationService().run(request)
+
+
+def _higher_severity(current: str | None, floor: str | None) -> str | None:
+    order = {"LOW": 0, "MEDIUM": 1, "HIGH": 2, "CRITICAL": 3}
+    if current is None:
+        return floor
+    if floor is None:
+        return current
+    return floor if order[floor] > order[current] else current
+
+
+def _selected_corridor_for_route(
+    route: VersionedRoute,
+    topology: RoutingTopology,
+) -> str | None:
+    """Resolve the physical corridor from explicit selected-edge metadata."""
+
+    edge_by_id = {edge.edge_id: edge for edge in topology.edges}
+    aliases = {
+        "MAIN": "PRIMARY",
+        "PRIMARY": "PRIMARY",
+        "ALTERNATE": "STANDBY",
+        "STANDBY": "STANDBY",
+    }
+    corridors: set[str] = set()
+    for edge_id in route.edge_path:
+        edge = edge_by_id.get(edge_id)
+        if edge is None:
+            continue
+        raw = edge.metadata.get("corridor")
+        if raw is None:
+            continue
+        corridor = aliases.get(str(raw).strip().upper())
+        if corridor is None:
+            raise ValueError(
+                f"unsupported corridor metadata for edge {edge_id}: {raw}"
+            )
+        corridors.add(corridor)
+    if len(corridors) > 1:
+        raise ValueError("selected route spans conflicting physical corridors")
+    return next(iter(corridors), None)

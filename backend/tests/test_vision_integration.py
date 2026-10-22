@@ -23,6 +23,7 @@ from app.vision.model_contract import (
     validate_model_contract,
 )
 from app.vision.pipeline import IntegratedVisionPipeline, VisionIntegrationError
+from app.vision.live import SharedVisionFrameService
 from app.vision.schemas import (
     BoundingBox,
     CoordinateSystem,
@@ -303,6 +304,47 @@ class VisionIntegrationTests(unittest.TestCase):
                     annotation_metadata={"frame": 5},
                     store=store,
                 )
+
+    def test_shared_live_frame_reuses_one_pipeline_and_stores_nothing(self):
+        class FakeLivePipeline:
+            created = 0
+            closed = 0
+
+            def __init__(self):
+                type(self).created += 1
+                self.config = type(
+                    "Config",
+                    (),
+                    {"detection_target_fps": 5.0, "segmentation_target_fps": 2.0},
+                )()
+
+            def process_one(self, *, publish=True):
+                self.assert_publish = publish
+                return object()
+
+            def render_annotated_frame(self, _processed):
+                return b"\xff\xd8fixture", {
+                    "frame_id": "shared-frame",
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "detections": [],
+                    "segmentations": [],
+                    "detection_model": {"version": "cityresponder_detection_v2"},
+                    "segmentation_model": {"version": "cityresponder_segmentation_v1"},
+                }
+
+            def close(self):
+                type(self).closed += 1
+
+        service = SharedVisionFrameService(
+            FakeLivePipeline,
+            idle_timeout_seconds=0.05,
+        )
+        frame = service.latest(timeout_seconds=1.0)
+        self.assertTrue(frame.jpeg.startswith(b"\xff\xd8"))
+        self.assertEqual(frame.metadata["frame_id"], "shared-frame")
+        self.assertEqual(FakeLivePipeline.created, 1)
+        service.stop()
+        self.assertEqual(FakeLivePipeline.closed, 1)
 
 
 if __name__ == "__main__":
