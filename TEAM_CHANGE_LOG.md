@@ -78,6 +78,47 @@ Record tester, hardware and firmware versions, backend commit, environment, requ
 - Controlled dashboard latency: 10/10 under 1 second
 - Production UI fake/mock audit: PASS
 
+## 2026-10-26 22:50 — UI plain language and design consistency shared foundation (Phase B)
+
+**Changed by:** UI Consistency Engineer
+**Branch:** `ui/plain-language-consistency`
+**Commit:** not committed yet
+
+**Requirement / area:**
+- Frontend Plain Language & Design Consistency (Phase B shared foundation)
+
+**Files changed:**
+- `frontend/src/copy/glossary.ts`
+- `frontend/src/components/InfoHint.tsx`
+- `frontend/src/components/InfoHint.css`
+- `frontend/docs/ui-writing-guide.md`
+
+**Previous behavior / value:**
+- No centralized glossary or technical explanation component; pages contained disparate labels and raw backend enum strings.
+
+**New behavior / value:**
+- Created `frontend/src/copy/glossary.ts` extending `humanize.ts` with plain-language status labels and neutral hint texts.
+- Created `frontend/src/components/InfoHint.tsx` and `InfoHint.css` supporting hover, keyboard focus, tap, Escape dismiss, and responsive viewports.
+- Created `frontend/docs/ui-writing-guide.md` one-page writing and component usage standard.
+
+**Why this changed:**
+- UI/UX consistency across frontend workspaces per user specification.
+
+**Source / decision reference:**
+- Approved Phase A audit corrections and frontend implementation specifications.
+
+**Validation performed:**
+- `npm run typecheck`, `npm test` (all 6 regression contracts PASS), `npm run build`.
+
+**Requirement status after change:**
+- PASS
+
+**Impact on teammates:**
+- Import approved plain-language display labels from `src/copy/glossary.ts` and use `InfoHint` / `LabelWithHint` for technical terms.
+
+**Follow-up required:**
+- Await approval before proceeding to Phase C page-by-page application.
+
 ## 2026-10-04 21:29 — Lower DHT22 demo alarm threshold to 40°C
 
 **Changed by:** Codex, per user demo calibration decision

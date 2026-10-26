@@ -1,0 +1,132 @@
+/* InfoHint styling - self-contained component styles */
+
+.info-hint-wrapper {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
+.info-hint-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-grey-600, #777777);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: color var(--transition-fast, 140ms ease), background-color var(--transition-fast, 140ms ease);
+}
+
+.info-hint-button:hover,
+.info-hint-button.is-active {
+  color: var(--color-orange-700, #bc691a);
+  background-color: var(--color-orange-50, #fff8ed);
+}
+
+.info-hint-button:focus-visible {
+  outline: 2px solid var(--border-focus, rgba(221, 137, 50, 0.5));
+  outline-offset: 2px;
+}
+
+.info-hint-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* Tooltip Popover */
+.info-hint-popover {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 260px;
+  padding: 8px 12px;
+  background: #1f1d1b;
+  color: #f8f8f5;
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 450;
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+  z-index: 100;
+  pointer-events: auto;
+  text-align: left;
+  white-space: normal;
+  word-break: break-word;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.info-hint-popover.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Arrow pointer */
+.info-hint-popover::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #1f1d1b transparent transparent transparent;
+}
+
+/* Alignment modifier for edge positioning if clamped */
+.info-hint-wrapper.align-right .info-hint-popover {
+  left: auto;
+  right: -8px;
+  transform: none;
+}
+
+.info-hint-wrapper.align-right .info-hint-popover::after {
+  left: auto;
+  right: 14px;
+  transform: none;
+}
+
+.info-hint-wrapper.align-left .info-hint-popover {
+  left: -8px;
+  right: auto;
+  transform: none;
+}
+
+.info-hint-wrapper.align-left .info-hint-popover::after {
+  left: 14px;
+  right: auto;
+  transform: none;
+}
+
+/* Label with hint layout helper */
+.label-with-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Narrow mobile screen responsiveness (375px) */
+@media (max-width: 480px) {
+  .info-hint-popover {
+    max-width: 220px;
+    font-size: 11.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .info-hint-button,
+  .info-hint-popover {
+    transition: none;
+  }
+}
