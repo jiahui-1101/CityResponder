@@ -549,39 +549,98 @@ button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: no
 .live-shadow-panel > div { display:flex; align-items:center; justify-content:space-between; gap:.6rem; }
 .live-shadow-panel small { color:var(--color-grey-600); }
 @media (max-width:900px) { .simulation-workspace, .simulation-detail-grid { grid-template-columns:1fr; } .current-route-support { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-@media (max-width:560px) { .current-route-support { grid-template-columns:1fr; } }
-
-/* ==========================================================================
-   Admin Live Diagnostics Dashboard
+@media (max-width:560px) { .current-route-support { grid-template-columns:1fr; } }/* ==========================================================================
+   Admin Live Diagnostics Dashboard (Design System Light Theme)
+   Matches Calibration Governance and Risk Intelligence look & feel
    ========================================================================== */
 
 .live-diagnostics-page {
   display: grid;
-  gap: 20px;
+  gap: 24px;
   min-width: 0;
 }
 
+.live-diagnostics-page .page-header .eyebrow {
+  color: var(--color-orange-800, #a24c08);
+}
+
+.live-diagnostics-page .page-header .eyebrow::before {
+  color: var(--color-orange-500, #e39439);
+}
+
+.live-diagnostics-page .page-header h2 {
+  color: var(--color-black, #111111);
+  font-size: var(--text-xl, 24px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.live-diagnostics-page .page-header p {
+  color: var(--color-grey-700, #626262);
+  font-size: var(--text-sm, 12px);
+  line-height: 1.5;
+  margin-top: 5px;
+}
+
+.live-diagnostics-page .button-secondary {
+  border: 1px solid rgba(18, 18, 18, 0.12);
+  background: var(--color-white, #ffffff);
+  color: var(--color-black, #111111);
+  font-size: 12px;
+  font-weight: var(--weight-semibold, 650);
+  box-shadow: var(--shadow-line);
+  transition: all var(--transition-fast);
+}
+
+.live-diagnostics-page .button-secondary:hover:not(:disabled) {
+  border-color: rgba(18, 18, 18, 0.24);
+  background: var(--color-grey-100, #f6f6f4);
+  color: var(--color-black, #111111);
+}
+
+.live-diagnostics-page .button-secondary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  border-color: rgba(18, 18, 18, 0.1);
+  background: var(--color-grey-100, #f6f6f4);
+  color: var(--color-grey-700, #626262);
+}
+
+.live-diagnostics-page :where(button, a, input, select, textarea):focus-visible {
+  outline: 2px solid var(--color-orange-600, #dd8932);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(221, 137, 50, 0.2);
+}
+
+/* Callout Info Banner */
 .diagnostic-notice {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
+  gap: 12px;
+  padding: 12px 16px;
   border-radius: var(--radius-md, 8px);
-  background: rgba(33, 106, 138, 0.1);
-  border: 1px solid rgba(33, 106, 138, 0.25);
-  color: #60a5fa;
+  background: var(--diag-callout-bg, #fff4e8);
+  border: 1px solid var(--diag-callout-border, rgba(221, 137, 50, 0.35));
+  color: var(--color-grey-900, #343434);
   font-size: 12px;
   font-weight: 500;
+  line-height: 1.45;
 }
 
+.diagnostic-notice svg {
+  color: var(--color-orange-600, #dd8932);
+  flex-shrink: 0;
+}
+
+/* White Diagnostic Cards */
 .diagnostic-card {
   padding: 18px 20px;
   border-radius: var(--radius-lg, 14px);
-  background: rgba(30, 30, 30, 0.78);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+  border: 1px solid rgba(18, 18, 18, 0.08);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: var(--shadow-soft);
   backdrop-filter: blur(18px);
-  color: #f3f4f6;
+  color: var(--color-black, #111111);
 }
 
 /* Executive Summary Row */
@@ -603,11 +662,15 @@ button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: no
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  color: #9ca3af;
-  font-size: 11.5px;
-  font-weight: 600;
+  color: var(--color-grey-700, #626262);
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
+}
+
+.diagnostic-exec-header svg {
+  color: var(--color-orange-600, #dd8932);
 }
 
 .diagnostic-exec-body {
@@ -618,40 +681,56 @@ button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: no
 
 .diagnostic-exec-value {
   font-size: 20px;
-  font-weight: 700;
-  color: #ffffff;
+  font-weight: 750;
+  color: var(--color-black, #111111);
   letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
 }
 
 .diagnostic-exec-meta {
-  color: #9ca3af;
+  color: #4b5563;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.diagnostic-exec-counter {
+  color: var(--color-grey-900, #343434);
   font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.diag-mono-metric {
+  color: var(--color-black, #111111);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
 }
 
 /* Connection Status Indicator Dots */
 .connection-dot {
-  width: 10px;
-  height: 10px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   display: inline-block;
   flex-shrink: 0;
 }
 
 .connection-dot.connected {
-  background-color: #10b981;
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+  background-color: var(--color-success, #217a51);
+  box-shadow: 0 0 0 2px rgba(33, 122, 81, 0.2);
 }
 
 .connection-dot.connecting {
-  background-color: #f59e0b;
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+  background-color: var(--color-orange-500, #e39439);
+  box-shadow: 0 0 0 2px rgba(227, 148, 57, 0.25);
   animation: pulse-dot 1.4s ease-in-out infinite;
 }
 
 .connection-dot.disconnected,
 .connection-dot.error {
-  background-color: #ef4444;
-  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+  background-color: var(--color-danger, #ae3326);
+  box-shadow: 0 0 0 2px rgba(174, 51, 38, 0.2);
 }
 
 @keyframes pulse-dot {
@@ -660,65 +739,26 @@ button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: no
     transform: scale(1);
   }
   50% {
-    opacity: 0.35;
-    transform: scale(0.8);
+    opacity: 0.4;
+    transform: scale(0.85);
   }
-}
-
-/* SLA Status Badges */
-.sla-badge-within {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(16, 185, 129, 0.16);
-  border: 1px solid rgba(16, 185, 129, 0.38);
-  color: #34d399;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.sla-badge-exceeds {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(239, 68, 68, 0.16);
-  border: 1px solid rgba(239, 68, 68, 0.38);
-  color: #f87171;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.sla-badge-awaiting {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: #9ca3af;
-  font-size: 12px;
-  font-weight: 600;
 }
 
 /* Buffer Progress Bar */
 .buffer-progress-track {
-  height: 6px;
+  height: 8px;
   width: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 999px;
+  background: var(--diag-track-bg, #e8e7e3);
+  border: 1px solid var(--diag-track-border, #8f8c85);
+  border-radius: 99px;
   overflow: hidden;
   margin-top: 4px;
 }
 
 .buffer-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #e39439, #dd8932);
-  border-radius: 999px;
+  background: var(--color-orange-500, #e39439);
+  border-radius: inherit;
   transition: width 0.3s ease;
 }
 
@@ -739,48 +779,93 @@ button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: no
 .diagnostic-gauge-header h4 {
   font-size: 14px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-black, #111111);
   margin-bottom: 3px;
 }
 
 .diagnostic-gauge-header p {
-  color: #9ca3af;
-  font-size: 11px;
+  color: var(--color-grey-700, #626262);
+  font-size: 12px;
   line-height: 1.4;
 }
 
 .diagnostic-gauge-primary {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin: 4px 0;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 6px 0 2px;
 }
 
 .diagnostic-gauge-number {
   font-size: 28px;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--color-black, #111111);
   letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.diag-gauge-unit {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-grey-700, #626262);
+}
+
+.diagnostic-gauge-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gauge-legend-swatch {
+  width: 12px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-orange-500, #e39439);
 }
 
 .diagnostic-gauge-caption {
-  color: #9ca3af;
-  font-size: 11.5px;
-  font-weight: 500;
+  color: var(--color-grey-900, #343434);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.gauge-state-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.gauge-state-tag.pass {
+  background: var(--color-success-bg, #e9f5ee);
+  border: 1px solid rgba(33, 122, 81, 0.3);
+  color: #047857;
+}
+
+.gauge-state-tag.fail {
+  background: var(--color-danger-bg, #fdeceb);
+  border: 1px solid rgba(174, 51, 38, 0.3);
+  color: #b91c1c;
 }
 
 /* Gauge Meter Track and Guidelines */
 .latency-gauge-wrapper {
   position: relative;
   width: 100%;
-  padding-top: 18px;
-  padding-bottom: 4px;
+  padding-top: 32px;
+  padding-bottom: 6px;
+  margin-top: 8px;
 }
 
 .latency-gauge-track {
   height: 10px;
   width: 100%;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--diag-track-bg, #e8e7e3);
+  border: 1px solid var(--diag-track-border, #8f8c85);
   border-radius: 999px;
   position: relative;
   overflow: visible;
@@ -793,63 +878,109 @@ button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: no
 }
 
 .latency-fill-green {
-  background: linear-gradient(90deg, #10b981, #059669);
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+  background: linear-gradient(90deg, #10b981, #047857);
 }
 
 .latency-fill-amber {
-  background: linear-gradient(90deg, #f59e0b, #d97706);
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+  background: linear-gradient(90deg, #e39439, #bc691a);
 }
 
 .latency-fill-red {
-  background: linear-gradient(90deg, #ef4444, #dc2626);
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.45);
+  background: linear-gradient(90deg, #dc2626, #b91c1c);
 }
 
 .latency-sla-marker {
   position: absolute;
-  top: -4px;
-  bottom: -4px;
+  top: -6px;
+  bottom: -6px;
   width: 2px;
-  background: #f87171;
-  z-index: 2;
-  box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+  background: #111111;
+  z-index: 3;
+  box-shadow: 0 0 0 1px #ffffff;
+}
+
+.latency-sla-marker.latency-sla-marker-green {
+  background: #047857;
+  box-shadow: 0 0 0 1px #ffffff;
 }
 
 .latency-sla-label {
   position: absolute;
-  top: -16px;
+  top: -28px;
   transform: translateX(-50%);
-  font-size: 9.5px;
-  color: #f87171;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.02em;
   white-space: nowrap;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid var(--color-orange-700, #bc691a);
+  color: var(--color-black, #111111);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.latency-sla-label.latency-sla-label-green {
+  background: #ecfdf5;
+  border-color: #10b981;
+  color: #047857;
 }
 
 .latency-scale-labels {
   display: flex;
   justify-content: space-between;
-  margin-top: 6px;
-  font-size: 10px;
-  color: #6b7280;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--diag-tick-text, #4b5563);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.latency-scale-labels .scale-highlight-sla {
+  color: var(--diag-tick-sla, #b91c1c);
+  font-weight: 700;
+}
+
+.latency-scale-labels .scale-highlight-fast {
+  color: var(--diag-tick-fast, #047857);
+  font-weight: 700;
 }
 
 .diagnostic-sub-metrics {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  color: #9ca3af;
-  font-size: 11.5px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(18, 18, 18, 0.08);
+  color: var(--color-grey-700, #626262);
+  font-size: 12px;
 }
 
 .diagnostic-sub-metrics span strong {
-  color: #e5e7eb;
-  font-weight: 600;
+  color: var(--color-black, #111111);
+  font-weight: 700;
   margin-left: 3px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.diag-val {
+  color: var(--color-black, #111111);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.diag-unit {
+  color: var(--color-grey-700, #626262);
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.diag-placeholder {
+  color: var(--color-grey-700, #626262);
+  font-weight: 700;
 }
 
 /* Streamlined Data Pipeline Card */
@@ -870,13 +1001,13 @@ button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: no
 .pipeline-card-header h4 {
   font-size: 14px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-black, #111111);
   margin-bottom: 3px;
 }
 
 .pipeline-card-header p {
-  color: #9ca3af;
-  font-size: 11px;
+  color: var(--color-grey-700, #626262);
+  font-size: 12px;
 }
 
 .pipeline-badges {
@@ -887,19 +1018,19 @@ button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: no
 
 .pipeline-tag {
   display: inline-block;
-  padding: 3px 8px;
-  border-radius: 6px;
-  background: rgba(227, 148, 57, 0.18);
-  border: 1px solid rgba(227, 148, 57, 0.32);
-  color: var(--color-orange-500);
-  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: var(--radius-sm, 6px);
+  background: #fff4e5;
+  border: 1px solid #fcd34d;
+  color: #9a3412;
+  font-size: 12px;
   font-weight: 600;
 }
 
 .pipeline-tag.page-tag {
-  background: rgba(33, 106, 138, 0.18);
-  border-color: rgba(33, 106, 138, 0.32);
-  color: #38bdf8;
+  background: var(--color-info-bg, #e8f3f8);
+  border-color: rgba(33, 106, 138, 0.25);
+  color: var(--color-info, #216a8a);
 }
 
 .pipeline-flow {
@@ -913,8 +1044,8 @@ button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: no
 .pipeline-step {
   padding: 14px 16px;
   border-radius: var(--radius-md, 8px);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: var(--color-grey-100, #f6f6f4);
+  border: 1px solid rgba(18, 18, 18, 0.08);
   display: grid;
   gap: 6px;
 }
@@ -923,31 +1054,35 @@ button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: no
   display: flex;
   align-items: center;
   gap: 7px;
-  color: #9ca3af;
-  font-size: 10.5px;
-  font-weight: 600;
+  color: var(--color-grey-900, #343434);
+  font-size: 12px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
+.pipeline-step-header svg {
+  color: var(--color-orange-600, #dd8932);
+}
+
 .pipeline-step-value {
   font-size: 18px;
-  font-weight: 700;
-  color: #f3f4f6;
+  font-weight: 750;
+  color: var(--color-black, #111111);
   letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
 }
 
 .pipeline-step-desc {
-  color: #6b7280;
-  font-size: 10.5px;
+  color: var(--color-grey-700, #626262);
+  font-size: 12px;
 }
 
 .pipeline-arrow {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-orange-500);
-  opacity: 0.75;
+  color: var(--color-orange-600, #dd8932);
 }
 
 .pipeline-meta-row {
@@ -956,21 +1091,26 @@ button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: no
   align-items: center;
   gap: 16px;
   padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  font-size: 11px;
-  color: #9ca3af;
+  border-top: 1px solid rgba(18, 18, 18, 0.08);
+  font-size: 12px;
+  color: var(--color-grey-700, #626262);
 }
 
 .pipeline-meta-row strong {
-  color: #e5e7eb;
+  color: var(--color-black, #111111);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
 }
 
 .pipeline-meta-row .text-green {
-  color: #34d399;
+  color: #047857;
+  font-weight: 700;
 }
 
 .pipeline-meta-row .text-amber {
-  color: #fbbf24;
+  color: #b45309;
+  font-weight: 700;
 }
 
 /* Responsive adjustments */
@@ -987,5 +1127,26 @@ button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: no
   }
   .pipeline-arrow {
     transform: rotate(90deg);
+  }
+}
+
+@media (max-width: 480px) {
+  .latency-sla-label {
+    transform: translateX(-70%);
+  }
+  .diagnostic-sub-metrics {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .connection-dot.connecting {
+    animation: none;
+  }
+  .buffer-progress-fill,
+  .latency-gauge-fill {
+    transition: none;
   }
 }

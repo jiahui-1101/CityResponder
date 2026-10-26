@@ -1,14 +1,12 @@
 import {
   Activity,
-  AlertTriangle,
   ArrowRight,
-  CheckCircle2,
   Clock3,
   Radio,
   RotateCcw,
   Zap,
 } from "lucide-react";
-import { Card, EmptyState, SectionHeader } from "../components/ui";
+import { Card, EmptyState, SectionHeader, StatusBadge } from "../components/ui";
 import { useLiveConnection } from "../live/LiveConnectionContext";
 
 const formatMs = (value: number | null | undefined) =>
@@ -25,6 +23,16 @@ const stats = (values: number[]) => {
     sorted[Math.min(sorted.length - 1, Math.max(0, Math.ceil(sorted.length * 0.95) - 1))];
   return { median, p95, max: sorted[sorted.length - 1] };
 };
+
+function MetricDuration({ value }: { value: number | null | undefined }) {
+  if (value === null || value === undefined) return <span className="diag-placeholder">—</span>;
+  return (
+    <>
+      <span className="diag-val">{value.toFixed(1)}</span>{" "}
+      <span className="diag-unit">ms</span>
+    </>
+  );
+}
 
 export function LiveDiagnosticsPanel() {
   const { status, samples, clearSamples } = useLiveConnection();
@@ -95,14 +103,16 @@ export function LiveDiagnosticsPanel() {
           type="button"
           onClick={clearSamples}
           disabled={!samples.length}
+          title={!samples.length ? "No latency samples to clear" : "Clear all rolling latency samples"}
+          aria-label={!samples.length ? "Clear samples (disabled, no samples collected)" : "Clear samples"}
         >
           <RotateCcw size={15} />
           Clear samples
         </button>
       </div>
 
-      <div className="diagnostic-notice">
-        <Activity size={17} />
+      <div className="diagnostic-notice" role="note" aria-label="Observational notice">
+        <Activity size={17} aria-hidden="true" />
         <span>
           Diagnostics are observational. They continuously benchmark browser refresh timing under
           live operation.
@@ -115,7 +125,7 @@ export function LiveDiagnosticsPanel() {
           <Card className="diagnostic-card diagnostic-exec-card">
             <div className="diagnostic-exec-header">
               <span>Live WebSocket Link</span>
-              <Radio size={16} />
+              <Radio size={16} aria-hidden="true" />
             </div>
             <div className="diagnostic-exec-body">
               <span className={`connection-dot ${status}`} aria-hidden="true" />
@@ -131,40 +141,40 @@ export function LiveDiagnosticsPanel() {
           <Card className="diagnostic-card diagnostic-exec-card">
             <div className="diagnostic-exec-header">
               <span>Latency SLA Compliance</span>
-              <Clock3 size={16} />
+              <Clock3 size={16} aria-hidden="true" />
             </div>
             <div className="diagnostic-exec-body">
               {target === "within" ? (
-                <div className="sla-badge-within">
-                  <CheckCircle2 size={16} />
-                  <span>Within 1.0s Emergency SLA</span>
-                </div>
+                <StatusBadge tone="success">Within 1.0s Emergency SLA</StatusBadge>
               ) : target === "exceeds" ? (
-                <div className="sla-badge-exceeds">
-                  <AlertTriangle size={16} />
-                  <span>Exceeds 1.0s Target</span>
-                </div>
+                <StatusBadge tone="danger">Exceeds 1.0s Target</StatusBadge>
               ) : (
-                <div className="sla-badge-awaiting">
-                  <Clock3 size={16} />
-                  <span>Awaiting Live Samples</span>
-                </div>
+                <StatusBadge tone="neutral">Awaiting Live Samples</StatusBadge>
               )}
             </div>
             <span className="diagnostic-exec-meta">
-              {latestWall?.backendEventToRefreshCompleteMs != null
-                ? `Latest sample: ${formatMs(latestWall.backendEventToRefreshCompleteMs)}`
-                : "Operational SLA threshold: ≤ 1000 ms"}
+              {latestWall?.backendEventToRefreshCompleteMs != null ? (
+                <>
+                  Latest sample:{" "}
+                  <strong className="diag-mono-metric">
+                    <MetricDuration value={latestWall.backendEventToRefreshCompleteMs} />
+                  </strong>
+                </>
+              ) : (
+                "Operational SLA threshold: ≤ 1000 ms"
+              )}
             </span>
           </Card>
 
           <Card className="diagnostic-card diagnostic-exec-card">
             <div className="diagnostic-exec-header">
               <span>Rolling Latency Buffer</span>
-              <span className="diagnostic-exec-meta">{samples.length} / 100</span>
+              <span className="diagnostic-exec-counter">{samples.length} / 100</span>
             </div>
             <div className="diagnostic-exec-body">
-              <strong className="diagnostic-exec-value">{samples.length} records</strong>
+              <strong className="diagnostic-exec-value">
+                {samples.length} <span className="diag-gauge-unit">records</span>
+              </strong>
             </div>
             <div>
               <div className="buffer-progress-track">
@@ -173,7 +183,7 @@ export function LiveDiagnosticsPanel() {
                   style={{ width: `${Math.min(100, (samples.length / 100) * 100)}%` }}
                 />
               </div>
-              <span className="diagnostic-exec-meta" style={{ display: "block", marginTop: 4 }}>
+              <span className="diagnostic-exec-meta" style={{ display: "block", marginTop: 6 }}>
                 {successful.length} valid · {samples.length - successful.length} excluded
               </span>
             </div>
@@ -198,9 +208,24 @@ export function LiveDiagnosticsPanel() {
             <div>
               <div className="diagnostic-gauge-primary">
                 <span className="diagnostic-gauge-number">
-                  {wall ? formatMs(wall.median) : "—"}
+                  {wall ? (
+                    <>
+                      <span>{wall.median.toFixed(1)}</span>{" "}
+                      <span className="diag-gauge-unit">ms</span>
+                    </>
+                  ) : (
+                    <span className="diag-placeholder">—</span>
+                  )}
                 </span>
-                <span className="diagnostic-gauge-caption">Median latency</span>
+                <div className="diagnostic-gauge-legend">
+                  <span className="gauge-legend-swatch" aria-hidden="true" />
+                  <span className="diagnostic-gauge-caption">Median latency</span>
+                </div>
+                {wall ? (
+                  <span className={`gauge-state-tag ${wall.median <= 1000 ? "pass" : "fail"}`}>
+                    {wall.median <= 1000 ? "Within SLA" : "Over SLA"}
+                  </span>
+                ) : null}
               </div>
 
               <div className="latency-gauge-wrapper">
@@ -218,7 +243,7 @@ export function LiveDiagnosticsPanel() {
                   <span>0 ms</span>
                   <span>400 ms</span>
                   <span>800 ms</span>
-                  <span style={{ color: "#f87171", fontWeight: 700 }}>1000 ms</span>
+                  <span className="scale-highlight-sla">1000 ms</span>
                   <span>1200 ms</span>
                 </div>
               </div>
@@ -226,13 +251,13 @@ export function LiveDiagnosticsPanel() {
 
             <div className="diagnostic-sub-metrics">
               <span>
-                Median: <strong>{formatMs(wall?.median)}</strong>
+                Median: <strong><MetricDuration value={wall?.median} /></strong>
               </span>
               <span>
-                P95: <strong>{formatMs(wall?.p95)}</strong>
+                P95: <strong><MetricDuration value={wall?.p95} /></strong>
               </span>
               <span>
-                Max: <strong>{formatMs(wall?.max)}</strong>
+                Max: <strong><MetricDuration value={wall?.max} /></strong>
               </span>
             </div>
           </Card>
@@ -247,9 +272,24 @@ export function LiveDiagnosticsPanel() {
             <div>
               <div className="diagnostic-gauge-primary">
                 <span className="diagnostic-gauge-number">
-                  {local ? formatMs(local.median) : "—"}
+                  {local ? (
+                    <>
+                      <span>{local.median.toFixed(1)}</span>{" "}
+                      <span className="diag-gauge-unit">ms</span>
+                    </>
+                  ) : (
+                    <span className="diag-placeholder">—</span>
+                  )}
                 </span>
-                <span className="diagnostic-gauge-caption">Median paint duration</span>
+                <div className="diagnostic-gauge-legend">
+                  <span className="gauge-legend-swatch" aria-hidden="true" />
+                  <span className="diagnostic-gauge-caption">Median paint duration</span>
+                </div>
+                {local ? (
+                  <span className={`gauge-state-tag ${local.median <= 50 ? "pass" : "fail"}`}>
+                    {local.median <= 50 ? "Fast paint" : "Standard"}
+                  </span>
+                ) : null}
               </div>
 
               <div className="latency-gauge-wrapper">
@@ -260,17 +300,17 @@ export function LiveDiagnosticsPanel() {
                   />
                   {/* Guideline at 50ms (Optimal boundary: 50 / 200 = 25%) */}
                   <div
-                    className="latency-sla-marker"
-                    style={{ left: "25%", background: "#10b981", boxShadow: "0 0 6px rgba(16,185,129,0.6)" }}
+                    className="latency-sla-marker latency-sla-marker-green"
+                    style={{ left: "25%" }}
                   >
-                    <span className="latency-sla-label" style={{ color: "#34d399" }}>
+                    <span className="latency-sla-label latency-sla-label-green">
                       50 ms Fast
                     </span>
                   </div>
                 </div>
                 <div className="latency-scale-labels">
                   <span>0 ms</span>
-                  <span style={{ color: "#34d399", fontWeight: 600 }}>50 ms</span>
+                  <span className="scale-highlight-fast">50 ms</span>
                   <span>100 ms</span>
                   <span>150 ms</span>
                   <span>200 ms</span>
@@ -280,13 +320,13 @@ export function LiveDiagnosticsPanel() {
 
             <div className="diagnostic-sub-metrics">
               <span>
-                Median: <strong>{formatMs(local?.median)}</strong>
+                Median: <strong><MetricDuration value={local?.median} /></strong>
               </span>
               <span>
-                P95: <strong>{formatMs(local?.p95)}</strong>
+                P95: <strong><MetricDuration value={local?.p95} /></strong>
               </span>
               <span>
-                Max: <strong>{formatMs(local?.max)}</strong>
+                Max: <strong><MetricDuration value={local?.max} /></strong>
               </span>
             </div>
           </Card>
@@ -323,9 +363,11 @@ export function LiveDiagnosticsPanel() {
                     <span>1. Backend Ingestion &amp; Fusion</span>
                   </div>
                   <div className="pipeline-step-value">
-                    {latest.crossClockValid && latest.backendEventToRefreshCompleteMs !== null
-                      ? formatMs(latest.backendEventToRefreshCompleteMs)
-                      : "Unavailable"}
+                    {latest.crossClockValid && latest.backendEventToRefreshCompleteMs !== null ? (
+                      <MetricDuration value={latest.backendEventToRefreshCompleteMs} />
+                    ) : (
+                      "Unavailable"
+                    )}
                   </div>
                   <span className="pipeline-step-desc">Total transit from event trigger</span>
                 </div>
@@ -341,7 +383,7 @@ export function LiveDiagnosticsPanel() {
                     <span>2. WebSocket Transmission</span>
                   </div>
                   <div className="pipeline-step-value">
-                    {formatMs(latest.websocketToRefreshStartMs)}
+                    <MetricDuration value={latest.websocketToRefreshStartMs} />
                   </div>
                   <span className="pipeline-step-desc">Transit to browser reception</span>
                 </div>
@@ -357,7 +399,7 @@ export function LiveDiagnosticsPanel() {
                     <span>3. Screen DOM Repaint</span>
                   </div>
                   <div className="pipeline-step-value">
-                    {formatMs(latest.refreshDurationMs)}
+                    <MetricDuration value={latest.refreshDurationMs} />
                   </div>
                   <span className="pipeline-step-desc">Local UI reconciliation &amp; paint</span>
                 </div>
@@ -385,7 +427,7 @@ export function LiveDiagnosticsPanel() {
                 </span>
                 <span>
                   WS &rarr; Complete:{" "}
-                  <strong>{formatMs(latest.websocketToRefreshCompleteMs)}</strong>
+                  <strong><MetricDuration value={latest.websocketToRefreshCompleteMs} /></strong>
                 </span>
               </div>
             </>
