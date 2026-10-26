@@ -2488,5 +2488,45 @@ The preceding aggregate run did not retain first/last values. A repeat capture w
 - None; no breaking changes, logic alterations, or API changes.
 
 **Follow-up required:**
-- Await approval before starting Batch C2 (`FirefighterResponsePage.tsx`).
+- Proceed with Batch C2 (`FirefighterResponsePage.tsx`, `RouteMap.tsx`).
+
+## 2026-10-26 23:15 — Batch C2: FirefighterResponsePage and RouteMap plain language
+
+**Changed by:** UI Consistency Engineer
+**Branch:** `ui/plain-language-consistency`
+**Commit:** `f95ffbf`, `325283e`
+
+**Requirement / area:**
+- Frontend Plain Language & Design Consistency (Batch C2)
+
+**Files changed:**
+- `frontend/src/pages/FirefighterResponsePage.tsx`
+- `frontend/src/components/RouteMap.tsx`
+
+**Previous behavior / value:**
+- `FirefighterResponsePage.tsx`: displayed "Field routing, dispatch lifecycle, and AC1 actuator projection.", "Ordered route edge sequence", "Actuator state unavailable", "ACK history available", raw timestamps, unformatted uppercase route status, raw actuator command strings.
+- `RouteMap.tsx`: legend displayed "Selected backend route" and "Computed alternative".
+
+**New behavior / value:**
+- `FirefighterResponsePage.tsx`: displays "Live route guidance, response stage, and field device status." with `InfoHint` on stage progression; "Ordered road path sequence"; "Field controller" with `TECHNICAL_HINTS.fieldController`; friendly device status ("Device connected", "No confirmation yet"); `formatWhen` timestamps; sentence-case route status; descriptive traffic command explanations; "earlier traffic commands are no longer valid" on invalidations.
+- `RouteMap.tsx`: legend displays "Selected route" and "Alternative route". Retains all locked SVG geometry, contracts, and test strings (`No invalid path is drawn`, `ROUTE IMAGE UNAVAILABLE`, etc.).
+
+**Why this changed:**
+- Plain language and accessibility consistency per Batch C2 specification.
+
+**Source / decision reference:**
+- Approved Batch C2 plan.
+
+**Validation performed:**
+- `npm run typecheck`, `npm test` (all 6 regression contracts PASS), `npm run build`.
+
+**Requirement status after change:**
+- PASS
+
+**Impact on teammates:**
+- None; no breaking changes, logic alterations, or API changes. Teammate locked visualization contracts preserved.
+
+**Follow-up required:**
+- Proceed to Batch C3 (`RiskPlannerPage.tsx`, `SimulationResultsPage.tsx`, `HistoryAuditPage.tsx`).
+
 
