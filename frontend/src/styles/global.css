@@ -550,3 +550,442 @@ button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: no
 .live-shadow-panel small { color:var(--color-grey-600); }
 @media (max-width:900px) { .simulation-workspace, .simulation-detail-grid { grid-template-columns:1fr; } .current-route-support { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width:560px) { .current-route-support { grid-template-columns:1fr; } }
+
+/* ==========================================================================
+   Admin Live Diagnostics Dashboard
+   ========================================================================== */
+
+.live-diagnostics-page {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+
+.diagnostic-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: var(--radius-md, 8px);
+  background: rgba(33, 106, 138, 0.1);
+  border: 1px solid rgba(33, 106, 138, 0.25);
+  color: #60a5fa;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.diagnostic-card {
+  padding: 18px 20px;
+  border-radius: var(--radius-lg, 14px);
+  background: rgba(30, 30, 30, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(18px);
+  color: #f3f4f6;
+}
+
+/* Executive Summary Row */
+.diagnostic-executive-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.diagnostic-exec-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.diagnostic-exec-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #9ca3af;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.diagnostic-exec-body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.diagnostic-exec-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.diagnostic-exec-meta {
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+/* Connection Status Indicator Dots */
+.connection-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.connection-dot.connected {
+  background-color: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+}
+
+.connection-dot.connecting {
+  background-color: #f59e0b;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+
+.connection-dot.disconnected,
+.connection-dot.error {
+  background-color: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+}
+
+/* SLA Status Badges */
+.sla-badge-within {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.16);
+  border: 1px solid rgba(16, 185, 129, 0.38);
+  color: #34d399;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sla-badge-exceeds {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.16);
+  border: 1px solid rgba(239, 68, 68, 0.38);
+  color: #f87171;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sla-badge-awaiting {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Buffer Progress Bar */
+.buffer-progress-track {
+  height: 6px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.buffer-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #e39439, #dd8932);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+/* Dual Latency Gauge Section */
+.diagnostic-gauge-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.diagnostic-gauge-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.diagnostic-gauge-header h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 3px;
+}
+
+.diagnostic-gauge-header p {
+  color: #9ca3af;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.diagnostic-gauge-primary {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 4px 0;
+}
+
+.diagnostic-gauge-number {
+  font-size: 28px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.diagnostic-gauge-caption {
+  color: #9ca3af;
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+/* Gauge Meter Track and Guidelines */
+.latency-gauge-wrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 18px;
+  padding-bottom: 4px;
+}
+
+.latency-gauge-track {
+  height: 10px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  position: relative;
+  overflow: visible;
+}
+
+.latency-gauge-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease, background-color 0.3s ease;
+}
+
+.latency-fill-green {
+  background: linear-gradient(90deg, #10b981, #059669);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+.latency-fill-amber {
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+}
+
+.latency-fill-red {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.45);
+}
+
+.latency-sla-marker {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 2px;
+  background: #f87171;
+  z-index: 2;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+}
+
+.latency-sla-label {
+  position: absolute;
+  top: -16px;
+  transform: translateX(-50%);
+  font-size: 9.5px;
+  color: #f87171;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.latency-scale-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 10px;
+  color: #6b7280;
+}
+
+.diagnostic-sub-metrics {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: #9ca3af;
+  font-size: 11.5px;
+}
+
+.diagnostic-sub-metrics span strong {
+  color: #e5e7eb;
+  font-weight: 600;
+  margin-left: 3px;
+}
+
+/* Streamlined Data Pipeline Card */
+.diagnostic-pipeline-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pipeline-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pipeline-card-header h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 3px;
+}
+
+.pipeline-card-header p {
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+.pipeline-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pipeline-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(227, 148, 57, 0.18);
+  border: 1px solid rgba(227, 148, 57, 0.32);
+  color: var(--color-orange-500);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.pipeline-tag.page-tag {
+  background: rgba(33, 106, 138, 0.18);
+  border-color: rgba(33, 106, 138, 0.32);
+  color: #38bdf8;
+}
+
+.pipeline-flow {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.pipeline-step {
+  padding: 14px 16px;
+  border-radius: var(--radius-md, 8px);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  display: grid;
+  gap: 6px;
+}
+
+.pipeline-step-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #9ca3af;
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pipeline-step-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #f3f4f6;
+  letter-spacing: -0.01em;
+}
+
+.pipeline-step-desc {
+  color: #6b7280;
+  font-size: 10.5px;
+}
+
+.pipeline-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-orange-500);
+  opacity: 0.75;
+}
+
+.pipeline-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.pipeline-meta-row strong {
+  color: #e5e7eb;
+}
+
+.pipeline-meta-row .text-green {
+  color: #34d399;
+}
+
+.pipeline-meta-row .text-amber {
+  color: #fbbf24;
+}
+
+/* Responsive adjustments */
+@media (max-width: 860px) {
+  .diagnostic-executive-row,
+  .diagnostic-gauge-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .pipeline-flow {
+    grid-template-columns: 1fr;
+  }
+  .pipeline-arrow {
+    transform: rotate(90deg);
+  }
+}
