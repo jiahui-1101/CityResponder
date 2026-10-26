@@ -35,7 +35,18 @@ from pydantic import BaseModel, Field
 
 from app.fusion.schemas import FusionSourceReference
 from app.sensors.schemas import LatestSensorState
-from app.vision.schemas import BoundingBox, Detection, FreshnessItem, ROI
+from app.vision.polygon_roi import point_in_polygon, polygon_area
+from app.vision.schemas import (
+    BoundingBox,
+    CoordinateSystem,
+    Detection,
+    FreshnessItem,
+    PolygonROI,
+    ROI,
+)
+
+
+HazardZone = ROI | PolygonROI
 
 
 # ---------------------------------------------------------------------------
@@ -86,9 +97,9 @@ def normalize_t_heat_score(dht22_reading: float) -> float:
 # ---------------------------------------------------------------------------
 # TBD-SEV-01: Fire Extent Score (A) — Pixel Ratio
 # ---------------------------------------------------------------------------
-# A = fire_bbox_area / hazard_polygon_area, clamped [0.0, 1.0].
+# A = fire_bbox_area / configured building-area polygon, clamped [0.0, 1.0].
 # fire_bbox_area = width * height of the fire detection bounding box.
-# hazard_polygon_area = width * height of the hazard zone ROI.
+# The person hazard polygon remains a separate input for P / Critical Override.
 # ---------------------------------------------------------------------------
 
 PERSON_MIN_CONFIDENCE: float = 0.50  # TBD-SEV-04
@@ -97,14 +108,18 @@ FIRE_CLASS_NAMES: frozenset[str] = frozenset({"fire"})
 
 def calculate_fire_extent_score(
     detections: list[Detection],
-    hazard_zone: ROI,
+    hazard_zone: HazardZone,
 ) -> float:
-    """Calculate A = fire_bbox_area / hazard_polygon_area.  (TBD-SEV-01)
+    """Calculate A = fire_bbox_area / configured building-area region. (TBD-SEV-01)
 
     Uses the largest fire detection bounding box area found.
     Clamped to [0.0, 1.0].
     """
-    hazard_area = hazard_zone.width * hazard_zone.height
+    hazard_area = (
+        polygon_area([(point.x, point.y) for point in hazard_zone.points])
+        if isinstance(hazard_zone, PolygonROI)
+        else hazard_zone.width * hazard_zone.height
+    )
     if hazard_area <= 0:
         return 0.0
 
@@ -140,8 +155,16 @@ def _bbox_center(box: BoundingBox) -> tuple[float, float]:
     return ((box.x1 + box.x2) / 2.0, (box.y1 + box.y2) / 2.0)
 
 
-def _center_inside_roi(center_x: float, center_y: float, roi: ROI) -> bool:
-    """Return True if the center point falls inside the ROI rectangle."""
+def _center_inside_roi(center_x: float, center_y: float, roi: HazardZone) -> bool:
+    """Return True when the center point is inside the configured zone."""
+    if isinstance(roi, PolygonROI):
+        return (
+            roi.coordinate_system is CoordinateSystem.RAW_BOARD_CROP
+            and point_in_polygon(
+                (center_x, center_y),
+                [(point.x, point.y) for point in roi.points],
+            )
+        )
     return (
         roi.x <= center_x <= roi.x + roi.width
         and roi.y <= center_y <= roi.y + roi.height
@@ -150,10 +173,9 @@ def _center_inside_roi(center_x: float, center_y: float, roi: ROI) -> bool:
 
 def evaluate_person_in_hazard(
     detections: list[Detection],
-    hazard_zone: ROI,
+    hazard_zone: HazardZone,
 ) -> bool:
-    """Return True if any YOLO Person detection (confidence >= 0.50) has its
-    bounding-box center inside the hazard zone.  (TBD-SEV-04)
+    """Return True if a confident Person detection center falls in the hazard zone.
     """
     for det in detections:
         if det.class_name not in PERSON_CLASS_NAMES:
@@ -301,10 +323,13 @@ class SeverityComponentPolicyProvider:
     def __init__(
         self,
         zone_label: str = "normal-risk",
-        hazard_zone: ROI | None = None,
+        hazard_zone: HazardZone | None = None,
+        building_roi: HazardZone | None = None,
     ) -> None:
         self._zone_label = zone_label
-        self._hazard_zone = hazard_zone
+        # Keep hazard_zone as a backwards-compatible alias. Polygon-mode
+        # production passes the Building A region separately from person P.
+        self._area_zone = building_roi if building_roi is not None else hazard_zone
 
     def provide(self, snapshot: object) -> object:
         """Protocol-compatible provider (used by the orchestration layer)."""
@@ -340,17 +365,17 @@ class SeverityComponentPolicyProvider:
             reasons.append("TBD-SEV-03: DHT22 sensor unavailable for severity T_heat")
 
         # --- A: fire extent (TBD-SEV-01) ---
-        if snapshot.detection is not None and self._hazard_zone is not None:
+        if snapshot.detection is not None and self._area_zone is not None:
             a_score = calculate_fire_extent_score(
                 snapshot.detection.detections,
-                self._hazard_zone,
+                self._area_zone,
             )
         else:
             a_score = None
             if snapshot.detection is None:
                 reasons.append("TBD-SEV-01: no vision detection for severity A")
-            if self._hazard_zone is None:
-                reasons.append("TBD-SEV-01: hazard zone ROI not configured for severity A")
+            if self._area_zone is None:
+                reasons.append("TBD-SEV-01: Building A area region not configured for severity A")
 
         # --- Z: zone vulnerability (TBD-SEV-05) ---
         try:
@@ -373,7 +398,8 @@ def calculate_severity(
     mq2_reading: float | None = None,
     dht22_reading: float | None = None,
     detections: list[Detection] | None = None,
-    hazard_zone: ROI | None = None,
+    hazard_zone: HazardZone | None = None,
+    building_roi: HazardZone | None = None,
     zone_label: str = "normal-risk",
 ) -> SeverityPolicyResult:
     """Full severity evaluation entrypoint.
@@ -433,11 +459,12 @@ def calculate_severity(
         )
 
     # --- Step 3: A (Fire Extent) — TBD-SEV-01 ---
-    if hazard_zone is not None:
-        a_score = calculate_fire_extent_score(detections, hazard_zone)
+    area_zone = building_roi if building_roi is not None else hazard_zone
+    if area_zone is not None:
+        a_score = calculate_fire_extent_score(detections, area_zone)
     else:
         a_score = 0.0
-        reasons.append("TBD-SEV-01: hazard zone ROI not configured, A defaults to 0")
+        reasons.append("TBD-SEV-01: Building A area region not configured, A defaults to 0")
 
     # --- Step 4: S (Smoke / pure MQ-2) — TBD-SEV-02 ---
     if mq2_reading is not None:

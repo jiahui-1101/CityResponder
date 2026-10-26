@@ -46,6 +46,16 @@ class VisionEvidencePublisher:
                 else None
             ),
         }
+        if detection_result.building_polygon is not None:
+            payload["building_polygon"] = detection_result.building_polygon.model_dump(
+                mode="json"
+            )
+        if detection_result.hazard_polygon is not None:
+            payload["hazard_polygon"] = detection_result.hazard_polygon.model_dump(
+                mode="json"
+            )
+        if detection_result.person_in_hazard is not None:
+            payload["person_in_hazard"] = detection_result.person_in_hazard
         if person_hazard is not None:
             payload["person_in_hazard"] = person_hazard.person_in_hazard
         mqtt_client.publish(DETECTION_TOPIC, payload, qos=1)
@@ -86,6 +96,8 @@ class VisionEvidencePublisher:
                 else None
             ),
         }
+        if evidence.road_polygon is not None:
+            payload["road_polygon"] = evidence.road_polygon.model_dump(mode="json")
         mqtt_client.publish(ROAD_TOPIC, payload, qos=1)
 
 

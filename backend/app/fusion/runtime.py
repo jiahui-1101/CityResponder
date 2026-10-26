@@ -148,11 +148,16 @@ def build_runtime_incident_decision(
 
     sequence = evaluate_confirmation_sequence(window_results)
     last_snapshot = ordered[-1]
-    hazard_zone = last_snapshot.detection.building_roi
+    # Keep Building A as the fire-area denominator. The distinct hazard
+    # polygon is consumed upstream for person-in-hazard evidence and P.
+    building_area = (
+        last_snapshot.detection.building_polygon
+        or last_snapshot.detection.building_roi
+    )
     severity_input = build_severity_input(
         last_snapshot,
         confirmation=sequence,
-        component_provider=SeverityComponentPolicyProvider(hazard_zone=hazard_zone),
+        component_provider=SeverityComponentPolicyProvider(building_roi=building_area),
     )
     severity_score = calculate_severity_score(severity_input)
     classification: SeverityClassificationResult = classify_severity(

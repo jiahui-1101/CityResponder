@@ -1,0 +1,314 @@
+{
+  "graph_version": "phase-b1-final-review-draft:eff0151c35ee404b",
+  "image_geometry_version": "raw-camera-1920x1080:eff0151c35ee404b",
+  "status": "DRAFT_NOT_PRODUCTION_ACTIVE",
+  "coordinate_system": "RAW_CAMERA",
+  "image_width": 1920,
+  "image_height": 1080,
+  "image_asset": "/assets/city-model-phase-b1-final-review.jpg",
+  "image_source": "city-model-phase-b1-final-review.jpg",
+  "nodes": {
+    "N1": {
+      "node_id": "N1",
+      "position": {
+        "x": 708.113,
+        "y": 56.943,
+        "normalized_x": 0.3688088541666667,
+        "normalized_y": 0.052725
+      },
+      "verification_status": "NEEDS_PHYSICAL_CONFIRMATION"
+    },
+    "N2": {
+      "node_id": "N2",
+      "position": {
+        "x": 705.423,
+        "y": 205.777,
+        "normalized_x": 0.3674078125,
+        "normalized_y": 0.19053425925925924
+      },
+      "verification_status": "CONFIRMED_BY_USER"
+    },
+    "N3": {
+      "node_id": "N3",
+      "position": {
+        "x": 1419.0,
+        "y": 219.172,
+        "normalized_x": 0.7390625,
+        "normalized_y": 0.20293703703703703
+      },
+      "verification_status": "NEEDS_PHYSICAL_CONFIRMATION"
+    },
+    "N4": {
+      "node_id": "N4",
+      "position": {
+        "x": 981.115,
+        "y": 210.759,
+        "normalized_x": 0.5109973958333334,
+        "normalized_y": 0.19514722222222222
+      },
+      "verification_status": "CONFIRMED_BY_USER"
+    },
+    "N5": {
+      "node_id": "N5",
+      "position": {
+        "x": 977.522,
+        "y": 409.537,
+        "normalized_x": 0.5091260416666666,
+        "normalized_y": 0.3792009259259259
+      },
+      "verification_status": "CONFIRMED_BY_USER"
+    },
+    "N6": {
+      "node_id": "N6",
+      "position": {
+        "x": 699.176,
+        "y": 551.39,
+        "normalized_x": 0.36415416666666667,
+        "normalized_y": 0.5105462962962963
+      },
+      "verification_status": "CONFIRMED_BY_USER"
+    },
+    "N7": {
+      "node_id": "N7",
+      "position": {
+        "x": 829.031,
+        "y": 553.737,
+        "normalized_x": 0.43178697916666664,
+        "normalized_y": 0.5127194444444444
+      },
+      "verification_status": "CONFIRMED_BY_USER"
+    },
+    "N8": {
+      "node_id": "N8",
+      "position": {
+        "x": 694.681,
+        "y": 800.112,
+        "normalized_x": 0.36181302083333333,
+        "normalized_y": 0.7408444444444444
+      },
+      "verification_status": "NEEDS_PHYSICAL_CONFIRMATION"
+    },
+    "N9": {
+      "node_id": "N9",
+      "position": {
+        "x": 351.065,
+        "y": 793.902,
+        "normalized_x": 0.18284635416666667,
+        "normalized_y": 0.7350944444444445
+      },
+      "verification_status": "NEEDS_PHYSICAL_CONFIRMATION"
+    },
+    "N10": {
+      "node_id": "N10",
+      "position": {
+        "x": 1435.853,
+        "y": 813.508,
+        "normalized_x": 0.7478401041666667,
+        "normalized_y": 0.7532481481481482
+      },
+      "verification_status": "NEEDS_PHYSICAL_CONFIRMATION"
+    }
+  },
+  "edges": {
+    "PE01": {
+      "edge_id": "PE01",
+      "from_node": "N1",
+      "to_node": "N2",
+      "points": [
+        {
+          "x": 708.113,
+          "y": 56.943,
+          "normalized_x": 0.3688088541666667,
+          "normalized_y": 0.052725
+        },
+        {
+          "x": 705.423,
+          "y": 205.777,
+          "normalized_x": 0.3674078125,
+          "normalized_y": 0.19053425925925924
+        }
+      ],
+      "verification_status": "NEEDS_PHYSICAL_CONFIRMATION",
+      "gate_dependency": null
+    },
+    "PE02": {
+      "edge_id": "PE02",
+      "from_node": "N2",
+      "to_node": "N6",
+      "points": [
+        {
+          "x": 705.423,
+          "y": 205.777,
+          "normalized_x": 0.3674078125,
+          "normalized_y": 0.19053425925925924
+        },
+        {
+          "x": 699.176,
+          "y": 551.39,
+          "normalized_x": 0.36415416666666667,
+          "normalized_y": 0.5105462962962963
+        }
+      ],
+      "verification_status": "CONFIRMED_BY_USER",
+      "gate_dependency": null
+    },
+    "PE03": {
+      "edge_id": "PE03",
+      "from_node": "N6",
+      "to_node": "N8",
+      "points": [
+        {
+          "x": 699.176,
+          "y": 551.39,
+          "normalized_x": 0.36415416666666667,
+          "normalized_y": 0.5105462962962963
+        },
+        {
+          "x": 694.681,
+          "y": 800.112,
+          "normalized_x": 0.36181302083333333,
+          "normalized_y": 0.7408444444444444
+        }
+      ],
+      "verification_status": "NEEDS_PHYSICAL_CONFIRMATION",
+      "gate_dependency": null
+    },
+    "PE04": {
+      "edge_id": "PE04",
+      "from_node": "N2",
+      "to_node": "N4",
+      "points": [
+        {
+          "x": 705.423,
+          "y": 205.777,
+          "normalized_x": 0.3674078125,
+          "normalized_y": 0.19053425925925924
+        },
+        {
+          "x": 981.115,
+          "y": 210.759,
+          "normalized_x": 0.5109973958333334,
+          "normalized_y": 0.19514722222222222
+        }
+      ],
+      "verification_status": "CONFIRMED_BY_USER",
+      "gate_dependency": null
+    },
+    "PE05": {
+      "edge_id": "PE05",
+      "from_node": "N4",
+      "to_node": "N3",
+      "points": [
+        {
+          "x": 981.115,
+          "y": 210.759,
+          "normalized_x": 0.5109973958333334,
+          "normalized_y": 0.19514722222222222
+        },
+        {
+          "x": 1419.0,
+          "y": 219.172,
+          "normalized_x": 0.7390625,
+          "normalized_y": 0.20293703703703703
+        }
+      ],
+      "verification_status": "NEEDS_PHYSICAL_CONFIRMATION",
+      "gate_dependency": null
+    },
+    "PE06": {
+      "edge_id": "PE06",
+      "from_node": "N4",
+      "to_node": "N5",
+      "points": [
+        {
+          "x": 981.115,
+          "y": 210.759,
+          "normalized_x": 0.5109973958333334,
+          "normalized_y": 0.19514722222222222
+        },
+        {
+          "x": 977.522,
+          "y": 409.537,
+          "normalized_x": 0.5091260416666666,
+          "normalized_y": 0.3792009259259259
+        }
+      ],
+      "verification_status": "CONFIRMED_BY_USER",
+      "gate_dependency": null
+    },
+    "PE07": {
+      "edge_id": "PE07",
+      "from_node": "N6",
+      "to_node": "N7",
+      "points": [
+        {
+          "x": 699.176,
+          "y": 551.39,
+          "normalized_x": 0.36415416666666667,
+          "normalized_y": 0.5105462962962963
+        },
+        {
+          "x": 755.114,
+          "y": 552.401,
+          "normalized_x": 0.39328854166666666,
+          "normalized_y": 0.5114824074074074
+        },
+        {
+          "x": 829.031,
+          "y": 553.737,
+          "normalized_x": 0.43178697916666664,
+          "normalized_y": 0.5127194444444444
+        }
+      ],
+      "verification_status": "CONFIRMED_BY_USER",
+      "gate_dependency": "GATE_BUILDING_A_ENTRY"
+    },
+    "PE08": {
+      "edge_id": "PE08",
+      "from_node": "N9",
+      "to_node": "N8",
+      "points": [
+        {
+          "x": 351.065,
+          "y": 793.902,
+          "normalized_x": 0.18284635416666667,
+          "normalized_y": 0.7350944444444445
+        },
+        {
+          "x": 694.681,
+          "y": 800.112,
+          "normalized_x": 0.36181302083333333,
+          "normalized_y": 0.7408444444444444
+        }
+      ],
+      "verification_status": "NEEDS_PHYSICAL_CONFIRMATION",
+      "gate_dependency": null
+    },
+    "PE09": {
+      "edge_id": "PE09",
+      "from_node": "N8",
+      "to_node": "N10",
+      "points": [
+        {
+          "x": 694.681,
+          "y": 800.112,
+          "normalized_x": 0.36181302083333333,
+          "normalized_y": 0.7408444444444444
+        },
+        {
+          "x": 1435.853,
+          "y": 813.508,
+          "normalized_x": 0.7478401041666667,
+          "normalized_y": 0.7532481481481482
+        }
+      ],
+      "verification_status": "NEEDS_PHYSICAL_CONFIRMATION",
+      "gate_dependency": null
+    }
+  },
+  "warnings": [
+    "DRAFT VISUAL ALIGNMENT \u2014 NOT PHYSICALLY VERIFIED",
+    "Physical edge lengths and per-edge road ROI mapping remain unavailable",
+    "PE07 gate position and physical-open feedback remain unverified"
+  ]
+}

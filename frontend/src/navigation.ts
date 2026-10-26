@@ -3,6 +3,7 @@ import {
   BookOpen,
   Building2,
   ClipboardList,
+  FlaskConical,
   LayoutDashboard,
   Route,
   type LucideIcon,
@@ -38,6 +39,7 @@ export const navigationItems: NavigationItem[] = [
   { label: "Response / Routing", path: "/response", icon: Route, allowedRoles: operationalRoles, activeMatch: "section", section: "main" },
   { label: "Risk Intelligence", path: "/risk", icon: Building2, allowedRoles: riskRoles, activeMatch: "section", section: "main" },
   { label: "History / Audit", path: "/history", icon: BookOpen, allowedRoles: historyRoles, activeMatch: "section", section: "main" },
+  { label: "Simulation Results", path: "/simulation", icon: FlaskConical, allowedRoles: historyRoles, activeMatch: "section", section: "main" },
   { label: "Administration", path: "/admin", icon: ClipboardList, allowedRoles: ["ADMIN"], activeMatch: "section", section: "system" },
 ];
 

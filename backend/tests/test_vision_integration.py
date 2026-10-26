@@ -309,6 +309,7 @@ class VisionIntegrationTests(unittest.TestCase):
         class FakeLivePipeline:
             created = 0
             closed = 0
+            publish_flags = []
 
             def __init__(self):
                 type(self).created += 1
@@ -319,7 +320,7 @@ class VisionIntegrationTests(unittest.TestCase):
                 )()
 
             def process_one(self, *, publish=True):
-                self.assert_publish = publish
+                type(self).publish_flags.append(publish)
                 return object()
 
             def render_annotated_frame(self, _processed):
@@ -343,6 +344,7 @@ class VisionIntegrationTests(unittest.TestCase):
         self.assertTrue(frame.jpeg.startswith(b"\xff\xd8"))
         self.assertEqual(frame.metadata["frame_id"], "shared-frame")
         self.assertEqual(FakeLivePipeline.created, 1)
+        self.assertEqual(FakeLivePipeline.publish_flags, [False])
         service.stop()
         self.assertEqual(FakeLivePipeline.closed, 1)
 

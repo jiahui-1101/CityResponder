@@ -13,6 +13,7 @@ import { LiveConnectionProvider } from "./live/LiveConnectionContext";
 import { RiskPlannerPage } from "./pages/RiskPlannerPage";
 import { AdminCalibrationPage } from "./pages/AdminCalibrationPage";
 import { HistoryAuditPage } from "./pages/HistoryAuditPage";
+import { SimulationResultsPage } from "./pages/SimulationResultsPage";
 
 function ProtectedShell() {
   const { user } = useAuth();
@@ -34,6 +35,7 @@ export default function App() {
       <Route path="planner" element={<RequireRole allowedRoles={["RISK_PLANNER", "ADMIN"]}><RiskPlannerPage /></RequireRole>} />
       <Route path="risk" element={<RequireRole allowedRoles={routeRoles("/risk")}><RiskPlannerPage /></RequireRole>} />
       <Route path="history" element={<RequireRole allowedRoles={routeRoles("/history")}><HistoryAuditPage /></RequireRole>} />
+      <Route path="simulation" element={<RequireRole allowedRoles={routeRoles("/simulation")}><SimulationResultsPage /></RequireRole>} />
       <Route path="admin" element={<RequireRole allowedRoles={routeRoles("/admin")}><AdminCalibrationPage /></RequireRole>} />
     </Route>
   </Routes></BrowserRouter></LiveConnectionProvider></AuthProvider>;

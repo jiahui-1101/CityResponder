@@ -1,0 +1,1826 @@
+{
+  "report_type": "CityResponder Phase 3 isolated software simulation",
+  "simulation_marker": "SIMULATED",
+  "generated_at": "2026-10-26T02:27:18.474998+00:00",
+  "graph_source": "reports/debug/camera_alignment/road_graph_phase_b1_final_review_draft.json",
+  "graph_warning": "Uses only confirmed N2/N4/N5/N6/N7 and PE02/PE04/PE06/PE07 identities. Draft pixel lengths are explicit simulation cost proxies, not physical centimeters.",
+  "production_database_used": false,
+  "mqtt_transport_available": false,
+  "physical_actuation_available": false,
+  "scenarios": [
+    {
+      "scenario_id": "A",
+      "name": "Normal city",
+      "expected": {
+        "response_action": false,
+        "selected_route": null,
+        "severity": null,
+        "no_safe_route": false,
+        "execution_status": null
+      },
+      "actual": {
+        "incident_confirmed": false,
+        "decision_status": "not_confirmed",
+        "confidence": 0.0,
+        "severity": null,
+        "person_in_hazard": false,
+        "selected_route": null,
+        "no_safe_route": false,
+        "execution_status": "NOT_EXECUTED",
+        "duplicates_rejected": 0,
+        "rejected_evidence": 0
+      },
+      "explanation": [
+        "Existing fire fusion returned not_confirmed with C=0.0.",
+        "Existing severity policy returned unresolved.",
+        "Routes were calculated with the existing safety, risk-cost, graph, A*, versioning and dispatch services.",
+        "Command outcomes came from a closed in-memory simulator; MQTT publications remained zero."
+      ],
+      "assertions": [
+        {
+          "name": "response action matches",
+          "passed": true
+        },
+        {
+          "name": "no MQTT publications",
+          "passed": true
+        },
+        {
+          "name": "simulation marked",
+          "passed": true
+        }
+      ],
+      "timings_ms": {
+        "evidence_validation": 0.1762999891070649,
+        "fusion_and_severity": 0.7432999991578981,
+        "routing_and_response_plan": 0.0041000021155923605,
+        "lifecycle": 0.0029999937396496534,
+        "total": 69.66389999433886
+      },
+      "status": "PASS",
+      "response_plan": {
+        "scenario_id": "A",
+        "correlation_id": "f894e60d-c23d-579d-bf87-a93da8a319a3",
+        "status": "PENDING_REVIEW",
+        "evidence_summary": {
+          "accepted": 9,
+          "rejected": 0,
+          "duplicates": [],
+          "sources": [
+            "DHT22",
+            "MQ2",
+            "VISION"
+          ]
+        },
+        "verification_result": "not_confirmed",
+        "confidence": 0.0,
+        "severity": null,
+        "contributing_factors": [
+          "incident confirmation is not explicitly true",
+          "severity score is unavailable for base classification",
+          "base severity is unavailable without an explicit policy"
+        ],
+        "affected_location": "Building A (SIMULATED fixture)",
+        "selected_route": null,
+        "alternative_route": null,
+        "blocked_or_uncertain_roads": [],
+        "road_states": {},
+        "route_explanation": "No route was calculated because the simulated incident was not confirmed.",
+        "recommended_resources": [],
+        "proposed_traffic_behavior": [],
+        "proposed_alert_behavior": [],
+        "uncertainty_warnings": [
+          "Physical ROI alignment NOT_VERIFIED",
+          "Physical edge lengths unavailable; cost uses labeled draft pixel proxies",
+          "PE07 physical gate position and feedback NOT_VERIFIED"
+        ],
+        "human_review_required": true,
+        "plan_version": 1,
+        "simulation_marker": "SIMULATED",
+        "execution": {
+          "status": "NOT_EXECUTED",
+          "commands": [],
+          "mqtt_publications": 0,
+          "lifecycle": {
+            "status": "NOT_STARTED",
+            "transitions": []
+          }
+        }
+      },
+      "audit_event_count": 12,
+      "simulation_marker": "SIMULATED"
+    },
+    {
+      "scenario_id": "B",
+      "name": "Confirmed fire",
+      "expected": {
+        "response_action": true,
+        "selected_route": null,
+        "severity": null,
+        "no_safe_route": false,
+        "execution_status": null
+      },
+      "actual": {
+        "incident_confirmed": true,
+        "decision_status": "confirmed",
+        "confidence": 80.2,
+        "severity": "HIGH",
+        "person_in_hazard": false,
+        "selected_route": [
+          "PE04",
+          "PE06"
+        ],
+        "no_safe_route": false,
+        "execution_status": "ACKNOWLEDGED_IN_SIMULATION",
+        "duplicates_rejected": 0,
+        "rejected_evidence": 0
+      },
+      "explanation": [
+        "Existing fire fusion returned confirmed with C=80.2.",
+        "Existing severity policy returned HIGH.",
+        "Routes were calculated with the existing safety, risk-cost, graph, A*, versioning and dispatch services.",
+        "Command outcomes came from a closed in-memory simulator; MQTT publications remained zero."
+      ],
+      "assertions": [
+        {
+          "name": "response action matches",
+          "passed": true
+        },
+        {
+          "name": "no MQTT publications",
+          "passed": true
+        },
+        {
+          "name": "simulation marked",
+          "passed": true
+        }
+      ],
+      "timings_ms": {
+        "evidence_validation": 0.2106000029016286,
+        "fusion_and_severity": 0.5582000012509525,
+        "routing_and_response_plan": 3.0236999882617965,
+        "lifecycle": 106.31079999438953,
+        "total": 173.2696999970358
+      },
+      "status": "PASS",
+      "response_plan": {
+        "scenario_id": "B",
+        "correlation_id": "970f64a7-ab9f-59c5-b13c-4b1688975dae",
+        "status": "ACKNOWLEDGED_IN_SIMULATION",
+        "evidence_summary": {
+          "accepted": 9,
+          "rejected": 0,
+          "duplicates": [],
+          "sources": [
+            "DHT22",
+            "MQ2",
+            "VISION"
+          ]
+        },
+        "verification_result": "confirmed",
+        "confidence": 80.2,
+        "severity": "HIGH",
+        "contributing_factors": [],
+        "affected_location": "Building A (SIMULATED fixture)",
+        "selected_route": {
+          "route_id": "SIM-B-N5",
+          "origin_node_id": "N2",
+          "destination_node_id": "N5",
+          "selected_node_ids": [
+            "N2",
+            "N4",
+            "N5"
+          ],
+          "selected_edge_ids": [
+            "PE04",
+            "PE06"
+          ],
+          "node_path": [
+            "N2",
+            "N4",
+            "N5"
+          ],
+          "edge_path": [
+            "PE04",
+            "PE06"
+          ],
+          "cost": 560.5,
+          "cost_unit": "draft_pixel_proxy \u00d7 risk multiplier",
+          "route_version": 1,
+          "source_mode": "SIMULATED"
+        },
+        "alternative_route": null,
+        "blocked_or_uncertain_roads": [
+          "PE07"
+        ],
+        "road_states": {
+          "PE07": "UNCERTAIN"
+        },
+        "route_explanation": "A* selected PE04, PE06 as the lowest-cost eligible route under configured proxy weights.",
+        "recommended_resources": [
+          {
+            "action_category": null,
+            "action_type": "DISPATCH_UNIT",
+            "target": null,
+            "parameters": {
+              "unit_type": "FIRE_UNIT",
+              "count": 2
+            },
+            "reason": null
+          },
+          {
+            "action_category": null,
+            "action_type": "DISPATCH_UNIT",
+            "target": null,
+            "parameters": {
+              "unit_type": "AMBULANCE",
+              "count": 1
+            },
+            "reason": null
+          }
+        ],
+        "proposed_traffic_behavior": [
+          {
+            "action_category": "TRAFFIC",
+            "action_type": "GREEN_CORRIDOR",
+            "target": null,
+            "parameters": {
+              "corridor": "PRIMARY"
+            },
+            "reason": null
+          }
+        ],
+        "proposed_alert_behavior": [
+          {
+            "action_category": "BUZZER",
+            "action_type": "ON",
+            "target": null,
+            "parameters": {},
+            "reason": null
+          },
+          {
+            "action_category": "GATE",
+            "action_type": "OPEN",
+            "target": null,
+            "parameters": {},
+            "reason": null
+          }
+        ],
+        "uncertainty_warnings": [
+          "Physical ROI alignment NOT_VERIFIED",
+          "Physical edge lengths unavailable; cost uses labeled draft pixel proxies",
+          "PE07 physical gate position and feedback NOT_VERIFIED"
+        ],
+        "human_review_required": true,
+        "plan_version": 1,
+        "simulation_marker": "SIMULATED",
+        "execution": {
+          "status": "ACKNOWLEDGED_IN_SIMULATION",
+          "commands": [
+            {
+              "command_id": "1a82cdee-4007-5e7f-8e81-eb469c2c7d8f",
+              "target": "SIMULATED_AC1",
+              "action_category": "TRAFFIC",
+              "action_type": "ALL_RED",
+              "simulation_marker": "SIMULATED",
+              "status": "ACKNOWLEDGED_IN_SIMULATION",
+              "attempts": 1
+            },
+            {
+              "command_id": "b4d01ac0-cc6b-506e-a4e7-e9d13d577cae",
+              "target": "SIMULATED_AC1",
+              "action_category": "TRAFFIC",
+              "action_type": "GREEN_CORRIDOR",
+              "simulation_marker": "SIMULATED",
+              "status": "ACKNOWLEDGED_IN_SIMULATION",
+              "attempts": 1
+            },
+            {
+              "command_id": "a6cf9a37-ff42-5c31-8f9b-e13c40099154",
+              "target": "SIMULATED_AC1",
+              "action_category": "BUZZER",
+              "action_type": "ON",
+              "simulation_marker": "SIMULATED",
+              "status": "ACKNOWLEDGED_IN_SIMULATION",
+              "attempts": 1
+            },
+            {
+              "command_id": "2363c5fd-e61a-543d-8684-de8700c081a2",
+              "target": "SIMULATED_AC1",
+              "action_category": "GATE",
+              "action_type": "OPEN",
+              "simulation_marker": "SIMULATED",
+              "status": "ACKNOWLEDGED_IN_SIMULATION",
+              "attempts": 1
+            }
+          ],
+          "failsafe": null,
+          "mqtt_publications": 0,
+          "lifecycle": {
+            "status": "VERIFIED_FIRE",
+            "transitions": [
+              "RESPONDING",
+              "EN_ROUTE",
+              "ARRIVED",
+              "RESOLVED",
+              "VERIFIED_FIRE"
+            ]
+          }
+        }
+      },
+      "audit_event_count": 18,
+      "simulation_marker": "SIMULATED"
+    },
+    {
+      "scenario_id": "C",
+      "name": "Road blockage",
+      "expected": {
+        "response_action": true,
+        "selected_route": [
+          "PE02",
+          "PE07"
+        ],
+        "severity": null,
+        "no_safe_route": false,
+        "execution_status": null
+      },
+      "actual": {
+        "incident_confirmed": true,
+        "decision_status": "confirmed",
+        "confidence": 80.2,
+        "severity": "HIGH",
+        "person_in_hazard": false,
+        "selected_route": [
+          "PE02",
+          "PE07"
+        ],
+        "no_safe_route": false,
+        "execution_status": "ACKNOWLEDGED_IN_SIMULATION",
+        "duplicates_rejected": 0,
+        "rejected_evidence": 0
+      },
+      "explanation": [
+        "Existing fire fusion returned confirmed with C=80.2.",
+        "Existing severity policy returned HIGH.",
+        "Routes were calculated with the existing safety, risk-cost, graph, A*, versioning and dispatch services.",
+        "Command outcomes came from a closed in-memory simulator; MQTT publications remained zero."
+      ],
+      "assertions": [
+        {
+          "name": "response action matches",
+          "passed": true
+        },
+        {
+          "name": "selected route matches",
+          "passed": true
+        },
+        {
+          "name": "no MQTT publications",
+          "passed": true
+        },
+        {
+          "name": "simulation marked",
+          "passed": true
+        }
+      ],
+      "timings_ms": {
+        "evidence_validation": 0.12880000576842576,
+        "fusion_and_severity": 0.8151999936671928,
+        "routing_and_response_plan": 1.821899990318343,
+        "lifecycle": 53.10019999160431,
+        "total": 128.24130000080913
+      },
+      "status": "PASS",
+      "response_plan": {
+        "scenario_id": "C",
+        "correlation_id": "4ab032c0-08d0-502c-970f-aff476c6acf3",
+        "status": "ACKNOWLEDGED_IN_SIMULATION",
+        "evidence_summary": {
+          "accepted": 9,
+          "rejected": 0,
+          "duplicates": [],
+          "sources": [
+            "DHT22",
+            "MQ2",
+            "VISION"
+          ]
+        },
+        "verification_result": "confirmed",
+        "confidence": 80.2,
+        "severity": "HIGH",
+        "contributing_factors": [],
+        "affected_location": "Building A (SIMULATED fixture)",
+        "selected_route": {
+          "route_id": "SIM-C-N7",
+          "origin_node_id": "N2",
+          "destination_node_id": "N7",
+          "selected_node_ids": [
+            "N2",
+            "N6",
+            "N7"
+          ],
+          "selected_edge_ids": [
+            "PE02",
+            "PE07"
+          ],
+          "node_path": [
+            "N2",
+            "N6",
+            "N7"
+          ],
+          "edge_path": [
+            "PE02",
+            "PE07"
+          ],
+          "cost": 561.68,
+          "cost_unit": "draft_pixel_proxy \u00d7 risk multiplier",
+          "route_version": 1,
+          "source_mode": "SIMULATED"
+        },
+        "alternative_route": null,
+        "blocked_or_uncertain_roads": [
+          "PE04"
+        ],
+        "road_states": {
+          "PE04": "BLOCKED"
+        },
+        "route_explanation": "A* selected PE02, PE07 as the lowest-cost eligible route under configured proxy weights.",
+        "recommended_resources": [
+          {
+            "action_category": null,
+            "action_type": "DISPATCH_UNIT",
+            "target": null,
+            "parameters": {
+              "unit_type": "FIRE_UNIT",
+              "count": 2
+            },
+            "reason": null
+          },
+          {
+            "action_category": null,
+            "action_type": "DISPATCH_UNIT",
+            "target": null,
+            "parameters": {
+              "unit_type": "AMBULANCE",
+              "count": 1
+            },
+            "reason": null
+          }
+        ],
+        "proposed_traffic_behavior": [
+          {
+            "action_category": "TRAFFIC",
+            "action_type": "GREEN_CORRIDOR",
+            "target": null,
+            "parameters": {
+              "corridor": "STANDBY"
+            },
+            "reason": null
+          }
+        ],
+        "proposed_alert_behavior": [
+          {
+            "action_category": "BUZZER",
+            "action_type": "ON",
+            "target": null,
+            "parameters": {},
+            "reason": null
+          },
+          {
+            "action_category": "GATE",
+            "action_type": "OPEN",
+            "target": null,
+            "parameters": {},
+            "reason": null
+          }
+        ],
+        "uncertainty_warnings": [
+          "Physical ROI alignment NOT_VERIFIED",
+          "Physical edge lengths unavailable; cost uses labeled draft pixel proxies",
+          "PE07 physical gate position and feedback NOT_VERIFIED"
+        ],
+        "human_review_required": true,
+        "plan_version": 1,
+        "simulation_marker": "SIMULATED",
+        "execution": {
+          "status": "ACKNOWLEDGED_IN_SIMULATION",
+          "commands": [
+            {
+              "command_id": "b18eee12-d7d5-512c-9e76-28ffa17f1455",
+              "target": "SIMULATED_AC1",
+              "action_category": "TRAFFIC",
+              "action_type": "ALL_RED",
+              "simulation_marker": "SIMULATED",
+              "status": "ACKNOWLEDGED_IN_SIMULATION",
+              "attempts": 1
+            },
+            {
+              "command_id": "2b7a7ffb-86c6-5ab9-aeb8-451617751663",
+              "target": "SIMULATED_AC1",
+              "action_category": "TRAFFIC",
+              "action_type": "GREEN_CORRIDOR",
+              "simulation_marker": "SIMULATED",
+              "status": "ACKNOWLEDGED_IN_SIMULATION",
+              "attempts": 1
+            },
+            {
+              "command_id": "c7862a00-20b6-59f6-a7a3-26fa30bd6769",
+              "target": "SIMULATED_AC1",
+              "action_category": "BUZZER",
+              "action_type": "ON",
+              "simulation_marker": "SIMULATED",
+              "status": "ACKNOWLEDGED_IN_SIMULATION",
+              "attempts": 1
+            },
+            {
+              "command_id": "30094e00-c51a-5e61-bdb3-b101bead2e62",
+              "target": "SIMULATED_AC1",
+              "action_category": "GATE",
+              "action_type": "OPEN",
+              "simulation_marker": "SIMULATED",
+              "status": "ACKNOWLEDGED_IN_SIMULATION",
+              "attempts": 1
+            }
+          ],
+          "failsafe": null,
+          "mqtt_publications": 0,
+          "lifecycle": {
+            "status": "VERIFIED_FIRE",
+            "transitions": [
+              "RESPONDING",
+              "EN_ROUTE",
+              "ARRIVED",
+              "RESOLVED",
+              "VERIFIED_FIRE"
+            ]
+          }
+        }
+      },
+      "audit_event_count": 18,
+      "simulation_marker": "SIMULATED"
+    },
+    {
+      "scenario_id": "D",
+      "name": "Person in hazard",
+      "expected": {
+        "response_action": true,
+        "selected_route": null,
+        "severity": "CRITICAL",
+        "no_safe_route": false,
+        "execution_status": null
+      },
+      "actual": {
+        "incident_confirmed": true,
+        "decision_status": "confirmed",
+        "confidence": 80.2,
+        "severity": "CRITICAL",
+        "person_in_hazard": true,
+        "selected_route": [
+          "PE04",
+          "PE06"
+        ],
+        "no_safe_route": false,
+        "execution_status": "ACKNOWLEDGED_IN_SIMULATION",
+        "duplicates_rejected": 0,
+        "rejected_evidence": 0
+      },
+      "explanation": [
+        "Existing fire fusion returned confirmed with C=80.2.",
+        "Existing severity policy returned CRITICAL.",
+        "Routes were calculated with the existing safety, risk-cost, graph, A*, versioning and dispatch services.",
+        "Command outcomes came from a closed in-memory simulator; MQTT publications remained zero."
+      ],
+      "assertions": [
+        {
+          "name": "response action matches",
+          "passed": true
+        },
+        {
+          "name": "severity matches",
+          "passed": true
+        },
+        {
+          "name": "no MQTT publications",
+          "passed": true
+        },
+        {
+          "name": "simulation marked",
+          "passed": true
+        }
+      ],
+      "timings_ms": {
+        "evidence_validation": 0.20700000459328294,
+        "fusion_and_severity": 0.6264000112423673,
+        "routing_and_response_plan": 1.982700006919913,
+        "lifecycle": 62.80699999479111,
+        "total": 137.8104000032181
+      },
+      "status": "PASS",
+      "response_plan": {
+        "scenario_id": "D",
+        "correlation_id": "ec44bc7c-c546-5052-9ca7-51ab375051f2",
+        "status": "ACKNOWLEDGED_IN_SIMULATION",
+        "evidence_summary": {
+          "accepted": 9,
+          "rejected": 0,
+          "duplicates": [],
+          "sources": [
+            "DHT22",
+            "MQ2",
+            "VISION"
+          ]
+        },
+        "verification_result": "confirmed",
+        "confidence": 80.2,
+        "severity": "CRITICAL",
+        "contributing_factors": [],
+        "affected_location": "Building A (SIMULATED fixture)",
+        "selected_route": {
+          "route_id": "SIM-D-N5",
+          "origin_node_id": "N2",
+          "destination_node_id": "N5",
+          "selected_node_ids": [
+            "N2",
+            "N4",
+            "N5"
+          ],
+          "selected_edge_ids": [
+            "PE04",
+            "PE06"
+          ],
+          "node_path": [
+            "N2",
+            "N4",
+            "N5"
+          ],
+          "edge_path": [
+            "PE04",
+            "PE06"
+          ],
+          "cost": 560.5,
+          "cost_unit": "draft_pixel_proxy \u00d7 risk multiplier",
+          "route_version": 1,
+          "source_mode": "SIMULATED"
+        },
+        "alternative_route": null,
+        "blocked_or_uncertain_roads": [
+          "PE07"
+        ],
+        "road_states": {
+          "PE07": "UNCERTAIN"
+        },
+        "route_explanation": "A* selected PE04, PE06 as the lowest-cost eligible route under configured proxy weights.",
+        "recommended_resources": [
+          {
+            "action_category": null,
+            "action_type": "DISPATCH_UNIT",
+            "target": null,
+            "parameters": {
+              "unit_type": "FIRE_UNIT",
+              "count": 2
+            },
+            "reason": null
+          },
+          {
+            "action_category": null,
+            "action_type": "DISPATCH_UNIT",
+            "target": null,
+            "parameters": {
+              "unit_type": "AMBULANCE",
+              "count": 1
+            },
+            "reason": null
+          },
+          {
+            "action_category": null,
+            "action_type": "DISPATCH_UNIT",
+            "target": null,
+            "parameters": {
+              "unit_type": "RESCUE_UNIT",
+              "count": 1
+            },
+            "reason": null
+          }
+        ],
+        "proposed_traffic_behavior": [
+          {
+            "action_category": "TRAFFIC",
+            "action_type": "GREEN_CORRIDOR",
+            "target": null,
+            "parameters": {
+              "corridor": "PRIMARY"
+            },
+            "reason": null
+          }
+        ],
+        "proposed_alert_behavior": [
+          {
+            "action_category": "BUZZER",
+            "action_type": "ON",
+            "target": null,
+            "parameters": {},
+            "reason": null
+          },
+          {
+            "action_category": "GATE",
+            "action_type": "OPEN",
+            "target": null,
+            "parameters": {},
+            "reason": null
+          }
+        ],
+        "uncertainty_warnings": [
+          "Physical ROI alignment NOT_VERIFIED",
+          "Physical edge lengths unavailable; cost uses labeled draft pixel proxies",
+          "PE07 physical gate position and feedback NOT_VERIFIED"
+        ],
+        "human_review_required": true,
+        "plan_version": 1,
+        "simulation_marker": "SIMULATED",
+        "execution": {
+          "status": "ACKNOWLEDGED_IN_SIMULATION",
+          "commands": [
+            {
+              "command_id": "c9290487-b658-54e4-b5bd-66c61a7ef65d",
+              "target": "SIMULATED_AC1",
+              "action_category": "TRAFFIC",
+              "action_type": "ALL_RED",
+              "simulation_marker": "SIMULATED",
+              "status": "ACKNOWLEDGED_IN_SIMULATION",
+              "attempts": 1
+            },
+            {
+              "command_id": "bb2b5013-b248-5353-9bb9-372270b7b9de",
+              "target": "SIMULATED_AC1",
+              "action_category": "TRAFFIC",
+              "action_type": "GREEN_CORRIDOR",
+              "simulation_marker": "SIMULATED",
+              "status": "ACKNOWLEDGED_IN_SIMULATION",
+              "attempts": 1
+            },
+            {
+              "command_id": "c1f8e899-0bba-52a6-b099-e10c8837ec73",
+              "target": "SIMULATED_AC1",
+              "action_category": "BUZZER",
+              "action_type": "ON",
+              "simulation_marker": "SIMULATED",
+              "status": "ACKNOWLEDGED_IN_SIMULATION",
+              "attempts": 1
+            },
+            {
+              "command_id": "9535253e-0104-50ad-8c00-c56d79a04e95",
+              "target": "SIMULATED_AC1",
+              "action_category": "GATE",
+              "action_type": "OPEN",
+              "simulation_marker": "SIMULATED",
+              "status": "ACKNOWLEDGED_IN_SIMULATION",
+              "attempts": 1
+            }
+          ],
+          "failsafe": null,
+          "mqtt_publications": 0,
+          "lifecycle": {
+            "status": "VERIFIED_FIRE",
+            "transitions": [
+              "RESPONDING",
+              "EN_ROUTE",
+              "ARRIVED",
+              "RESOLVED",
+              "VERIFIED_FIRE"
+            ]
+          }
+        }
+      },
+      "audit_event_count": 18,
+      "simulation_marker": "SIMULATED"
+    },
+    {
+      "scenario_id": "E",
+      "name": "Sensor conflict",
+      "expected": {
+        "response_action": false,
+        "selected_route": null,
+        "severity": null,
+        "no_safe_route": false,
+        "execution_status": null
+      },
+      "actual": {
+        "incident_confirmed": false,
+        "decision_status": "not_confirmed",
+        "confidence": 52.2,
+        "severity": null,
+        "person_in_hazard": false,
+        "selected_route": null,
+        "no_safe_route": false,
+        "execution_status": "NOT_EXECUTED",
+        "duplicates_rejected": 0,
+        "rejected_evidence": 0
+      },
+      "explanation": [
+        "Existing fire fusion returned not_confirmed with C=52.2.",
+        "Existing severity policy returned unresolved.",
+        "Routes were calculated with the existing safety, risk-cost, graph, A*, versioning and dispatch services.",
+        "Command outcomes came from a closed in-memory simulator; MQTT publications remained zero."
+      ],
+      "assertions": [
+        {
+          "name": "response action matches",
+          "passed": true
+        },
+        {
+          "name": "no MQTT publications",
+          "passed": true
+        },
+        {
+          "name": "simulation marked",
+          "passed": true
+        }
+      ],
+      "timings_ms": {
+        "evidence_validation": 0.16820000018924475,
+        "fusion_and_severity": 0.7543999963672832,
+        "routing_and_response_plan": 0.0020000006770715117,
+        "lifecycle": 0.0018999999156221747,
+        "total": 73.95520000136457
+      },
+      "status": "PASS",
+      "response_plan": {
+        "scenario_id": "E",
+        "correlation_id": "19126cdb-b271-59e4-9f14-59834d017d71",
+        "status": "PENDING_REVIEW",
+        "evidence_summary": {
+          "accepted": 9,
+          "rejected": 0,
+          "duplicates": [],
+          "sources": [
+            "DHT22",
+            "MQ2",
+            "VISION"
+          ]
+        },
+        "verification_result": "not_confirmed",
+        "confidence": 52.2,
+        "severity": null,
+        "contributing_factors": [
+          "incident confirmation is not explicitly true",
+          "severity score is unavailable for base classification",
+          "base severity is unavailable without an explicit policy"
+        ],
+        "affected_location": "Building A (SIMULATED fixture)",
+        "selected_route": null,
+        "alternative_route": null,
+        "blocked_or_uncertain_roads": [],
+        "road_states": {
+          "PE04": "UNCERTAIN",
+          "PE02": "UNCERTAIN"
+        },
+        "route_explanation": "No route was calculated because the simulated incident was not confirmed.",
+        "recommended_resources": [],
+        "proposed_traffic_behavior": [],
+        "proposed_alert_behavior": [],
+        "uncertainty_warnings": [
+          "Physical ROI alignment NOT_VERIFIED",
+          "Physical edge lengths unavailable; cost uses labeled draft pixel proxies",
+          "PE07 physical gate position and feedback NOT_VERIFIED"
+        ],
+        "human_review_required": true,
+        "plan_version": 1,
+        "simulation_marker": "SIMULATED",
+        "execution": {
+          "status": "NOT_EXECUTED",
+          "commands": [],
+          "mqtt_publications": 0,
+          "lifecycle": {
+            "status": "NOT_STARTED",
+            "transitions": []
+          }
+        }
+      },
+      "audit_event_count": 12,
+      "simulation_marker": "SIMULATED"
+    },
+    {
+      "scenario_id": "F",
+      "name": "Stale or missing sensor",
+      "expected": {
+        "response_action": false,
+        "selected_route": null,
+        "severity": null,
+        "no_safe_route": false,
+        "execution_status": null
+      },
+      "actual": {
+        "incident_confirmed": false,
+        "decision_status": "not_confirmed",
+        "confidence": null,
+        "severity": null,
+        "person_in_hazard": false,
+        "selected_route": null,
+        "no_safe_route": false,
+        "execution_status": "NOT_EXECUTED",
+        "duplicates_rejected": 0,
+        "rejected_evidence": 3
+      },
+      "explanation": [
+        "Existing fire fusion returned not_confirmed with C=None.",
+        "Existing severity policy returned unresolved.",
+        "Routes were calculated with the existing safety, risk-cost, graph, A*, versioning and dispatch services.",
+        "Command outcomes came from a closed in-memory simulator; MQTT publications remained zero."
+      ],
+      "assertions": [
+        {
+          "name": "response action matches",
+          "passed": true
+        },
+        {
+          "name": "no MQTT publications",
+          "passed": true
+        },
+        {
+          "name": "simulation marked",
+          "passed": true
+        }
+      ],
+      "timings_ms": {
+        "evidence_validation": 0.11520000407472253,
+        "fusion_and_severity": 0.6006000039633363,
+        "routing_and_response_plan": 0.0018999999156221747,
+        "lifecycle": 0.0015999976312741637,
+        "total": 37.39610000047833
+      },
+      "status": "PASS",
+      "response_plan": {
+        "scenario_id": "F",
+        "correlation_id": "27f3fd6c-0a9b-560f-86e8-16bd0c37dcca",
+        "status": "PENDING_REVIEW",
+        "evidence_summary": {
+          "accepted": 0,
+          "rejected": 3,
+          "duplicates": [],
+          "sources": []
+        },
+        "verification_result": "not_confirmed",
+        "confidence": null,
+        "severity": null,
+        "contributing_factors": [
+          "incident confirmation is not explicitly true",
+          "severity component S is unavailable",
+          "severity component T is unavailable",
+          "severity component P is unavailable",
+          "severity score is unavailable for base classification",
+          "critical override signal is unresolved"
+        ],
+        "affected_location": "Building A (SIMULATED fixture)",
+        "selected_route": null,
+        "alternative_route": null,
+        "blocked_or_uncertain_roads": [],
+        "road_states": {},
+        "route_explanation": "No route was calculated because the simulated incident was not confirmed.",
+        "recommended_resources": [],
+        "proposed_traffic_behavior": [],
+        "proposed_alert_behavior": [],
+        "uncertainty_warnings": [
+          "Physical ROI alignment NOT_VERIFIED",
+          "Physical edge lengths unavailable; cost uses labeled draft pixel proxies",
+          "PE07 physical gate position and feedback NOT_VERIFIED"
+        ],
+        "human_review_required": true,
+        "plan_version": 1,
+        "simulation_marker": "SIMULATED",
+        "execution": {
+          "status": "NOT_EXECUTED",
+          "commands": [],
+          "mqtt_publications": 0,
+          "lifecycle": {
+            "status": "NOT_STARTED",
+            "transitions": []
+          }
+        }
+      },
+      "audit_event_count": 6,
+      "simulation_marker": "SIMULATED"
+    },
+    {
+      "scenario_id": "G",
+      "name": "No safe route",
+      "expected": {
+        "response_action": true,
+        "selected_route": null,
+        "severity": null,
+        "no_safe_route": true,
+        "execution_status": null
+      },
+      "actual": {
+        "incident_confirmed": true,
+        "decision_status": "confirmed",
+        "confidence": 80.2,
+        "severity": "HIGH",
+        "person_in_hazard": false,
+        "selected_route": null,
+        "no_safe_route": true,
+        "execution_status": "NOT_EXECUTED",
+        "duplicates_rejected": 0,
+        "rejected_evidence": 0
+      },
+      "explanation": [
+        "Existing fire fusion returned confirmed with C=80.2.",
+        "Existing severity policy returned HIGH.",
+        "Routes were calculated with the existing safety, risk-cost, graph, A*, versioning and dispatch services.",
+        "Command outcomes came from a closed in-memory simulator; MQTT publications remained zero."
+      ],
+      "assertions": [
+        {
+          "name": "response action matches",
+          "passed": true
+        },
+        {
+          "name": "no safe route preserved",
+          "passed": true
+        },
+        {
+          "name": "no MQTT publications",
+          "passed": true
+        },
+        {
+          "name": "simulation marked",
+          "passed": true
+        }
+      ],
+      "timings_ms": {
+        "evidence_validation": 0.20599999697878957,
+        "fusion_and_severity": 0.7636999944224954,
+        "routing_and_response_plan": 1.7958999960683286,
+        "lifecycle": 58.32739999459591,
+        "total": 136.59249999909662
+      },
+      "status": "PASS",
+      "response_plan": {
+        "scenario_id": "G",
+        "correlation_id": "2815f2ce-f0d1-562c-9035-a74fecc38435",
+        "status": "SIMULATED",
+        "evidence_summary": {
+          "accepted": 9,
+          "rejected": 0,
+          "duplicates": [],
+          "sources": [
+            "DHT22",
+            "MQ2",
+            "VISION"
+          ]
+        },
+        "verification_result": "confirmed",
+        "confidence": 80.2,
+        "severity": "HIGH",
+        "contributing_factors": [],
+        "affected_location": "Building A (SIMULATED fixture)",
+        "selected_route": null,
+        "alternative_route": null,
+        "blocked_or_uncertain_roads": [
+          "PE02",
+          "PE04"
+        ],
+        "road_states": {
+          "PE04": "BLOCKED",
+          "PE02": "BLOCKED"
+        },
+        "route_explanation": "NO SAFE ROUTE: no destination remained reachable after excluding PE02, PE04.",
+        "recommended_resources": [],
+        "proposed_traffic_behavior": [],
+        "proposed_alert_behavior": [],
+        "uncertainty_warnings": [
+          "Physical ROI alignment NOT_VERIFIED",
+          "Physical edge lengths unavailable; cost uses labeled draft pixel proxies",
+          "PE07 physical gate position and feedback NOT_VERIFIED"
+        ],
+        "human_review_required": true,
+        "plan_version": 1,
+        "simulation_marker": "SIMULATED",
+        "execution": {
+          "status": "NOT_EXECUTED",
+          "commands": [],
+          "mqtt_publications": 0,
+          "lifecycle": {
+            "status": "VERIFIED_FIRE",
+            "transitions": [
+              "RESPONDING",
+              "EN_ROUTE",
+              "ARRIVED",
+              "RESOLVED",
+              "VERIFIED_FIRE"
+            ]
+          }
+        }
+      },
+      "audit_event_count": 18,
+      "simulation_marker": "SIMULATED"
+    },
+    {
+      "scenario_id": "H",
+      "name": "ACK timeout",
+      "expected": {
+        "response_action": true,
+        "selected_route": null,
+        "severity": null,
+        "no_safe_route": false,
+        "execution_status": "FAILED_IN_SIMULATION"
+      },
+      "actual": {
+        "incident_confirmed": true,
+        "decision_status": "confirmed",
+        "confidence": 80.2,
+        "severity": "HIGH",
+        "person_in_hazard": false,
+        "selected_route": [
+          "PE04",
+          "PE06"
+        ],
+        "no_safe_route": false,
+        "execution_status": "FAILED_IN_SIMULATION",
+        "duplicates_rejected": 0,
+        "rejected_evidence": 0
+      },
+      "explanation": [
+        "Existing fire fusion returned confirmed with C=80.2.",
+        "Existing severity policy returned HIGH.",
+        "Routes were calculated with the existing safety, risk-cost, graph, A*, versioning and dispatch services.",
+        "Command outcomes came from a closed in-memory simulator; MQTT publications remained zero."
+      ],
+      "assertions": [
+        {
+          "name": "response action matches",
+          "passed": true
+        },
+        {
+          "name": "execution status matches",
+          "passed": true
+        },
+        {
+          "name": "no MQTT publications",
+          "passed": true
+        },
+        {
+          "name": "simulation marked",
+          "passed": true
+        }
+      ],
+      "timings_ms": {
+        "evidence_validation": 0.1728000061120838,
+        "fusion_and_severity": 0.7255000091390684,
+        "routing_and_response_plan": 2.174099994590506,
+        "lifecycle": 16.466000000946224,
+        "total": 91.19999999529682
+      },
+      "status": "PASS",
+      "response_plan": {
+        "scenario_id": "H",
+        "correlation_id": "a36c4b2e-f1fe-54de-8a6a-fdb7433e69e7",
+        "status": "FAILED_IN_SIMULATION",
+        "evidence_summary": {
+          "accepted": 9,
+          "rejected": 0,
+          "duplicates": [],
+          "sources": [
+            "DHT22",
+            "MQ2",
+            "VISION"
+          ]
+        },
+        "verification_result": "confirmed",
+        "confidence": 80.2,
+        "severity": "HIGH",
+        "contributing_factors": [],
+        "affected_location": "Building A (SIMULATED fixture)",
+        "selected_route": {
+          "route_id": "SIM-H-N5",
+          "origin_node_id": "N2",
+          "destination_node_id": "N5",
+          "selected_node_ids": [
+            "N2",
+            "N4",
+            "N5"
+          ],
+          "selected_edge_ids": [
+            "PE04",
+            "PE06"
+          ],
+          "node_path": [
+            "N2",
+            "N4",
+            "N5"
+          ],
+          "edge_path": [
+            "PE04",
+            "PE06"
+          ],
+          "cost": 560.5,
+          "cost_unit": "draft_pixel_proxy \u00d7 risk multiplier",
+          "route_version": 1,
+          "source_mode": "SIMULATED"
+        },
+        "alternative_route": null,
+        "blocked_or_uncertain_roads": [
+          "PE07"
+        ],
+        "road_states": {
+          "PE07": "UNCERTAIN"
+        },
+        "route_explanation": "A* selected PE04, PE06 as the lowest-cost eligible route under configured proxy weights.",
+        "recommended_resources": [
+          {
+            "action_category": null,
+            "action_type": "DISPATCH_UNIT",
+            "target": null,
+            "parameters": {
+              "unit_type": "FIRE_UNIT",
+              "count": 2
+            },
+            "reason": null
+          },
+          {
+            "action_category": null,
+            "action_type": "DISPATCH_UNIT",
+            "target": null,
+            "parameters": {
+              "unit_type": "AMBULANCE",
+              "count": 1
+            },
+            "reason": null
+          }
+        ],
+        "proposed_traffic_behavior": [
+          {
+            "action_category": "TRAFFIC",
+            "action_type": "GREEN_CORRIDOR",
+            "target": null,
+            "parameters": {
+              "corridor": "PRIMARY"
+            },
+            "reason": null
+          }
+        ],
+        "proposed_alert_behavior": [
+          {
+            "action_category": "BUZZER",
+            "action_type": "ON",
+            "target": null,
+            "parameters": {},
+            "reason": null
+          },
+          {
+            "action_category": "GATE",
+            "action_type": "OPEN",
+            "target": null,
+            "parameters": {},
+            "reason": null
+          }
+        ],
+        "uncertainty_warnings": [
+          "Physical ROI alignment NOT_VERIFIED",
+          "Physical edge lengths unavailable; cost uses labeled draft pixel proxies",
+          "PE07 physical gate position and feedback NOT_VERIFIED"
+        ],
+        "human_review_required": true,
+        "plan_version": 1,
+        "simulation_marker": "SIMULATED",
+        "execution": {
+          "status": "FAILED_IN_SIMULATION",
+          "commands": [
+            {
+              "command_id": "3d2c2542-93b7-5d5a-ae09-1f7e1c14bb5f",
+              "target": "SIMULATED_AC1",
+              "action_category": "TRAFFIC",
+              "action_type": "ALL_RED",
+              "simulation_marker": "SIMULATED",
+              "status": "ACK_TIMEOUT_EXHAUSTED",
+              "attempts": 2
+            }
+          ],
+          "failsafe": "SAFE_DEFAULT_APPLIED_IN_SIMULATION",
+          "retry_limit": 1,
+          "mqtt_publications": 0,
+          "lifecycle": {
+            "status": "SAFE_DEFAULT",
+            "transitions": [
+              "SAFE_DEFAULT"
+            ]
+          }
+        }
+      },
+      "audit_event_count": 14,
+      "simulation_marker": "SIMULATED"
+    },
+    {
+      "scenario_id": "I",
+      "name": "Duplicate input",
+      "expected": {
+        "response_action": true,
+        "selected_route": null,
+        "severity": null,
+        "no_safe_route": false,
+        "execution_status": null
+      },
+      "actual": {
+        "incident_confirmed": true,
+        "decision_status": "confirmed",
+        "confidence": 80.2,
+        "severity": "HIGH",
+        "person_in_hazard": false,
+        "selected_route": [
+          "PE04",
+          "PE06"
+        ],
+        "no_safe_route": false,
+        "execution_status": "ACKNOWLEDGED_IN_SIMULATION",
+        "duplicates_rejected": 1,
+        "rejected_evidence": 1
+      },
+      "explanation": [
+        "Existing fire fusion returned confirmed with C=80.2.",
+        "Existing severity policy returned HIGH.",
+        "Routes were calculated with the existing safety, risk-cost, graph, A*, versioning and dispatch services.",
+        "Command outcomes came from a closed in-memory simulator; MQTT publications remained zero."
+      ],
+      "assertions": [
+        {
+          "name": "response action matches",
+          "passed": true
+        },
+        {
+          "name": "duplicate rejected once",
+          "passed": true
+        },
+        {
+          "name": "no MQTT publications",
+          "passed": true
+        },
+        {
+          "name": "simulation marked",
+          "passed": true
+        }
+      ],
+      "timings_ms": {
+        "evidence_validation": 0.14319999900180846,
+        "fusion_and_severity": 0.7003000064287335,
+        "routing_and_response_plan": 2.4465000024065375,
+        "lifecycle": 54.4691000104649,
+        "total": 144.25240000127815
+      },
+      "status": "PASS",
+      "response_plan": {
+        "scenario_id": "I",
+        "correlation_id": "2da2f670-e59a-59d9-9019-82fc5be84f17",
+        "status": "ACKNOWLEDGED_IN_SIMULATION",
+        "evidence_summary": {
+          "accepted": 9,
+          "rejected": 1,
+          "duplicates": [
+            "I-2-DHT22"
+          ],
+          "sources": [
+            "DHT22",
+            "MQ2",
+            "VISION"
+          ]
+        },
+        "verification_result": "confirmed",
+        "confidence": 80.2,
+        "severity": "HIGH",
+        "contributing_factors": [],
+        "affected_location": "Building A (SIMULATED fixture)",
+        "selected_route": {
+          "route_id": "SIM-I-N5",
+          "origin_node_id": "N2",
+          "destination_node_id": "N5",
+          "selected_node_ids": [
+            "N2",
+            "N4",
+            "N5"
+          ],
+          "selected_edge_ids": [
+            "PE04",
+            "PE06"
+          ],
+          "node_path": [
+            "N2",
+            "N4",
+            "N5"
+          ],
+          "edge_path": [
+            "PE04",
+            "PE06"
+          ],
+          "cost": 560.5,
+          "cost_unit": "draft_pixel_proxy \u00d7 risk multiplier",
+          "route_version": 1,
+          "source_mode": "SIMULATED"
+        },
+        "alternative_route": null,
+        "blocked_or_uncertain_roads": [
+          "PE07"
+        ],
+        "road_states": {
+          "PE07": "UNCERTAIN"
+        },
+        "route_explanation": "A* selected PE04, PE06 as the lowest-cost eligible route under configured proxy weights.",
+        "recommended_resources": [
+          {
+            "action_category": null,
+            "action_type": "DISPATCH_UNIT",
+            "target": null,
+            "parameters": {
+              "unit_type": "FIRE_UNIT",
+              "count": 2
+            },
+            "reason": null
+          },
+          {
+            "action_category": null,
+            "action_type": "DISPATCH_UNIT",
+            "target": null,
+            "parameters": {
+              "unit_type": "AMBULANCE",
+              "count": 1
+            },
+            "reason": null
+          }
+        ],
+        "proposed_traffic_behavior": [
+          {
+            "action_category": "TRAFFIC",
+            "action_type": "GREEN_CORRIDOR",
+            "target": null,
+            "parameters": {
+              "corridor": "PRIMARY"
+            },
+            "reason": null
+          }
+        ],
+        "proposed_alert_behavior": [
+          {
+            "action_category": "BUZZER",
+            "action_type": "ON",
+            "target": null,
+            "parameters": {},
+            "reason": null
+          },
+          {
+            "action_category": "GATE",
+            "action_type": "OPEN",
+            "target": null,
+            "parameters": {},
+            "reason": null
+          }
+        ],
+        "uncertainty_warnings": [
+          "Physical ROI alignment NOT_VERIFIED",
+          "Physical edge lengths unavailable; cost uses labeled draft pixel proxies",
+          "PE07 physical gate position and feedback NOT_VERIFIED"
+        ],
+        "human_review_required": true,
+        "plan_version": 1,
+        "simulation_marker": "SIMULATED",
+        "execution": {
+          "status": "ACKNOWLEDGED_IN_SIMULATION",
+          "commands": [
+            {
+              "command_id": "be0b4b71-2c61-5494-822f-621fd27b8a10",
+              "target": "SIMULATED_AC1",
+              "action_category": "TRAFFIC",
+              "action_type": "ALL_RED",
+              "simulation_marker": "SIMULATED",
+              "status": "ACKNOWLEDGED_IN_SIMULATION",
+              "attempts": 1
+            },
+            {
+              "command_id": "f9cc4716-3579-56ea-bfa3-60fe92cf5ff1",
+              "target": "SIMULATED_AC1",
+              "action_category": "TRAFFIC",
+              "action_type": "GREEN_CORRIDOR",
+              "simulation_marker": "SIMULATED",
+              "status": "ACKNOWLEDGED_IN_SIMULATION",
+              "attempts": 1
+            },
+            {
+              "command_id": "e3e7bfb7-af75-5e88-8181-5ccf8cb1fcdf",
+              "target": "SIMULATED_AC1",
+              "action_category": "BUZZER",
+              "action_type": "ON",
+              "simulation_marker": "SIMULATED",
+              "status": "ACKNOWLEDGED_IN_SIMULATION",
+              "attempts": 1
+            },
+            {
+              "command_id": "587be11a-502c-50bd-9217-7a93e705eff9",
+              "target": "SIMULATED_AC1",
+              "action_category": "GATE",
+              "action_type": "OPEN",
+              "simulation_marker": "SIMULATED",
+              "status": "ACKNOWLEDGED_IN_SIMULATION",
+              "attempts": 1
+            }
+          ],
+          "failsafe": null,
+          "mqtt_publications": 0,
+          "lifecycle": {
+            "status": "VERIFIED_FIRE",
+            "transitions": [
+              "RESPONDING",
+              "EN_ROUTE",
+              "ARRIVED",
+              "RESOLVED",
+              "VERIFIED_FIRE"
+            ]
+          }
+        }
+      },
+      "audit_event_count": 19,
+      "simulation_marker": "SIMULATED"
+    },
+    {
+      "scenario_id": "J",
+      "name": "Invalid input",
+      "expected": {
+        "safe_rejection": true
+      },
+      "actual": {
+        "rejected": true,
+        "reason": "1 validation error for SimulatedEvidence"
+      },
+      "explanation": [
+        "Pydantic contract rejected invalid confidence before orchestration."
+      ],
+      "assertions": [
+        {
+          "name": "invalid payload rejected",
+          "passed": true
+        }
+      ],
+      "timings_ms": {
+        "evidence_validation": 0.13819999003317207,
+        "total": 0.9069999941857532
+      },
+      "status": "PASS",
+      "response_plan": null,
+      "audit_event_count": 1,
+      "simulation_marker": "SIMULATED"
+    },
+    {
+      "scenario_id": "K",
+      "name": "Mixed multi-hazard",
+      "expected": {
+        "response_action": true,
+        "selected_route": [
+          "PE02",
+          "PE07"
+        ],
+        "severity": "CRITICAL",
+        "no_safe_route": false,
+        "execution_status": null
+      },
+      "actual": {
+        "incident_confirmed": true,
+        "decision_status": "confirmed",
+        "confidence": 83.25,
+        "severity": "CRITICAL",
+        "person_in_hazard": true,
+        "selected_route": [
+          "PE02",
+          "PE07"
+        ],
+        "no_safe_route": false,
+        "execution_status": "ACKNOWLEDGED_IN_SIMULATION",
+        "duplicates_rejected": 0,
+        "rejected_evidence": 0
+      },
+      "explanation": [
+        "Existing fire fusion returned confirmed with C=83.25.",
+        "Existing severity policy returned CRITICAL.",
+        "Routes were calculated with the existing safety, risk-cost, graph, A*, versioning and dispatch services.",
+        "Command outcomes came from a closed in-memory simulator; MQTT publications remained zero."
+      ],
+      "assertions": [
+        {
+          "name": "response action matches",
+          "passed": true
+        },
+        {
+          "name": "selected route matches",
+          "passed": true
+        },
+        {
+          "name": "severity matches",
+          "passed": true
+        },
+        {
+          "name": "no MQTT publications",
+          "passed": true
+        },
+        {
+          "name": "simulation marked",
+          "passed": true
+        }
+      ],
+      "timings_ms": {
+        "evidence_validation": 0.17980000120587647,
+        "fusion_and_severity": 0.6959000020287931,
+        "routing_and_response_plan": 2.132299996446818,
+        "lifecycle": 57.30250000488013,
+        "total": 139.09890000650194
+      },
+      "status": "PASS",
+      "response_plan": {
+        "scenario_id": "K",
+        "correlation_id": "68cf751a-1c3b-5f74-88b9-d1b5e779f8b5",
+        "status": "ACKNOWLEDGED_IN_SIMULATION",
+        "evidence_summary": {
+          "accepted": 9,
+          "rejected": 0,
+          "duplicates": [],
+          "sources": [
+            "DHT22",
+            "MQ2",
+            "VISION"
+          ]
+        },
+        "verification_result": "confirmed",
+        "confidence": 83.25,
+        "severity": "CRITICAL",
+        "contributing_factors": [],
+        "affected_location": "Building A (SIMULATED fixture)",
+        "selected_route": {
+          "route_id": "SIM-K-N7",
+          "origin_node_id": "N2",
+          "destination_node_id": "N7",
+          "selected_node_ids": [
+            "N2",
+            "N6",
+            "N7"
+          ],
+          "selected_edge_ids": [
+            "PE02",
+            "PE07"
+          ],
+          "node_path": [
+            "N2",
+            "N6",
+            "N7"
+          ],
+          "edge_path": [
+            "PE02",
+            "PE07"
+          ],
+          "cost": 561.68,
+          "cost_unit": "draft_pixel_proxy \u00d7 risk multiplier",
+          "route_version": 1,
+          "source_mode": "SIMULATED"
+        },
+        "alternative_route": null,
+        "blocked_or_uncertain_roads": [
+          "PE04"
+        ],
+        "road_states": {
+          "PE04": "BLOCKED"
+        },
+        "route_explanation": "A* selected PE02, PE07 as the lowest-cost eligible route under configured proxy weights.",
+        "recommended_resources": [
+          {
+            "action_category": null,
+            "action_type": "DISPATCH_UNIT",
+            "target": null,
+            "parameters": {
+              "unit_type": "FIRE_UNIT",
+              "count": 2
+            },
+            "reason": null
+          },
+          {
+            "action_category": null,
+            "action_type": "DISPATCH_UNIT",
+            "target": null,
+            "parameters": {
+              "unit_type": "AMBULANCE",
+              "count": 1
+            },
+            "reason": null
+          },
+          {
+            "action_category": null,
+            "action_type": "DISPATCH_UNIT",
+            "target": null,
+            "parameters": {
+              "unit_type": "RESCUE_UNIT",
+              "count": 1
+            },
+            "reason": null
+          }
+        ],
+        "proposed_traffic_behavior": [
+          {
+            "action_category": "TRAFFIC",
+            "action_type": "GREEN_CORRIDOR",
+            "target": null,
+            "parameters": {
+              "corridor": "STANDBY"
+            },
+            "reason": null
+          }
+        ],
+        "proposed_alert_behavior": [
+          {
+            "action_category": "BUZZER",
+            "action_type": "ON",
+            "target": null,
+            "parameters": {},
+            "reason": null
+          },
+          {
+            "action_category": "GATE",
+            "action_type": "OPEN",
+            "target": null,
+            "parameters": {},
+            "reason": null
+          }
+        ],
+        "uncertainty_warnings": [
+          "Physical ROI alignment NOT_VERIFIED",
+          "Physical edge lengths unavailable; cost uses labeled draft pixel proxies",
+          "PE07 physical gate position and feedback NOT_VERIFIED"
+        ],
+        "human_review_required": true,
+        "plan_version": 1,
+        "simulation_marker": "SIMULATED",
+        "execution": {
+          "status": "ACKNOWLEDGED_IN_SIMULATION",
+          "commands": [
+            {
+              "command_id": "535ff5f5-7535-5fc3-a435-7f618e1878cf",
+              "target": "SIMULATED_AC1",
+              "action_category": "TRAFFIC",
+              "action_type": "ALL_RED",
+              "simulation_marker": "SIMULATED",
+              "status": "ACKNOWLEDGED_IN_SIMULATION",
+              "attempts": 1
+            },
+            {
+              "command_id": "51a37484-1352-5cfe-b576-12097ab79792",
+              "target": "SIMULATED_AC1",
+              "action_category": "TRAFFIC",
+              "action_type": "GREEN_CORRIDOR",
+              "simulation_marker": "SIMULATED",
+              "status": "ACKNOWLEDGED_IN_SIMULATION",
+              "attempts": 1
+            },
+            {
+              "command_id": "2393f302-1eac-5707-9338-541ace53ff5a",
+              "target": "SIMULATED_AC1",
+              "action_category": "BUZZER",
+              "action_type": "ON",
+              "simulation_marker": "SIMULATED",
+              "status": "ACKNOWLEDGED_IN_SIMULATION",
+              "attempts": 1
+            },
+            {
+              "command_id": "caf2c64a-7cb1-5cde-a0f4-c25c3fdf8987",
+              "target": "SIMULATED_AC1",
+              "action_category": "GATE",
+              "action_type": "OPEN",
+              "simulation_marker": "SIMULATED",
+              "status": "ACKNOWLEDGED_IN_SIMULATION",
+              "attempts": 1
+            }
+          ],
+          "failsafe": null,
+          "mqtt_publications": 0,
+          "lifecycle": {
+            "status": "VERIFIED_FIRE",
+            "transitions": [
+              "RESPONDING",
+              "EN_ROUTE",
+              "ARRIVED",
+              "RESOLVED",
+              "VERIFIED_FIRE"
+            ]
+          }
+        }
+      },
+      "audit_event_count": 18,
+      "simulation_marker": "SIMULATED"
+    }
+  ],
+  "summary": {
+    "passed": 11,
+    "failed": 0,
+    "total": 11
+  },
+  "append_only_verified": true,
+  "route_geometry": {
+    "graph_version": "phase-b1-final-review-draft:eff0151c35ee404b",
+    "image_geometry_version": "raw-camera-1920x1080:eff0151c35ee404b",
+    "status": "DRAFT_NOT_PRODUCTION_ACTIVE",
+    "warnings": [
+      "DRAFT VISUAL ALIGNMENT \u2014 NOT PHYSICALLY VERIFIED",
+      "Physical edge lengths and per-edge road ROI mapping remain unavailable",
+      "PE07 gate position and physical-open feedback remain unverified"
+    ]
+  }
+}

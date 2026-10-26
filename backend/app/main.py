@@ -1,10 +1,15 @@
 """FastAPI application entry point for CityResponder."""
 
 import asyncio
+import logging
 from contextlib import asynccontextmanager
+from datetime import timezone
+from threading import BoundedSemaphore
+import time
 
 from datetime import datetime
 
+import jwt
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Response, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -38,6 +43,12 @@ from app.inspections.router import router as inspections_router
 from app.severity.router import router as severity_router
 from app.vision.handlers import handle_detection_message, handle_road_message
 from app.vision.live import shared_vision_frames
+from app.vision.preview import CameraPreviewUnavailable, shared_camera_preview
+from app.vision.inference_display import (
+    AIFramePresentationPolicy,
+    VisionDisplayUnavailable,
+    shared_vision_display,
+)
 from app.vision.freshness import get_perception_freshness
 from app.vision.projection import get_latest_vision_state
 from app.vision.schemas import (
@@ -52,6 +63,8 @@ from app.vision.sync import get_road_ir_sync
 
 settings = get_settings()
 configure_logging(settings.log_level)
+logger = logging.getLogger(__name__)
+_VISION_STREAM_SLOTS = BoundedSemaphore(4)
 
 
 @asynccontextmanager
@@ -59,20 +72,31 @@ async def lifespan(_: FastAPI):
     """Initialize foundational resources when the application starts."""
 
     initialize_database()
-    seed_development_users()
+    if settings.environment.strip().lower() in {"development", "dev", "test"}:
+        seed_development_users()
+    else:
+        logger.info("Development account seeding disabled outside development")
     set_live_event_loop(asyncio.get_running_loop())
     mqtt_client.subscribe("city/sensors/#", handle_sensor_message)
     mqtt_client.subscribe("city/vision/detection", handle_detection_message)
     mqtt_client.subscribe("city/vision/road", handle_road_message)
     mqtt_client.subscribe("city/acks/#", handle_ack_message)
     mqtt_client.start()
-    # Warm the one shared camera/model pipeline in its daemon worker. API
-    # startup stays responsive and concurrent browser requests cannot create a
-    # second camera or model initialization.
-    shared_vision_frames.start()
+    # Live inference stays opt-in. This keeps REST/dashboard startup usable
+    # while camera mode or ROI geometry is being validated locally.
+    if settings.vision_live_enabled:
+        logger.info(
+            "Starting shared vision worker; evidence_publishing_enabled=%s",
+            settings.vision_publish_evidence_enabled,
+        )
+        shared_vision_frames.start()
+    else:
+        logger.info("Shared vision worker disabled by VISION_LIVE_ENABLED=false")
     try:
         yield
     finally:
+        shared_vision_display.stop()
+        shared_camera_preview.stop()
         shared_vision_frames.stop()
         mqtt_client.stop()
         clear_live_event_loop()
@@ -81,17 +105,25 @@ async def lifespan(_: FastAPI):
 app = FastAPI(
     title=settings.app_name,
     version="0.1.0",
+    docs_url="/docs" if settings.environment.strip().lower() in {"development", "dev", "test"} else None,
+    redoc_url=None,
+    openapi_url="/openapi.json" if settings.environment.strip().lower() in {"development", "dev", "test"} else None,
     lifespan=lifespan,
 )
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[origin.strip() for origin in settings.cors_allowed_origins.split(",") if origin.strip()],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    # The frontend stores bearer tokens in localStorage; cookie credentials
+    # and wildcard methods/headers are not needed.
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "If-None-Match"],
     expose_headers=[
         "X-CityResponder-Frame-Id",
         "X-CityResponder-Frame-Timestamp",
+        "X-CityResponder-Frame-Mode",
+        "X-CityResponder-Capture-Width",
+        "X-CityResponder-Capture-Height",
         "X-CityResponder-Detection-Model",
         "X-CityResponder-Segmentation-Model",
         "X-CityResponder-Detection-Count",
@@ -231,8 +263,42 @@ def live_annotated_vision_frame(
         require_any_role(UserRole.OPERATOR, UserRole.FIREFIGHTER)
     ),
 ) -> Response:
-    """Return the latest shared annotated frame without persisting video."""
+    """Return a camera-only JPEG or, separately, an opted-in annotated frame."""
 
+    if settings.vision_preview_enabled:
+        try:
+            preview = shared_camera_preview.latest()
+        except TimeoutError as exc:
+            raise HTTPException(
+                status_code=503,
+                detail="Camera initializing",
+                headers={"Retry-After": "1"},
+            ) from exc
+        except CameraPreviewUnavailable as exc:
+            raise HTTPException(
+                status_code=503,
+                detail=str(exc),
+                headers={"Retry-After": "2"},
+            ) from exc
+        etag = f'"{preview.frame_id}"'
+        headers = {
+            "Cache-Control": "no-store",
+            "ETag": etag,
+            "X-CityResponder-Frame-Mode": "camera-only",
+            "X-CityResponder-Frame-Id": preview.frame_id,
+            "X-CityResponder-Frame-Timestamp": preview.timestamp.isoformat(),
+            "X-CityResponder-Capture-Width": str(preview.capture_width),
+            "X-CityResponder-Capture-Height": str(preview.capture_height),
+        }
+        if if_none_match == etag:
+            return Response(status_code=304, headers=headers)
+        return Response(content=preview.jpeg, media_type="image/jpeg", headers=headers)
+
+    if not settings.vision_live_enabled:
+        raise HTTPException(
+            status_code=503,
+            detail="Live vision is disabled (set VISION_LIVE_ENABLED=true to enable it)",
+        )
     try:
         frame = shared_vision_frames.latest()
     except TimeoutError as exc:
@@ -272,6 +338,21 @@ def live_annotated_vision_frame(
 async def live_updates(websocket: WebSocket) -> None:
     """Keep an authenticated client connected to receive live updates."""
 
+    origin = websocket.headers.get("origin")
+    allowed_origins = {
+        item.strip()
+        for item in settings.cors_allowed_origins.split(",")
+        if item.strip()
+    }
+    allowed_origins.update(
+        item.strip()
+        for item in settings.websocket_allowed_origins.split(",")
+        if item.strip()
+    )
+    if origin and origin not in allowed_origins:
+        await websocket.close(code=1008)
+        return
+
     await websocket.accept()
     db = SessionLocal()
     try:
@@ -282,7 +363,44 @@ async def live_updates(websocket: WebSocket) -> None:
         if message.get("type") != "authenticate" or not isinstance(token, str):
             raise HTTPException(status_code=401, detail="Missing access token")
         current_user = authenticate_token(token, db)
-    except (HTTPException, asyncio.TimeoutError, ValueError, WebSocketDisconnect):
+        channel = message.get("channel")
+        if channel == "vision":
+            if not origin or origin not in allowed_origins:
+                await websocket.close(code=1008)
+                return
+            if current_user.role not in {
+                UserRole.OPERATOR,
+                UserRole.FIREFIGHTER,
+                UserRole.ADMIN,
+            }:
+                await websocket.close(code=1008)
+                return
+            if not settings.vision_preview_enabled:
+                await websocket.send_json(
+                    {"event_type": "vision_status", "payload": {"error": "Camera preview is disabled"}}
+                )
+                await websocket.close(code=1013)
+                return
+            claims = jwt.decode(
+                token,
+                settings.jwt_secret_key,
+                algorithms=[settings.jwt_algorithm],
+            )
+            expires_at = float(claims["exp"])
+            view = message.get("view", "ai")
+            if view not in {"ai", "raw"}:
+                await websocket.close(code=1008)
+                return
+            db.close()
+            await _stream_observation_frames(websocket, view=view, expires_at=expires_at)
+            return
+    except (
+        HTTPException,
+        asyncio.TimeoutError,
+        ValueError,
+        jwt.InvalidTokenError,
+        WebSocketDisconnect,
+    ):
         await websocket.close(code=1008)
         return
     finally:
@@ -307,3 +425,259 @@ async def live_updates(websocket: WebSocket) -> None:
         live_connection_manager.disconnect(websocket)
     except Exception:
         live_connection_manager.disconnect(websocket)
+
+
+async def _stream_observation_frames(
+    websocket: WebSocket,
+    *,
+    view: str,
+    expires_at: float,
+) -> None:
+    """Stream latest raw or matching AI JPEGs over one JWT-authenticated socket."""
+
+    if not _VISION_STREAM_SLOTS.acquire(blocking=False):
+        await websocket.close(code=1013)
+        return
+
+    raw_sequence = -1
+    ai_sequence = -1
+    presentation = AIFramePresentationPolicy(settings.vision_ai_overlay_valid_seconds)
+    last_status_at = 0.0
+
+    async def send_status(payload: dict, *, interval_seconds: float = 1.0) -> None:
+        """Rate-limit status-only traffic while preserving frame delivery."""
+
+        nonlocal last_status_at
+        now = time.time()
+        if now - last_status_at < interval_seconds:
+            return
+        last_status_at = now
+        await websocket.send_json({"event_type": "vision_stream_status", "payload": payload})
+    try:
+        await websocket.send_json(
+            {
+                "event_type": "vision_stream_authenticated",
+                "payload": {"status": "connected", "view": view},
+            }
+        )
+        if view == "ai" and settings.vision_ai_display_enabled:
+            shared_vision_display.start()
+
+        while True:
+            if time.time() >= expires_at:
+                await websocket.close(code=1008)
+                return
+
+            if view == "raw" or not settings.vision_ai_display_enabled:
+                try:
+                    frame = await asyncio.to_thread(
+                        shared_camera_preview.latest,
+                        timeout_seconds=0.75,
+                        after_sequence=raw_sequence,
+                    )
+                except TimeoutError:
+                    await send_status({"camera_status": shared_camera_preview.status()})
+                    continue
+                raw_sequence = frame.sequence
+                output_view = view if view == "raw" else "raw-fallback"
+                await websocket.send_json(_raw_stream_payload(frame, view=output_view))
+                await websocket.send_bytes(frame.jpeg)
+                continue
+
+            try:
+                frame = await asyncio.to_thread(
+                    shared_vision_display.latest,
+                    timeout_seconds=0.35,
+                    after_sequence=ai_sequence,
+                )
+                geometry_version = _crop_geometry_version(frame)
+                if not presentation.accept_ai(
+                    sequence=frame.sequence,
+                    frame_id=frame.frame_id,
+                    timestamp=frame.timestamp,
+                    geometry_version=geometry_version,
+                ):
+                    await send_status(
+                        {
+                            "camera_status": shared_camera_preview.status(),
+                            "inference": shared_vision_display.status(),
+                            "overlay_state": presentation.overlay_state(),
+                            "discarded_ai_frame": "stale_or_out_of_order",
+                        }
+                    )
+                    continue
+                ai_sequence = frame.sequence
+                await websocket.send_json(_ai_stream_payload(frame))
+                await websocket.send_bytes(frame.jpeg)
+            except (TimeoutError, VisionDisplayUnavailable):
+                # Raw imagery is useful only while the first AI frame warms up.
+                # After that, retaining the last synchronized AI JPEG avoids
+                # alternating annotated and unannotated frames. Status updates
+                # still expose stale/error state without claiming new inference.
+                if not presentation.allow_raw_fallback():
+                    status = shared_vision_display.status()
+                    await send_status(
+                        {
+                            "camera_status": shared_camera_preview.status(),
+                            "inference": status,
+                            "overlay_state": presentation.overlay_state(),
+                        }
+                    )
+                    continue
+                try:
+                    frame = await asyncio.to_thread(
+                        shared_camera_preview.latest,
+                        timeout_seconds=0.25,
+                        after_sequence=raw_sequence,
+                    )
+                except TimeoutError:
+                    await send_status(
+                        {
+                            "camera_status": shared_camera_preview.status(),
+                            "inference": shared_vision_display.status(),
+                        }
+                    )
+                    continue
+                raw_sequence = frame.sequence
+                status = shared_vision_display.status()
+                payload = _raw_stream_payload(frame, view="raw-fallback")
+                payload["payload"].update(
+                    {
+                        "detection_status": status["detection"],
+                        "segmentation_status": status["segmentation"],
+                        "inference_error": status["error"],
+                    }
+                )
+                await websocket.send_json(payload)
+                await websocket.send_bytes(frame.jpeg)
+
+            if time.time() - last_status_at >= 5.0:
+                await send_status(
+                    {
+                        "camera_status": shared_camera_preview.status(),
+                        "inference": shared_vision_display.status(),
+                        "overlay_state": presentation.overlay_state(),
+                        "roi_status": "unverified",
+                        "roi_overlay": "not_drawn",
+                    },
+                    interval_seconds=5.0,
+                )
+    except (WebSocketDisconnect, CameraPreviewUnavailable):
+        return
+    finally:
+        _VISION_STREAM_SLOTS.release()
+
+
+def _raw_stream_payload(frame, *, view: str) -> dict:
+    performance = shared_camera_preview.performance_snapshot()
+    inference = (
+        shared_vision_display.status()
+        if settings.vision_ai_display_enabled
+        else {"detection": "disabled", "segmentation": "disabled", "error": None}
+    )
+    age_ms = max(
+        0.0,
+        (datetime.now(timezone.utc) - frame.timestamp).total_seconds() * 1000,
+    )
+    return {
+        "event_type": "vision_frame",
+        "payload": {
+            "view": view,
+            "sequence": frame.sequence,
+            "frame_id": frame.frame_id,
+            "timestamp": frame.timestamp.isoformat(),
+            "frame_age_ms": age_ms,
+            "capture_width": frame.capture_width,
+            "capture_height": frame.capture_height,
+            "source_width": frame.source_width,
+            "source_height": frame.source_height,
+            "crop_origin_x": frame.crop_origin_x,
+            "crop_origin_y": frame.crop_origin_y,
+            "crop_right_x": frame.crop_right_x,
+            "crop_bottom_y": frame.crop_bottom_y,
+            "crop_geometry_version": _crop_geometry_version(frame),
+            "preview_width": frame.preview_width,
+            "preview_height": frame.preview_height,
+            "camera_fps": frame.camera_fps or performance["capture_fps"],
+            "capture_latency_ms": frame.capture_latency_ms,
+            "resize_latency_ms": frame.resize_latency_ms,
+            "jpeg_encode_ms": frame.jpeg_encode_ms,
+            "jpeg_bytes": len(frame.jpeg),
+            "detection_status": inference["detection"],
+            "segmentation_status": inference["segmentation"],
+            "detection_fps": 0.0,
+            "segmentation_fps": 0.0,
+            "detection_latency_ms": None,
+            "segmentation_latency_ms": None,
+            "inference_device": inference.get("inference_device", "unavailable"),
+            "detections": [],
+            "segmentations": [],
+            "roi_status": "unverified",
+            "roi_overlay": "not_drawn",
+        },
+    }
+
+
+def _ai_stream_payload(frame) -> dict:
+    age_ms = max(
+        0.0,
+        (datetime.now(timezone.utc) - frame.timestamp).total_seconds() * 1000,
+    )
+    from app.vision.shadow import evaluate_live_shadow
+    shadow = evaluate_live_shadow(
+        frame_id=frame.frame_id,
+        timestamp=frame.timestamp,
+        processed_at=frame.processed_at,
+        crop_geometry_version=_crop_geometry_version(frame),
+        detections=list(frame.detections),
+        segmentations=list(frame.segmentations),
+    )
+    return {
+        "event_type": "vision_frame",
+        "payload": {
+            "view": "ai-overlay",
+            "sequence": frame.sequence,
+            "frame_id": frame.frame_id,
+            "inference_source_frame_id": frame.frame_id,
+            "timestamp": frame.timestamp.isoformat(),
+            "processed_at": frame.processed_at.isoformat(),
+            "frame_age_ms": age_ms,
+            "capture_width": frame.capture_width,
+            "capture_height": frame.capture_height,
+            "source_width": frame.source_width,
+            "source_height": frame.source_height,
+            "crop_origin_x": frame.crop_origin_x,
+            "crop_origin_y": frame.crop_origin_y,
+            "crop_right_x": frame.crop_right_x,
+            "crop_bottom_y": frame.crop_bottom_y,
+            "crop_geometry_version": _crop_geometry_version(frame),
+            "preview_width": frame.preview_width,
+            "preview_height": frame.preview_height,
+            "camera_fps": frame.camera_fps,
+            "detection_status": frame.detection_status,
+            "segmentation_status": frame.segmentation_status,
+            "detection_fps": frame.detection_fps,
+            "segmentation_fps": frame.segmentation_fps,
+            "detection_latency_ms": frame.detection_latency_ms,
+            "segmentation_latency_ms": frame.segmentation_latency_ms,
+            "inference_latency_ms": frame.inference_latency_ms,
+            "inference_device": frame.inference_device,
+            "jpeg_bytes": len(frame.jpeg),
+            "detections": list(frame.detections),
+            "segmentations": list(frame.segmentations),
+            "roi_status": "unverified",
+            "roi_overlay": "not_drawn",
+            "shadow_evaluation": shadow.model_dump(mode="json"),
+        },
+    }
+
+
+def _crop_geometry_version(frame) -> str:
+    """Stable display geometry identity used to reject incompatible overlays."""
+
+    return (
+        f"{frame.source_width}x{frame.source_height}:"
+        f"{frame.crop_origin_x},{frame.crop_origin_y}-"
+        f"{frame.crop_right_x},{frame.crop_bottom_y}:"
+        f"{frame.capture_width}x{frame.capture_height}"
+    )

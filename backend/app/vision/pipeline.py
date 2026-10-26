@@ -14,6 +14,13 @@ from app.vision.detector import YOLODetector
 from app.vision.evidence import RoadVisionEvidenceService
 from app.vision.hazard import evaluate_person_in_hazard
 from app.vision.occupancy import calculate_road_occupancy
+from app.vision.polygon_roi import (
+    PolygonROIConfigError,
+    PolygonROIConfiguration,
+    RoadRegionMask,
+    load_polygon_roi_config,
+    point_in_polygon,
+)
 from app.vision.publisher import VisionEvidencePublisher, vision_evidence_publisher
 from app.vision.roi import ROIValidationError, crop_frame, get_configured_rois, validate_roi
 from app.vision.runtime import vision_runtime_health
@@ -23,6 +30,8 @@ from app.vision.schemas import (
     Detection,
     FrameMetadata,
     FrozenModelIdentity,
+    PersonHazardResult,
+    PolygonROI,
     ROI,
     RoadSegmentationResult,
     RoadVisionEvidence,
@@ -49,6 +58,8 @@ class ProcessedVisionFrame:
     result: UnifiedVisionResult
     detection_result: BuildingADetectionResult
     road_evidence: list[RoadVisionEvidence]
+    person_hazard: PersonHazardResult | None = None
+    polygon_roi_config: PolygonROIConfiguration | None = None
 
 
 class IntegratedVisionPipeline:
@@ -64,6 +75,15 @@ class IntegratedVisionPipeline:
         publisher: VisionEvidencePublisher | None = None,
     ) -> None:
         self.config = config or get_vision_config()
+        self.polygon_roi_config: PolygonROIConfiguration | None = None
+        if self.config.polygon_roi_enabled:
+            try:
+                self.polygon_roi_config = load_polygon_roi_config(
+                    self.config.polygon_roi_config_path,
+                    expected_resolution=(self.config.frame_width, self.config.frame_height),
+                )
+            except PolygonROIConfigError as exc:
+                raise VisionIntegrationError(f"Invalid opt-in polygon ROI config: {exc}") from exc
         self.capture = capture or VisionCaptureService(config=self.config)
         self.detector = detector or YOLODetector(config=self.config)
         self.segmenter = segmenter or YOLOSegmentation(config=self.config)
@@ -85,7 +105,10 @@ class IntegratedVisionPipeline:
                 total_started_at=started_at,
             )
             if publish:
-                self.publisher.publish_detection(processed.detection_result)
+                self.publisher.publish_detection(
+                    processed.detection_result,
+                    processed.person_hazard,
+                )
                 for evidence in processed.road_evidence:
                     self.publisher.publish_road(evidence)
             vision_runtime_health.success(processed.result.frame.frame_id)
@@ -106,29 +129,46 @@ class IntegratedVisionPipeline:
         """Process a supplied frame for deterministic tests and shared-source use."""
 
         total_started = total_started_at or perf_counter()
-        rois = get_configured_rois(self.config)
-        board_roi = self._require_one(rois["board"], "board crop")
-        building_roi = self._require_one(rois["building_a"], "Building A ROI")
-        road_rois = rois["road"]
-        if not road_rois:
-            raise VisionIntegrationError("At least one road ROI is required")
+        polygon_config = self.polygon_roi_config
+        road_masks: list[RoadRegionMask] = []
+        if polygon_config is None:
+            rois = get_configured_rois(self.config)
+            board_roi = self._require_one(rois["board"], "board crop")
+            building_roi = self._require_one(rois["building_a"], "Building A ROI")
+            road_rois = rois["road"]
+            if not road_rois:
+                raise VisionIntegrationError("At least one road ROI is required")
+            building_polygon = None
+            hazard_polygon = None
+            hazard_zone = None
+        else:
+            board_roi = polygon_config.crop
+            building_roi = polygon_config.building.bounding_roi()
+            road_masks = polygon_config.road_masks(
+                (board_roi.height, board_roi.width, 3)
+            )
+            road_rois = [mask.roi for mask in road_masks]
+            building_polygon = polygon_config.building.as_polygon_roi()
+            hazard_polygon = polygon_config.hazard.as_polygon_roi()
+            hazard_zone = hazard_polygon
 
         crop_started = perf_counter()
         try:
             board_frame = crop_frame(captured.frame, board_roi, config=self.config)
-            validate_roi(
-                building_roi,
-                frame_width=board_roi.width,
-                frame_height=board_roi.height,
-                config=self.config,
-            )
-            for road_roi in road_rois:
+            if polygon_config is None:
                 validate_roi(
-                    road_roi,
+                    building_roi,
                     frame_width=board_roi.width,
                     frame_height=board_roi.height,
                     config=self.config,
                 )
+                for road_roi in road_rois:
+                    validate_roi(
+                        road_roi,
+                        frame_width=board_roi.width,
+                        frame_height=board_roi.height,
+                        config=self.config,
+                    )
         except ROIValidationError as exc:
             raise VisionIntegrationError(str(exc)) from exc
         crop_duration_ms = (perf_counter() - crop_started) * 1000
@@ -156,7 +196,11 @@ class IntegratedVisionPipeline:
         building_detections = [
             detection
             for detection in detections
-            if _box_center_inside_roi(detection, building_roi)
+            if (
+                _box_center_inside_roi(detection, building_roi)
+                if building_polygon is None
+                else _box_center_inside_polygon(detection, building_polygon)
+            )
         ]
         detection_model = self._detection_identity()
         segmentation_model = self._segmentation_identity()
@@ -169,22 +213,53 @@ class IntegratedVisionPipeline:
             inference_per_second=self.detector.last_inference_per_second,
             board_crop=board_roi,
             model=detection_model,
+            building_polygon=building_polygon,
+            hazard_polygon=hazard_polygon,
         )
-
-        road_segmentations = [
-            RoadSegmentationResult(
-                frame=board_metadata,
-                road_roi_name=road_roi.name,
-                road_roi=road_roi,
-                segmentations=[
-                    item for item in segmentations if _segmentation_intersects_roi(item, road_roi)
-                ],
-                processing_timestamp=datetime.now(timezone.utc),
-                inference_duration_ms=self.segmenter.last_inference_duration_ms,
-                inference_per_second=self.segmenter.last_inference_per_second,
+        person_hazard = (
+            evaluate_person_in_hazard(detection_result, hazard_zone)
+            if hazard_zone is not None
+            else None
+        )
+        if person_hazard is not None:
+            detection_result = detection_result.model_copy(
+                update={"person_in_hazard": person_hazard.person_in_hazard}
             )
-            for road_roi in road_rois
-        ]
+
+        if polygon_config is None:
+            road_segmentations = [
+                RoadSegmentationResult(
+                    frame=board_metadata,
+                    road_roi_name=road_roi.name,
+                    road_roi=road_roi,
+                    segmentations=[
+                        item for item in segmentations if _segmentation_intersects_roi(item, road_roi)
+                    ],
+                    processing_timestamp=datetime.now(timezone.utc),
+                    inference_duration_ms=self.segmenter.last_inference_duration_ms,
+                    inference_per_second=self.segmenter.last_inference_per_second,
+                )
+                for road_roi in road_rois
+            ]
+        else:
+            road_segmentations = [
+                RoadSegmentationResult(
+                    frame=board_metadata,
+                    road_roi_name=mask.region.label,
+                    road_roi=mask.roi,
+                    segmentations=[
+                        item
+                        for item in segmentations
+                        if _segmentation_intersects_mask(item, mask.roi, mask.valid_mask)
+                    ],
+                    processing_timestamp=datetime.now(timezone.utc),
+                    inference_duration_ms=self.segmenter.last_inference_duration_ms,
+                    inference_per_second=self.segmenter.last_inference_per_second,
+                    road_polygon=mask.region.as_polygon_roi(),
+                    valid_road_mask=mask.valid_mask,
+                )
+                for mask in road_masks
+            ]
         occupancies = [calculate_road_occupancy(item) for item in road_segmentations]
         spatial = [calculate_road_spatial_evidence(item, self.config) for item in road_segmentations]
         road_evidence = [
@@ -205,6 +280,9 @@ class IntegratedVisionPipeline:
             board_crop=board_roi,
             building_roi=building_roi,
             road_rois=road_rois,
+            building_polygon=building_polygon,
+            hazard_polygon=hazard_polygon,
+            road_polygons=[mask.region.as_polygon_roi() for mask in road_masks],
             detections=detections,
             segmentations=segmentations,
             detection_model=detection_model,
@@ -222,6 +300,8 @@ class IntegratedVisionPipeline:
             result=result,
             detection_result=detection_result,
             road_evidence=road_evidence,
+            person_hazard=person_hazard,
+            polygon_roi_config=polygon_config,
         )
 
     def close(self) -> None:
@@ -235,24 +315,77 @@ class IntegratedVisionPipeline:
 
         frame = processed.board_frame.copy()
         building = processed.result.building_roi
-        cv2.rectangle(
-            frame,
-            (round(building.x), round(building.y)),
-            (round(building.x + building.width), round(building.y + building.height)),
-            (0, 200, 120),
-            2,
-        )
-        cv2.putText(
-            frame,
-            "BUILDING A ROI",
-            (round(building.x), max(18, round(building.y) - 6)),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.55,
-            (0, 200, 120),
-            2,
-            cv2.LINE_AA,
-        )
-        for detection in processed.result.detections:
+        if processed.result.building_polygon is not None:
+            if processed.polygon_roi_config is not None:
+                overlay = frame.copy()
+                for exclusion in processed.polygon_roi_config.exclusions:
+                    points = np.rint(exclusion.board_points).astype(np.int32)
+                    cv2.fillPoly(overlay, [points], (120, 120, 120))
+                cv2.addWeighted(overlay, 0.24, frame, 0.76, 0, frame)
+                colors = ((255, 170, 0), (255, 0, 255), (0, 165, 255))
+                for index, region in enumerate(processed.polygon_roi_config.road_segments):
+                    _draw_polygon(
+                        frame,
+                        region.as_polygon_roi(),
+                        colors[index % len(colors)],
+                        2,
+                    )
+                crop_origin = (
+                    processed.result.board_crop.x,
+                    processed.result.board_crop.y,
+                )
+                for index, raw_points in enumerate(
+                    processed.polygon_roi_config.junction_raw_regions,
+                    start=1,
+                ):
+                    board_points = np.rint(
+                        [
+                            (point[0] - crop_origin[0], point[1] - crop_origin[1])
+                            for point in raw_points
+                        ]
+                    ).astype(np.int32)
+                    cv2.polylines(
+                        frame,
+                        [board_points],
+                        True,
+                        (40, 220, 255),
+                        2,
+                        cv2.LINE_AA,
+                    )
+                    cv2.putText(
+                        frame,
+                        f"J{index}",
+                        tuple(board_points[0]),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.48,
+                        (40, 220, 255),
+                        1,
+                        cv2.LINE_AA,
+                    )
+            _draw_polygon(frame, processed.result.building_polygon, (0, 200, 120), 2)
+            _draw_polygon(frame, processed.result.hazard_polygon, (0, 200, 255), 2)
+        else:
+            cv2.rectangle(
+                frame,
+                (round(building.x), round(building.y)),
+                (round(building.x + building.width), round(building.y + building.height)),
+                (0, 200, 120),
+                2,
+            )
+            cv2.putText(
+                frame,
+                "BUILDING A ROI",
+                (round(building.x), max(18, round(building.y) - 6)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.55,
+                (0, 200, 120),
+                2,
+                cv2.LINE_AA,
+            )
+        detections_to_draw = processed.result.detections
+        if processed.polygon_roi_config is not None:
+            detections_to_draw = processed.detection_result.detections
+        for detection in detections_to_draw:
             box = detection.bounding_box
             cv2.rectangle(
                 frame,
@@ -271,29 +404,47 @@ class IntegratedVisionPipeline:
                 1,
                 cv2.LINE_AA,
             )
-        for segmentation in processed.result.segmentations:
-            polygon = np.asarray(
-                [[round(point.x), round(point.y)] for point in segmentation.polygon],
-                dtype=np.int32,
-            )
-            cv2.polylines(
-                frame,
-                [polygon],
-                True,
-                (255, 0, 0),
-                2,
-            )
-            if len(polygon):
-                cv2.putText(
-                    frame,
-                    f"{segmentation.class_name} {segmentation.confidence:.2f}",
-                    tuple(polygon[0]),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5,
-                    (255, 0, 0),
-                    1,
-                    cv2.LINE_AA,
+        if processed.polygon_roi_config is not None:
+            masks = processed.polygon_roi_config.road_masks(processed.board_frame.shape)
+            for segmentation in processed.result.segmentations:
+                for mask in masks:
+                    contours = _segmentation_contours_in_mask(
+                        segmentation,
+                        mask.roi,
+                        mask.valid_mask,
+                    )
+                    if not contours:
+                        continue
+                    cv2.drawContours(frame, contours, -1, (255, 0, 0), 2)
+                    x, y, _width, _height = cv2.boundingRect(contours[0])
+                    cv2.putText(
+                        frame,
+                        f"{segmentation.class_name} {segmentation.confidence:.2f}",
+                        (x, max(18, y - 5)),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.5,
+                        (255, 0, 0),
+                        1,
+                        cv2.LINE_AA,
+                    )
+        else:
+            for segmentation in processed.result.segmentations:
+                polygon = np.asarray(
+                    [[round(point.x), round(point.y)] for point in segmentation.polygon],
+                    dtype=np.int32,
                 )
+                cv2.polylines(frame, [polygon], True, (255, 0, 0), 2)
+                if len(polygon):
+                    cv2.putText(
+                        frame,
+                        f"{segmentation.class_name} {segmentation.confidence:.2f}",
+                        tuple(polygon[0]),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.5,
+                        (255, 0, 0),
+                        1,
+                        cv2.LINE_AA,
+                    )
         ok, encoded = cv2.imencode(".jpg", frame)
         if not ok:
             raise VisionIntegrationError("Unable to encode annotated evidence frame")
@@ -307,6 +458,21 @@ class IntegratedVisionPipeline:
             ],
             "detection_model": processed.result.detection_model.model_dump(mode="json"),
             "segmentation_model": processed.result.segmentation_model.model_dump(mode="json"),
+            "person_in_hazard": processed.detection_result.person_in_hazard,
+            "building_polygon": (
+                processed.result.building_polygon.model_dump(mode="json")
+                if processed.result.building_polygon is not None
+                else None
+            ),
+            "hazard_polygon": (
+                processed.result.hazard_polygon.model_dump(mode="json")
+                if processed.result.hazard_polygon is not None
+                else None
+            ),
+            "road_polygons": [
+                polygon.model_dump(mode="json")
+                for polygon in processed.result.road_polygons
+            ],
         }
         return encoded.tobytes(), metadata
 
@@ -354,4 +520,76 @@ def _segmentation_intersects_roi(item: SegmentationDetection, roi: ROI) -> bool:
         or box.x1 > roi.x + roi.width
         or box.y2 < roi.y
         or box.y1 > roi.y + roi.height
+    )
+
+
+def _box_center_inside_polygon(detection: Detection, polygon: PolygonROI) -> bool:
+    box = detection.bounding_box
+    center = ((box.x1 + box.x2) / 2, (box.y1 + box.y2) / 2)
+    return point_in_polygon(
+        center,
+        [(point.x, point.y) for point in polygon.points],
+    )
+
+
+def _segmentation_intersects_mask(
+    item: SegmentationDetection,
+    roi: ROI,
+    valid_mask: np.ndarray,
+) -> bool:
+    """Return whether any segmentation polygon pixel falls on valid road."""
+
+    return bool(_segmentation_contours_in_mask(item, roi, valid_mask))
+
+
+def _segmentation_contours_in_mask(
+    item: SegmentationDetection,
+    roi: ROI,
+    valid_mask: np.ndarray,
+) -> list[np.ndarray]:
+    if len(item.polygon) < 3:
+        return []
+    points = np.asarray([[point.x, point.y] for point in item.polygon], dtype=np.float64)
+    mask_height, mask_width = valid_mask.shape[:2]
+    x1 = max(roi.x, 0, int(np.floor(points[:, 0].min())))
+    y1 = max(roi.y, 0, int(np.floor(points[:, 1].min())))
+    x2 = min(roi.x + roi.width, mask_width, int(np.ceil(points[:, 0].max())) + 1)
+    y2 = min(roi.y + roi.height, mask_height, int(np.ceil(points[:, 1].max())) + 1)
+    if x2 <= x1 or y2 <= y1:
+        return []
+    local_mask = np.zeros((y2 - y1, x2 - x1), dtype=np.uint8)
+    local_points = np.rint(points - np.array([x1, y1])).astype(np.int32)
+    cv2.fillPoly(local_mask, [local_points], 1)
+    local_mask[valid_mask[y1:y2, x1:x2] == 0] = 0
+    contours, _hierarchy = cv2.findContours(
+        local_mask,
+        cv2.RETR_EXTERNAL,
+        cv2.CHAIN_APPROX_SIMPLE,
+    )
+    for contour in contours:
+        contour[:, 0, 0] += x1
+        contour[:, 0, 1] += y1
+    return contours
+
+
+def _draw_polygon(
+    frame: np.ndarray,
+    polygon: PolygonROI | None,
+    color: tuple[int, int, int],
+    thickness: int,
+) -> None:
+    if polygon is None:
+        return
+    points = np.rint([[point.x, point.y] for point in polygon.points]).astype(np.int32)
+    cv2.polylines(frame, [points], True, color, thickness, cv2.LINE_AA)
+    anchor = points[0]
+    cv2.putText(
+        frame,
+        polygon.name,
+        (int(anchor[0]), max(18, int(anchor[1]) - 6)),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.48,
+        color,
+        1,
+        cv2.LINE_AA,
     )

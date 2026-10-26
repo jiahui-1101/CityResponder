@@ -29,7 +29,7 @@ class UserRead(BaseModel):
 
 class UserCreate(BaseModel):
     email: str
-    password: str = Field(min_length=1)
+    password: str = Field(min_length=16, max_length=1024)
     role: UserRole
 
 
