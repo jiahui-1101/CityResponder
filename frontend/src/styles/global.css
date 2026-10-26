@@ -119,6 +119,47 @@ button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: no
 .decision-card { padding: 16px; }
 .decision-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .read-only-note { margin-top: 12px; }
+.operator-decision-panel { position: relative; padding: 0; overflow: hidden; border: 1px solid var(--color-grey-300); box-shadow: none; }
+.operator-panel-header, .operator-control-row { display: flex; align-items: center; justify-content: space-between; gap: 32px; padding: 18px 20px; }
+.operator-panel-header { align-items: flex-start; border-bottom: 1px solid rgba(18,18,18,.09); }
+.operator-panel-header h3 { color: var(--color-grey-900); font-size: 15px; font-weight: var(--weight-bold); letter-spacing: -.01em; }
+.operator-panel-header p, .operator-control-copy p { margin-top: 4px; color: var(--color-grey-500); font-size: 11px; line-height: 1.4; }
+.operator-panel-header .operator-current-lifecycle { margin-top: 1px; white-space: nowrap; font-size: 10.5px; }
+.operator-current-lifecycle strong { color: var(--color-grey-700); font-weight: var(--weight-semibold); }
+.operator-control-row { min-height: 76px; }
+.operator-control-row + .operator-control-row { border-top: 1px solid rgba(18,18,18,.09); }
+.operator-control-copy { min-width: 0; }
+.operator-control-copy h4 { color: var(--color-grey-900); font-size: 12px; font-weight: var(--weight-semibold); }
+.operator-row-actions { display: flex; flex: 0 0 auto; align-items: center; justify-content: flex-end; gap: 8px; min-width: 296px; }
+.operator-row-actions .button { min-height: 36px; padding: 8px 13px; border-radius: 8px; white-space: nowrap; }
+.operator-row-actions .button:disabled { border-color: var(--color-grey-300); background: var(--color-grey-100); color: var(--color-grey-500); opacity: 1; }
+.operator-safe-default { border-color: rgba(174,51,38,.48); background: var(--color-white); color: var(--color-danger); }
+.operator-safe-default:hover:not(:disabled) { border-color: var(--color-danger); background: var(--color-danger-bg); color: var(--color-danger); }
+.button-danger-solid:hover:not(:disabled) { background: #8f281f; }
+.operator-final-status { color: var(--color-grey-900); font-size: 14px; font-weight: var(--weight-semibold); line-height: 36px; }
+.operator-feedback-card { display: grid; gap: 8px; }
+.operator-dialog-backdrop { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 20px; background: rgba(0,0,0,.4); backdrop-filter: blur(4px); animation: operator-fade-in 150ms ease-out both; }
+.operator-dialog { position: relative; width: min(100%, 440px); max-height: calc(100vh - 40px); overflow-y: auto; padding: 24px; border: 1px solid rgba(18,18,18,.1); border-radius: 16px; background: var(--color-white); box-shadow: 0 24px 70px rgba(0,0,0,.24), 0 4px 18px rgba(0,0,0,.1); animation: operator-dialog-in 150ms ease-out both; }
+.operator-dialog.is-danger { padding-top: 27px; }
+.operator-dialog.is-danger::before { content: ""; position: absolute; inset: 0 0 auto; height: 3px; border-radius: 16px 16px 0 0; background: var(--color-danger); }
+.operator-dialog-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.operator-dialog-heading h3 { font-size: 20px; font-weight: var(--weight-bold); letter-spacing: -.02em; }
+.operator-dialog-heading p { margin-top: 7px; color: var(--color-grey-700); font-size: 12px; }
+.operator-dialog-heading .icon-button { flex: 0 0 auto; }
+.operator-incident-id { margin-top: 10px; color: var(--color-grey-500); font-size: 10.5px; }
+.operator-warning { display: flex; align-items: flex-start; gap: 9px; margin-top: 16px; padding: 11px 12px; border: 1px solid rgba(174,51,38,.16); border-radius: 10px; background: var(--color-danger-bg); color: var(--color-danger); font-size: 11px; line-height: 1.45; }
+.operator-warning svg { flex: 0 0 auto; margin-top: 1px; }
+.operator-dialog-form { display: grid; margin-top: 20px; }
+.operator-dialog-form label { color: var(--color-grey-900); font-size: 12px; font-weight: var(--weight-semibold); }
+.operator-dialog-form textarea { width: 100%; min-height: 120px; margin-top: 7px; padding: 11px 12px; resize: vertical; border: 1px solid var(--color-grey-300); border-radius: 10px; background: var(--color-white); color: var(--color-black); font-size: 12px; line-height: 1.5; transition: border-color 150ms ease, box-shadow 150ms ease; }
+.operator-dialog-form textarea:focus { border-color: var(--color-black); box-shadow: 0 0 0 3px rgba(18,18,18,.12); outline: 0; }
+.operator-field-hint { margin-top: 6px; color: var(--color-grey-500); font-size: 10.5px; }
+.operator-dialog-error { margin-top: 12px; color: var(--color-danger); font-size: 11px; font-weight: var(--weight-semibold); }
+.operator-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+.operator-dialog-actions .button { min-height: 40px; border-radius: 10px; }
+.button-danger-solid { border: 1px solid var(--color-danger); background: var(--color-danger); color: var(--color-white); }
+@keyframes operator-fade-in { from { opacity: 0; } }
+@keyframes operator-dialog-in { from { opacity: 0; transform: scale(.97) translateY(5px); } }
 .history-card { padding: 8px 16px; }
 .history-list { display: grid; }
 .history-item { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 14px 4px; border-bottom: 1px solid rgba(18,18,18,.07); }
@@ -389,6 +430,12 @@ button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: no
   .incident-list-row { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
   .incident-list-row > svg { display: none; }
   .incident-state { justify-items: start; }
+  .operator-panel-header, .operator-control-row { align-items: flex-start; gap: 14px; }
+  .operator-control-row { flex-direction: column; }
+  .operator-row-actions { justify-content: flex-start; min-width: 0; width: 100%; flex-wrap: wrap; }
+  .operator-dialog-backdrop { align-items: end; padding: 0; }
+  .operator-dialog { width: 100%; max-width: none; max-height: min(88vh, 720px); border-right: 0; border-bottom: 0; border-left: 0; border-radius: 16px 16px 0 0; }
+  .operator-dialog.is-danger::before { border-radius: 16px 16px 0 0; }
   .route-facts, .actuator-detail { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .risk-overview-grid { grid-template-columns: 1fr; }
   .risk-history-row { grid-template-columns: 1fr; gap: 4px; }

@@ -1,11 +1,11 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { AlertCircle, ArrowLeft, Check, Clock3, FileText, Gavel, ShieldCheck, X } from "lucide-react";
-import { ApiError } from "../api/client";
-import { incidentRequests, type IncidentEvidenceFrame, type OperatorAction, type SeverityFloor } from "../api/incidents";
+import { AlertCircle, ArrowLeft, Clock3, FileText, ShieldCheck, X } from "lucide-react";
+import { incidentRequests, type IncidentEvidenceFrame } from "../api/incidents";
 import { useIncidentDetail } from "../hooks/useIncidents";
 import { useAuth } from "../auth/AuthContext";
 import { Badge, Card, EmptyState, ErrorState, LoadingState, SectionHeader, StatusBadge } from "../components/ui";
+import { OperatorDecisionPanel, type OperatorDecisionAction } from "../components/OperatorDecisionPanel";
 import { useLiveRefresh } from "../live/useLiveRefresh";
 import { useEscapeDismiss } from "../hooks/useEscapeDismiss";
 import { useIncidentLifecycle } from "../hooks/useIncidentLifecycle";
@@ -13,7 +13,8 @@ import { lifecycleRequests } from "../api/lifecycle";
 
 const formatTime = (value: string) => new Date(value).toLocaleString();
 const outcomeTone = (value: string): "success" | "warning" | "danger" | "neutral" => value === "CONFIRM" || value === "confirmed" ? "success" : value === "REJECT" || value === "CANCEL" || value === "not_confirmed" ? "warning" : value === "unresolved" ? "danger" : "neutral";
-const actionIcon: Record<OperatorAction, typeof Check> = { CONFIRM: Check, REJECT: X, CANCEL: AlertCircle };
+const incidentActionMap = { confirm: "CONFIRM", reject: "REJECT", cancel: "CANCEL" } as const;
+const lifecycleActionMap = { start_response: "START_RESPONSE", manual_stop: "MANUAL_STOP", restore_safe_default: "RESTORE_SAFE_DEFAULT" } as const;
 
 export function OperatorIncidentPage() {
   const { decisionId = "" } = useParams();
@@ -23,18 +24,11 @@ export function OperatorIncidentPage() {
   const [selectedEvidence, setSelectedEvidence] = useState<IncidentEvidenceFrame | null>(null);
   const [evidenceError, setEvidenceError] = useState<string | null>(null);
   const { role } = useAuth();
-  const [selectedAction, setSelectedAction] = useState<OperatorAction | null>(null);
-  const [reason, setReason] = useState("");
-  const [severityFloor, setSeverityFloor] = useState<SeverityFloor | "">("");
-  const [validation, setValidation] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [mutationError, setMutationError] = useState<string | null>(null);
   const canDecide = role === "OPERATOR" || role === "ADMIN";
   const lifecycle = useIncidentLifecycle(decisionId);
   const [lifecycleError, setLifecycleError] = useState<string | null>(null);
   const [lifecycleBusy, setLifecycleBusy] = useState(false);
   const [feedbackOutcome, setFeedbackOutcome] = useState<"VERIFIED_FIRE" | "VERIFIED_FALSE_ALARM">("VERIFIED_FIRE");
-  useEscapeDismiss(selectedAction !== null, () => setSelectedAction(null));
   useEscapeDismiss(selectedEvidence !== null, () => setSelectedEvidence(null));
   useLiveRefresh(["incident_decision", "operator_decision"], (event) => event.entityId && event.entityId !== decisionId ? undefined : refresh(), true, "incident-detail");
   useLiveRefresh(["incident_evidence_retained"], (event) => event.entityId && event.entityId !== decisionId ? undefined : loadEvidence(), true, "incident-detail");
@@ -42,21 +36,14 @@ export function OperatorIncidentPage() {
   async function loadEvidence() { try { const next = await incidentRequests.evidence(decisionId); setEvidence(next); const loaded = await Promise.all(next.map(async (item) => { try { return [item.evidence_id, URL.createObjectURL(await incidentRequests.evidenceImage(decisionId, item.evidence_id))] as const; } catch { return null; } })); const nextUrls = Object.fromEntries(loaded.filter((item): item is readonly [string, string] => item !== null)); setImageUrls((current) => { Object.values(current).forEach((url) => URL.revokeObjectURL(url)); return nextUrls; }); setEvidenceError(null); } catch (caught) { setEvidenceError(caught instanceof Error ? caught.message : "Unable to load retained evidence"); } }
   useEffect(() => { void loadEvidence(); }, [decisionId]);
 
-  async function submit(event: FormEvent) {
-    event.preventDefault();
-    const requiresSeverityFloor = selectedAction === "CONFIRM" && projection?.automatic_decision.final_severity == null;
-    if (!selectedAction || !reason.trim()) { setValidation("A written reason is required."); return; }
-    if (requiresSeverityFloor && !severityFloor) { setValidation("Select a severity floor before confirming this unresolved alert."); return; }
-    setSubmitting(true); setValidation(null); setMutationError(null);
-    try { await incidentRequests.operatorDecision(decisionId, selectedAction, reason, requiresSeverityFloor ? (severityFloor || undefined) : undefined); setSelectedAction(null); setReason(""); setSeverityFloor(""); await refresh(); }
-    catch (caught) { setMutationError(caught instanceof ApiError ? `${caught.status}: ${caught.message}` : "Unable to submit operator decision"); }
-    finally { setSubmitting(false); }
-  }
-  async function lifecycleAction(action: "START_RESPONSE" | "MANUAL_STOP" | "RESTORE_SAFE_DEFAULT") {
-    setLifecycleBusy(true); setLifecycleError(null);
-    try { await lifecycleRequests.operator(decisionId, action, `Operator action ${action}`); await lifecycle.refresh(); }
-    catch (caught) { setLifecycleError(caught instanceof Error ? caught.message : "Unable to submit lifecycle action"); }
-    finally { setLifecycleBusy(false); }
+  async function performOperatorAction(action: OperatorDecisionAction, reason: string) {
+    if (action in incidentActionMap) {
+      await incidentRequests.operatorDecision(decisionId, incidentActionMap[action as keyof typeof incidentActionMap], reason);
+      await refresh();
+      return;
+    }
+    await lifecycleRequests.operator(decisionId, lifecycleActionMap[action as keyof typeof lifecycleActionMap], reason);
+    await Promise.all([lifecycle.refresh(), refresh()]);
   }
   async function verifyOutcome() {
     setLifecycleBusy(true); setLifecycleError(null);
@@ -71,10 +58,12 @@ export function OperatorIncidentPage() {
   const automatic = projection.automatic_decision;
   return <div className="incident-detail-page"><Link className="back-link" to="/incidents"><ArrowLeft size={15} />Back to incidents</Link><div className="page-header"><div><p className="eyebrow">Incident command view</p><h2>{projection.incident_id}</h2><p>Automatic evidence remains separate from operator outcomes.</p></div><StatusBadge tone={outcomeTone(projection.projected_outcome)}>{projection.projected_outcome}</StatusBadge></div>
     <section className="incident-summary-grid"><Card className="incident-summary-card"><SectionHeader title="Decision summary" /><div className="summary-facts"><Fact label="Automatic confirmation" value={automatic.incident_confirmed === null ? "Unresolved" : automatic.incident_confirmed ? "Confirmed" : "Not confirmed"} /><Fact label="Fusion confidence" value={automatic.fusion_confidence.confidence_score === null ? `Unavailable · ${automatic.fusion_confidence.status}` : `${automatic.fusion_confidence.confidence_score.toFixed(2)} / 100`} /><Fact label="Projected outcome" value={projection.projected_outcome} /><Fact label="Final severity" value={projection.final_severity ?? "Unavailable"} /><Fact label="Critical override" value={automatic.critical_override_applied ? "Applied · person in hazard zone" : "Not applied"} /><Fact label="Decision status" value={automatic.decision_status} /><Fact label="Evaluated" value={formatTime(projection.evaluated_at)} /></div></Card><Card className="incident-summary-card"><SectionHeader title="Evidence and reasons" /><ReasonList values={[...automatic.fusion_confidence.reasons, ...automatic.reasons, ...automatic.warnings, ...projection.warnings]} /></Card></section>
-    <section className="overview-section"><SectionHeader title="Operator decision" description={canDecide ? "A written reason is mandatory for every action." : "Read-only access for this role."} />{mutationError ? <div className="section-error" role="alert"><AlertCircle size={15} />{mutationError}</div> : null}<Card className="decision-card"><div className="decision-actions">{(["CONFIRM", "REJECT", "CANCEL"] as OperatorAction[]).map((action) => { const Icon = actionIcon[action]; return <button key={action} className="button button-secondary" type="button" disabled={!canDecide} onClick={() => { setSelectedAction(action); setSeverityFloor(""); setValidation(null); setMutationError(null); }}><Icon size={15} />{action[0] + action.slice(1).toLowerCase()}</button>; })}</div><div className="decision-actions"><button className="button button-primary" type="button" disabled={!canDecide || lifecycleBusy} onClick={() => void lifecycleAction("START_RESPONSE")}>Start Response</button><button className="button button-secondary" type="button" disabled={!canDecide || lifecycleBusy} onClick={() => void lifecycleAction("MANUAL_STOP")}>Manual Stop</button><button className="button button-danger" type="button" disabled={!canDecide || lifecycleBusy} onClick={() => void lifecycleAction("RESTORE_SAFE_DEFAULT")}>Restore Safe Default</button></div>{lifecycleError ? <div className="section-error" role="alert"><AlertCircle size={15} />{lifecycleError}</div> : null}<p className="read-only-note">Current lifecycle: <strong>{lifecycle.lifecycle?.status ?? "DISPATCHED"}</strong></p>{lifecycle.lifecycle?.status === "RESOLVED" && canDecide ? <div className="decision-actions"><select value={feedbackOutcome} onChange={(event) => setFeedbackOutcome(event.target.value as typeof feedbackOutcome)}><option value="VERIFIED_FIRE">Verified fire</option><option value="VERIFIED_FALSE_ALARM">Verified false alarm</option></select><button className="button button-primary" type="button" disabled={lifecycleBusy} onClick={() => void verifyOutcome()}>Verify and close</button></div> : null}{!canDecide ? <p className="read-only-note">Your role can review this incident but cannot submit manual decisions.</p> : null}</Card></section>
+    <section className="overview-section">
+      {canDecide ? <OperatorDecisionPanel status={projection.latest_operator_action?.resulting_operator_outcome ?? automatic.decision_status} lifecycle={lifecycle.lifecycle?.status ?? ""} incidentId={projection.incident_id} onAction={performOperatorAction} /> : <Card className="decision-card"><p className="read-only-note">Current lifecycle: <strong>{lifecycle.lifecycle?.status ?? "DISPATCHED"}</strong></p><p className="read-only-note">Your role can review this incident but cannot submit manual decisions.</p></Card>}
+      {lifecycle.lifecycle?.status === "RESOLVED" && canDecide ? <Card className="decision-card operator-feedback-card"><div className="decision-actions"><select value={feedbackOutcome} onChange={(event) => setFeedbackOutcome(event.target.value as typeof feedbackOutcome)}><option value="VERIFIED_FIRE">Verified fire</option><option value="VERIFIED_FALSE_ALARM">Verified false alarm</option></select><button className="button button-primary" type="button" disabled={lifecycleBusy} onClick={() => void verifyOutcome()}>Verify and close</button></div>{lifecycleError ? <div className="section-error" role="alert"><AlertCircle size={15} />{lifecycleError}</div> : null}</Card> : null}
+    </section>
     <section className="overview-section"><SectionHeader title="Immutable history" description="Chronological Event-store records" /><Card className="history-card">{history.length ? <div className="history-list">{history.map((event) => <div className="history-item" key={event.id}><div className="history-icon"><Clock3 size={15} /></div><div><strong>{event.event_type}</strong><span>{formatTime(event.created_at)} · {event.entity_type} / {event.entity_id}</span><p>{event.human_readable_reason ?? event.reason_code ?? "No reason recorded"}</p></div>{event.payload.action ? <Badge tone="neutral">{String(event.payload.action)}</Badge> : null}</div>)}</div> : <EmptyState title="No history returned" body="The incident has no readable immutable event history." />}</Card></section>
     <EvidenceSection evidence={evidence} imageUrls={imageUrls} error={evidenceError} onSelect={setSelectedEvidence} />
-    {selectedAction ? <div className="modal-backdrop" role="presentation"><div className="decision-modal" role="dialog" aria-modal="true" aria-labelledby="decision-modal-title"><div className="modal-heading"><div><p className="eyebrow">Manual decision</p><h3 id="decision-modal-title">{selectedAction}</h3></div><button className="icon-button" type="button" aria-label="Close confirmation" onClick={() => { setSelectedAction(null); setSeverityFloor(""); }}><X size={17} /></button></div><p className="modal-context">Incident <strong>{projection.incident_id}</strong> will retain its automatic decision and append this operator action.</p><form className="decision-form" onSubmit={submit}>{selectedAction === "CONFIRM" && automatic.final_severity == null ? <div className="severity-floor-field"><label htmlFor="severity-floor">Severity floor</label><select id="severity-floor" value={severityFloor} onChange={(event) => setSeverityFloor(event.target.value as SeverityFloor | "")} required><option value="">Select severity floor</option><option value="LOW">LOW</option><option value="MEDIUM">MEDIUM</option><option value="HIGH">HIGH</option><option value="CRITICAL">CRITICAL</option></select><p className="read-only-note">Automatic severity is unavailable. Choose the minimum severity for this manual confirmation.</p></div> : null}<label htmlFor="decision-reason">Written reason</label><textarea id="decision-reason" value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Explain the operational reason for this action" autoFocus required />{validation ? <p className="form-error" role="alert">{validation}</p> : null}<div className="modal-actions"><button className="button button-quiet" type="button" onClick={() => { setSelectedAction(null); setSeverityFloor(""); }}>Cancel</button><button className="button button-primary" type="submit" disabled={submitting}>{submitting ? "Submitting…" : "Confirm action"}</button></div></form></div></div> : null}
     {selectedEvidence ? <EvidenceModal imageUrl={imageUrls[selectedEvidence.evidence_id]} evidence={selectedEvidence} onClose={() => setSelectedEvidence(null)} /> : null}
   </div>;
 }
