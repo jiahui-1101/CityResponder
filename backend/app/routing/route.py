@@ -1,6 +1,7 @@
 """Deterministic A* route calculation over the active routing graph."""
 
 from datetime import datetime, timezone
+import math
 from time import perf_counter
 from typing import Protocol
 
@@ -141,13 +142,21 @@ def _collapse_parallel_edges(
             "edge_cost": float(attributes["edge_cost"]),
             "distance_cm": float(attributes["distance_cm"]),
         }
+        if not math.isfinite(candidate["edge_cost"]) or candidate["edge_cost"] <= 0:
+            continue
         pair = (from_node, to_node)
         current = selected_edges.get(pair)
         if current is None or (
             candidate["edge_cost"], candidate["edge_id"]
         ) < (current["edge_cost"], current["edge_id"]):
             selected_edges[pair] = candidate
-            simple.add_edge(from_node, to_node, **candidate)
+    # NetworkX resolves equal-cost alternatives by neighbor insertion order.
+    # Add the collapsed pairs lexically so equivalent graph inputs have one
+    # stable tie result regardless of topology/evidence input ordering.
+    for (from_node, to_node), candidate in sorted(
+        selected_edges.items(), key=lambda item: (str(item[0][0]), str(item[0][1]), str(item[1]["edge_id"]))
+    ):
+        simple.add_edge(from_node, to_node, **candidate)
     return simple, selected_edges
 
 
@@ -161,8 +170,8 @@ def _heuristic(
 
     def estimate(node: str, _target: str) -> float:
         value = float(policy.estimate(str(node), destination, graph))
-        if value < 0.0:
-            raise ValueError("routing heuristic must be non-negative")
+        if not math.isfinite(value) or value < 0.0:
+            raise ValueError("routing heuristic must be finite and non-negative")
         return value
 
     return estimate
