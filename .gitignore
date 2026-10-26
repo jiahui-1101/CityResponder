@@ -1,4 +1,7 @@
 .env
+frontend/.env.production
+frontend/.env.local
+frontend/.env.*.local
 **/.venv/
 **/.pio/
 data/*.db
@@ -28,6 +31,10 @@ reports/validation/vision/*_stderr.log
 # Test/build caches and local tooling artifacts
 **/.pytest_cache/
 **/.mypy_cache/
+**/.pytest-*/
+reports/debug/
+reports/phase3/
+reports/phase35_route_visuals/
 .coverage
 htmlcov/
 **/.vite/

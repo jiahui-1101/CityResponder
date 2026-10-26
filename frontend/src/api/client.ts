@@ -5,9 +5,14 @@ export class ApiError extends Error {
   }
 }
 
-// Local development supplies VITE_API_BASE_URL via the ignored .env.local file.
-// A same-origin fallback keeps static/public builds independent of localhost.
-export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? window.location.origin).replace(/\/$/, "");
+// Local development can target a loopback backend through .env.local. A public
+// build must never send its users to their own localhost; Caddy serves /api and
+// /ws on the page origin. Explicit non-loopback URLs remain available for other
+// deployments that host the API separately.
+const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+const configuredApiHost = configuredApiBaseUrl ? new URL(configuredApiBaseUrl, window.location.origin).hostname : "";
+const usePageOrigin = import.meta.env.PROD && ["localhost", "127.0.0.1", "[::1]"].includes(configuredApiHost);
+export const API_BASE_URL = (usePageOrigin ? window.location.origin : configuredApiBaseUrl || window.location.origin).replace(/\/$/, "");
 export const ACCESS_TOKEN_KEY = "cityresponder.access_token";
 
 export function getStoredAccessToken() {

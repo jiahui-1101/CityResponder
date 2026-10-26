@@ -2,12 +2,13 @@
 
 from collections.abc import Generator
 from pathlib import Path
+import sqlite3
 
 from sqlalchemy import create_engine
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
-from app.core.config import get_settings
+from app.core.config import get_settings, require_runtime_configuration
 
 
 settings = get_settings()
@@ -33,12 +34,65 @@ def ensure_database_directory(database_url: str) -> None:
     database_path.parent.mkdir(parents=True, exist_ok=True)
 
 
+def _require_existing_production_sqlite(database_url: str, environment: str) -> None:
+    """Fail closed instead of creating a blank production SQLite database."""
+
+    if environment.strip().lower() in {"development", "dev", "test"}:
+        return
+
+    url = make_url(database_url)
+    if url.get_backend_name() != "sqlite":
+        return
+    if not url.database or url.database == ":memory:":
+        raise RuntimeError("Production SQLite requires an existing database file")
+
+    path = Path(url.database)
+    if not path.is_absolute():
+        path = (Path.cwd() / path).resolve()
+    if not path.is_file() or path.stat().st_size == 0:
+        raise RuntimeError(
+            "Configured production SQLite database is missing or empty; refusing to create one"
+        )
+
+    try:
+        connection = sqlite3.connect(
+            f"file:{path.as_posix()}?mode=ro", uri=True, timeout=10
+        )
+        try:
+            integrity = connection.execute("PRAGMA integrity_check").fetchone()[0]
+            tables = {
+                row[0]
+                for row in connection.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                )
+            }
+            if integrity != "ok" or not {"users", "events"}.issubset(tables):
+                raise RuntimeError(
+                    "Configured production SQLite database failed integrity or schema checks"
+                )
+            if connection.execute("SELECT COUNT(*) FROM users").fetchone()[0] < 1:
+                raise RuntimeError(
+                    "Configured production SQLite database has no users; refusing startup"
+                )
+        finally:
+            connection.close()
+    except sqlite3.Error as exc:
+        raise RuntimeError(
+            "Configured production SQLite database could not be verified"
+        ) from exc
+
+
 def initialize_database() -> None:
     """Create configured tables and append-only event-store protections."""
+
+    require_runtime_configuration()
 
     from app.auth.models import User  # noqa: F401
     from app.events.models import Event  # noqa: F401
 
+    _require_existing_production_sqlite(
+        settings.database_url, settings.environment
+    )
     ensure_database_directory(settings.database_url)
     with engine.begin() as connection:
         Base.metadata.create_all(connection)

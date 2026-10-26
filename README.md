@@ -105,10 +105,10 @@ The system provides dedicated, role-tailored workflows:
 
 | Resource | Scope / Access | Status |
 |---|---|---|
-| **Local Web Dashboard** | `http://127.0.0.1:5173` (Vite / React) | Verified Stable |
-| **Backend REST API** | `http://127.0.0.1:8020` (FastAPI / Uvicorn) | Verified Stable |
-| **Interactive API Documentation** | `http://127.0.0.1:8020/docs` (Swagger UI) | 29/29 Endpoints Verified |
-| **Live Streaming Channel** | `ws://127.0.0.1:8020/ws/live?token=<JWT>` | Real-Time Sync Verified |
+| **Local Web Dashboard** | `http://127.0.0.1:5173` (Vite / React, loopback only) | Local development |
+| **Backend REST API** | `http://127.0.0.1:8020` (FastAPI / Uvicorn) | Local development |
+| **Interactive API Documentation** | `http://127.0.0.1:8020/docs` (development only) | Disabled in production |
+| **Live Streaming Channel** | `ws://127.0.0.1:5173/ws/live` (Vite proxy in development) | JWT authenticated after upgrade |
 | **MQTT Broker** | `localhost:1883` (Eclipse Mosquitto) | Wire Protocol Active |
 | **Controlled Routing Benchmark** | 150/150 cycles under 1.0s (Median 0.055 ms) | **PASS** (`reports/validation/step18_response_timing.md`) |
 | **WebSocket → DOM Proxy** | 3.1 ms average / 601 ms maximum | **Measured proxy; strict backend-origin → DOM is UNMEASURED** (`reports/final_rehearsal/frontend_refresh_before_after.json`) |
@@ -120,11 +120,11 @@ The system provides dedicated, role-tailored workflows:
 
 - GitHub Repository: https://github.com/jiahui-1101/CityResponder
 - Public Frontend (Vercel): https://city-responder.vercel.app/login
-- Public Backend (temporary Cloudflare Quick Tunnel): https://device-refers-indianapolis-filling.trycloudflare.com
+- Temporary demo tunnel: created on demand; its hostname is not stable or stored in the repository.
 - Local Hardware Demo: http://127.0.0.1:5173
 - Local Backend: http://127.0.0.1:8020
 
-Vercel production must set `VITE_API_BASE_URL` to the exact HTTPS backend tunnel URL; the frontend derives the authenticated WSS endpoint from that value. This Quick Tunnel is temporary and is available only while the demo laptop, FastAPI, and cloudflared process are running.
+The local frontend uses Vite proxies to reach the loopback FastAPI service, so development does not depend on a public tunnel. The same-origin Caddy demo gateway serves the built frontend and proxies REST and WebSocket traffic. If a temporary tunnel is used, add its exact HTTPS origin to the external runtime WebSocket allowlist while it is active; Quick Tunnel hostnames can change and are not a production hostname.
 
 The real prototype remains local/hybrid because the USB webcam, Mosquitto broker, SN1, and AC1 are physically connected to the demo machine. The public Vercel frontend connects to that backend through the temporary secure HTTPS Cloudflare Tunnel while the demo machine and local services are running.
 
@@ -404,16 +404,16 @@ CityResponder features four distinct role-based access control (RBAC) personas:
 └─────────────────────┴──────────┴─────────────┴──────────────┴──────────┘
 ```
 
-### Demo Role Credentials & Login Accounts
+### Development Role Accounts
 
-For local demonstration and evaluation, the backend seeds four default role accounts configured via `.env` (shared password: `DEV_SEED_PASSWORD=CityResponderDev123!`):
+Fresh local development databases can receive four role accounts using the email addresses and private `DEV_SEED_PASSWORD` in the external runtime configuration. Production seeding is disabled. Seeding leaves existing accounts unchanged; rotate existing passwords with the interactive local utility. No shared or default password is published.
 
-| Role | Environment Variable | Default Email | Password | Primary Interface |
+| Role | Environment Variable | Example Development Email | Password | Primary Interface |
 |---|---|---|---|---|
-| **Operator** | `DEV_OPERATOR_EMAIL` | `operator@example.com` | `CityResponderDev123!` | `/` (Live Incident Queue & Triage) |
-| **Firefighter** | `DEV_FIREFIGHTER_EMAIL` | `firefighter@example.com` | `CityResponderDev123!` | `/response` (Turn-by-Turn Routing HUD) |
-| **Risk Planner** | `DEV_RISK_PLANNER_EMAIL` | `risk-planner@example.com` | `CityResponderDev123!` | `/risk` (180-Day Area Risk Intelligence) |
-| **System Administrator** | `DEV_ADMIN_EMAIL` | `admin@example.com` | `CityResponderDev123!` | `/admin` (Calibration & User RBAC) |
+| Operator | `DEV_OPERATOR_EMAIL` | `operator@example.com` | Set privately | `/` |
+| Firefighter | `DEV_FIREFIGHTER_EMAIL` | `firefighter@example.com` | Set privately | `/response` |
+| Risk Planner | `DEV_RISK_PLANNER_EMAIL` | `risk-planner@example.com` | Set privately | `/risk` |
+| System Administrator | `DEV_ADMIN_EMAIL` | `admin@example.com` | Set privately | `/admin` |
 
 ### 1. Emergency Operator Workflow
 1. Monitors the live municipal queue on `/` and `/incidents`.
@@ -578,11 +578,13 @@ city/acks/AC1                   AC1 -> Backend: {"command_id": "cmd_912", "statu
 git clone https://github.com/jiahui-1101/CityResponder.git
 cd CityResponder
 
-# Create local environment configuration from template
-Copy-Item .env.example .env
+# Create per-user runtime configuration outside the repository and OneDrive
+$runtimeConfig = Join-Path $env:LOCALAPPDATA "CityResponder\config"
+New-Item -ItemType Directory -Path $runtimeConfig -Force | Out-Null
+Copy-Item .env.example (Join-Path $runtimeConfig ".env")
 ```
 
-Review `.env` to verify default ports, credentials, and camera settings.
+Edit `%LOCALAPPDATA%\CityResponder\config\.env` locally. Replace the JWT and development seed placeholders before starting the backend. Configure camera device settings only on machines with a camera; do not copy machine-specific values into shared defaults.
 
 ### 2. Setup Backend Virtual Environment
 
@@ -602,7 +604,7 @@ pip install -r backend\requirements.txt
 
 ```powershell
 Push-Location frontend
-npm install
+npm ci
 Pop-Location
 ```
 
@@ -630,79 +632,31 @@ Push-Location frontend
 npm run dev
 ```
 
-Open your browser to **[http://localhost:5173](http://localhost:5173)**.
+Open your browser to **[http://127.0.0.1:5173](http://127.0.0.1:5173)**. Vite binds only to loopback and proxies REST and WebSocket requests to FastAPI; a Cloudflare tunnel is not required for local development.
 Check backend liveness at **[http://127.0.0.1:8020/health](http://127.0.0.1:8020/health)**.
+
+CUDA is optional for baseline development and software tests. Model weight files are not stored in Git; provide authorized Detection V2 and Segmentation V1 weights locally and set `DETECTION_WEIGHTS` and `SEGMENTATION_WEIGHTS` before running live inference. Install a compatible CUDA runtime only on machines that need GPU acceleration. Camera, sensor, and actuator checks require the corresponding physical devices and are not part of the hardware-independent test suite.
 
 ---
 
 ## Environment Variables
 
-Key parameters defined in `.env`:
+The shared template is [`.env.example`](.env.example). Copy it to the per-user runtime path `%LOCALAPPDATA%\CityResponder\config\.env` on Windows, or the configured XDG config directory on Linux. The backend refuses implicit production configuration and refuses a missing production SQLite file. Keep runtime credentials and database files outside the repository.
 
-```env
-APP_NAME=CityResponder Backend
-ENVIRONMENT=development
-LOG_LEVEL=INFO
-HOST=127.0.0.1
-PORT=8020
-CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
-DATABASE_URL=sqlite:///./data/cityresponder.db
-
-# MQTT Broker Configuration
-MQTT_HOST=127.0.0.1
-MQTT_PORT=1883
-
-# Security & JWT Secrets
-JWT_SECRET_KEY=replace-with-a-long-random-local-secret
-JWT_ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=60
-
-# Development Seed Accounts
-DEV_SEED_PASSWORD=replace-with-local-development-password
-DEV_OPERATOR_EMAIL=operator@example.com
-DEV_FIREFIGHTER_EMAIL=firefighter@example.com
-DEV_RISK_PLANNER_EMAIL=risk-planner@example.com
-DEV_ADMIN_EMAIL=admin@example.com
-
-# Computer Vision & Inference Configuration
-VISION_SOURCE=CAMERA
-VISION_CAMERA_INDEX=1
-VISION_FRAME_WIDTH=1920
-VISION_FRAME_HEIGHT=1080
-DETECTION_WEIGHTS=runs/detect/runs/cityresponder_detection_v2/train/weights/best.pt
-SEGMENTATION_WEIGHTS=runs/segment/runs/cityresponder_segmentation_v1/train2/weights/best.pt
-
-# Freshness Timeouts (Seconds)
-SENSOR_MQ2_STALE_AFTER_SECONDS=2.0
-SENSOR_DHT22_STALE_AFTER_SECONDS=3.0
-VISION_STALE_AFTER_SECONDS=1.0
-
-# Evidence Retention Directory
-EVIDENCE_STORAGE_DIR=./data/incident_evidence
-```
+Set a unique JWT secret and a private development seed password locally. Keep `VISION_LIVE_ENABLED` and `VISION_PUBLISH_EVIDENCE_ENABLED` false unless their separate operational approval and validation are complete. The local camera index, backend, FOURCC, and capture resolution belong in that machine's runtime configuration; shared defaults do not select a specific camera.
 
 ---
 
-## Development Accounts & Demo Credentials
+## Development Accounts
 
-When starting with a fresh database, the backend automatically seeds four local development accounts using the credentials configured in `.env`:
+In `development` only, a fresh local database can be seeded with four role accounts using the emails and private `DEV_SEED_PASSWORD` set in the external runtime configuration. Production disables development seeding. Seeding does not change existing accounts; use the interactive password-rotation utility to rotate an existing account. No shared development password is published here.
 
-```env
-DEV_SEED_PASSWORD=CityResponderDev123!
-DEV_OPERATOR_EMAIL=operator@example.com
-DEV_FIREFIGHTER_EMAIL=firefighter@example.com
-DEV_RISK_PLANNER_EMAIL=risk-planner@example.com
-DEV_ADMIN_EMAIL=admin@example.com
-```
-
-| Role | Environment Variable | Default Email | Password | Primary Interface & Workflow |
+| Role | Environment Variable | Example Development Email | Password | Primary Interface |
 |---|---|---|---|---|
-| **Operator** | `DEV_OPERATOR_EMAIL` | `operator@example.com` | `CityResponderDev123!` | `/` (Live Incident Queue & Triage) |
-| **Firefighter** | `DEV_FIREFIGHTER_EMAIL` | `firefighter@example.com` | `CityResponderDev123!` | `/response` (Turn-by-Turn Routing HUD) |
-| **Risk Planner** | `DEV_RISK_PLANNER_EMAIL` | `risk-planner@example.com` | `CityResponderDev123!` | `/risk` (180-Day Area Risk Intelligence) |
-| **System Administrator** | `DEV_ADMIN_EMAIL` | `admin@example.com` | `CityResponderDev123!` | `/admin` (Calibration & User RBAC) |
-
-These accounts allow instant evaluation of all role-specific workflows without manual sign-up. If custom emails or passwords are required, update these variables in `.env` before initiating database seeding.
+| Operator | `DEV_OPERATOR_EMAIL` | `operator@example.com` | Set privately | `/` |
+| Firefighter | `DEV_FIREFIGHTER_EMAIL` | `firefighter@example.com` | Set privately | `/response` |
+| Risk Planner | `DEV_RISK_PLANNER_EMAIL` | `risk-planner@example.com` | Set privately | `/risk` |
+| System Administrator | `DEV_ADMIN_EMAIL` | `admin@example.com` | Set privately | `/admin` |
 
 ---
 

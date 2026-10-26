@@ -1,0 +1,54 @@
+{
+	admin off
+}
+
+:8080 {
+	bind 127.0.0.1
+
+	@blocked path /docs /docs/* /redoc /redoc/* /openapi.json /api/docs* /api/openapi.json /@vite* /src/*
+	handle @blocked {
+		respond "Not Found" 404
+	}
+
+	# Health is intentionally visible only after the temporary gateway login.
+	@health path /health
+	handle @health {
+		basic_auth {
+			cityresponder-team {$CITYRESPONDER_DEMO_GATEWAY_PASSWORD_HASH}
+		}
+		reverse_proxy 127.0.0.1:8020
+	}
+
+	# The temporary team demo is read-only after login. Keep application JWTs
+	# on API requests while preventing remote changes to incidents, users,
+	# calibration, and any future API write route.
+	@demo_writes {
+		path /api /api/*
+		method POST PUT PATCH DELETE
+		not path /api/auth/login
+	}
+	handle @demo_writes {
+		respond "Demo gateway is read-only" 403
+	}
+
+	# FastAPI owns API authentication. Passing the Bearer header untouched lets
+	# the application JWT coexist with the gateway's browser Basic Auth.
+	@backend path /api /api/* /ws/live
+	handle @backend {
+		reverse_proxy 127.0.0.1:8020
+	}
+
+	@frontend_methods method GET HEAD
+	handle @frontend_methods {
+		basic_auth {
+			cityresponder-team {$CITYRESPONDER_DEMO_GATEWAY_PASSWORD_HASH}
+		}
+		root * {$CITYRESPONDER_FRONTEND_DIST}
+		try_files {path} /index.html
+		file_server
+	}
+
+	handle {
+		respond "Not Found" 404
+	}
+}

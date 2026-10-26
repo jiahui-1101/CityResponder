@@ -12,10 +12,20 @@ def seed_development_users() -> None:
     """Seed one account per role only when the user table is empty."""
 
     settings = get_settings()
+    if settings.environment.strip().lower() not in {"development", "dev", "test"}:
+        return
+
     db = SessionLocal()
     try:
         if db.scalar(select(User.id).limit(1)) is not None:
             return
+        seed_password = settings.dev_seed_password.strip()
+        if not seed_password or len(seed_password) < 16 or any(
+            marker in seed_password.lower() for marker in ("replace", "change-this")
+        ):
+            raise RuntimeError(
+                "A private DEV_SEED_PASSWORD of at least 16 characters is required before development account seeding"
+            )
 
         users = (
             (settings.dev_operator_email, UserRole.OPERATOR),
@@ -23,7 +33,7 @@ def seed_development_users() -> None:
             (settings.dev_risk_planner_email, UserRole.RISK_PLANNER),
             (settings.dev_admin_email, UserRole.ADMIN),
         )
-        password_hash = hash_password(settings.dev_seed_password)
+        password_hash = hash_password(seed_password)
         db.add_all(
             User(email=email.lower(), password_hash=password_hash, role=role)
             for email, role in users
