@@ -53,11 +53,11 @@ export {
 
 /**
  * Route labels confirmed by team:
- * IR A = Main route (Route A)
- * IR B = Alternate route (Route B)
+ * IR A = Main route
+ * IR B = Alternate route
  *
- * TODO: PRIMARY = "main route" and STANDBY = "alternate route" corridor mapping
- * remains unconfirmed with backend team. Using lowercase plain names with TODO flag.
+ * TODO: Mapping to Route A / Route B and PRIMARY / STANDBY corridors
+ * remains unconfirmed with backend team. Using plain names "Main route" / "Alternate route".
  */
 export const ROUTE_LABELS = {
   main: "Main route",
@@ -66,9 +66,9 @@ export const ROUTE_LABELS = {
 } as const;
 
 export const ROUTE_HINTS = {
-  mainRoute: "Main route (Route A in hardware specification).",
-  alternateRoute: "Alternate route (Route B in hardware specification).",
-  // TODO: Verify if PRIMARY/STANDBY corridors strictly equate to main/alternate routes in all deployments.
+  // TODO: Route A / Route B and PRIMARY / STANDBY mappings remain unconfirmed.
+  mainRoute: "Main route. (TODO: Route A mapping unconfirmed).",
+  alternateRoute: "Alternate route. (TODO: Route B mapping unconfirmed).",
   corridorTodo: "TODO: PRIMARY / STANDBY mapping unconfirmed; currently treated as main / alternate route.",
   noSafeRoute: "All known routes are blocked.",
   travelScore: "Lower score = preferred route.",
