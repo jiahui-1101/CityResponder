@@ -2569,7 +2569,50 @@ The preceding aggregate run did not retain first/last values. A repeat capture w
 - None; no breaking changes, logic alterations, or API changes. Teammate locked visualization contracts preserved.
 
 **Follow-up required:**
-- Proceed to Batch C4 (`AdminCalibrationPage.tsx`, `AdminUsersPanel.tsx`, `LiveDiagnosticsPanel.tsx`).
+- Proceed with Batch C4 (`AdminCalibrationPage.tsx`, `AdminUsersPanel.tsx`, `LiveDiagnosticsPanel.tsx`).
+
+## 2026-10-26 23:35 — Batch C4: AdminCalibrationPage, AdminUsersPanel, and LiveDiagnosticsPanel plain language
+
+**Changed by:** UI Consistency Engineer
+**Branch:** `ui/plain-language-consistency`
+**Commit:** `b218542`, `9bd6cbe`, `00ad46c`
+
+**Requirement / area:**
+- Frontend Plain Language & Design Consistency (Batch C4)
+
+**Files changed:**
+- `frontend/src/pages/AdminCalibrationPage.tsx`
+- `frontend/src/pages/AdminUsersPanel.tsx`
+- `frontend/src/pages/LiveDiagnosticsPanel.tsx`
+
+**Previous behavior / value:**
+- `AdminCalibrationPage.tsx`: displayed raw S/T/V/H keys without plain-language channel names; raw "Rollback" verb; raw timestamps; unannotated validation metrics.
+- `AdminUsersPanel.tsx`: displayed raw `formatTime` dates; modal text lacked clear context; buttons had no hover tooltips.
+- `LiveDiagnosticsPanel.tsx`: lacked `InfoHint` explanations for SLA (1000 ms), P95 latency, and DOM paint delay.
+
+**New behavior / value:**
+- `AdminCalibrationPage.tsx`: integrates `CALIBRATION_WEIGHTS` from `glossary.ts` with channel descriptions and hints; "Revert to this version" action verb; Brier score explanation via `InfoHint`; `formatWhen` timestamps; clear confirmation modals.
+- `AdminUsersPanel.tsx`: plain-language user management; accessible button titles and aria-labels; `formatWhen` timestamps; clear modal prompts.
+- `LiveDiagnosticsPanel.tsx`: interactive `InfoHint` components explaining SLA threshold (1000 ms), P95 latency, and client DOM paint delay; plain-language pipeline tags using `auditEventLabel()`; sentence-case status indicators; all latency calculation logic and 100-sample buffer preserved intact.
+
+**Why this changed:**
+- Plain language, design consistency, and neutral descriptive explanations per Batch C4 specification.
+
+**Source / decision reference:**
+- Approved Batch C4 plan.
+
+**Validation performed:**
+- `npm run typecheck`, `npm test` (all 6 regression contracts PASS), `npm run build`.
+
+**Requirement status after change:**
+- PASS
+
+**Impact on teammates:**
+- None; no breaking changes, logic alterations, or API changes. Teammate locked visualization contracts preserved.
+
+**Follow-up required:**
+- Final verification across all modified files, git status check, and submission of the plain-language consistency deliverable.
+
 
 
 
