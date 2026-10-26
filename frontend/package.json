@@ -7,7 +7,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b",
-    "test": "node scripts/check-refresh-regression.mjs && node scripts/check-live-vision-regression.mjs && node scripts/check-simulation-regression.mjs && node scripts/check-route-visualization-regression.mjs",
+    "test": "node scripts/check-refresh-regression.mjs && node scripts/check-live-vision-regression.mjs && node scripts/check-simulation-regression.mjs && node scripts/check-route-geometry.mjs && node scripts/check-demo-route-images.mjs && node scripts/check-route-visualization-regression.mjs",
     "test:api-config": "node scripts/check-api-config.mjs"
   },
   "dependencies": {
