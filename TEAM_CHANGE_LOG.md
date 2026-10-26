@@ -2674,3 +2674,209 @@ The preceding aggregate run did not retain first/last values. A repeat capture w
 - The operator then authorized only an unloaded SG90 power-on precheck, reporting the horn stable at 30° with linkage detached and gate secured CLOSED. Under separate authorization, one V4 unloaded `GATE/CLOSE` (`ab347054-8ed4-4c7d-bef2-4d08aba2564d`) was broker-confirmed and received real matching AC1 `RECEIVED/received` and `ACK/execution_reported`, `TARGET_COMMANDED`, with no retry. The horn moved to 120° and settled; the separately secured gate stayed CLOSED without unexpected change. After cutting SG90 power, the operator confirmed the horn did not shift and the detached linkage naturally meets the 120° horn at physical CLOSED, without forcing or preload. Both V4 endpoints now have operator-supported static alignment; linked travel remains unverified. SG90 power OFF, linkage detached, gate secured CLOSED.
 - With separate approval, the operator reattached the linkage at 120° CLOSE without force/preload and confirmed physical gate CLOSED. A separately authorized stationary power-on check left the gate CLOSED without issue; the operator confirmed it was free to rise. One separately authorized linked V4 `GATE/OPEN` (`17a881c8-7f6d-47a4-9426-0f28e2ac45b5`) was broker-confirmed, received matching real AC1 `RECEIVED/received` and `ACK/execution_reported`, `TARGET_COMMANDED`, and the operator saw the gate rise smoothly to fully OPEN without unexpected change. No retry or automatic CLOSE occurred.
 - Under a further separate approval, one linked V4 `GATE/CLOSE` (`0494ec4e-5e65-4b26-89d1-562ab299fcc7`) was broker-confirmed, received matching real AC1 two-stage ACKs, and the operator saw a smooth return to fully CLOSED without issue. The operator separately authorized SG90 power-off and confirmed gate fully CLOSED with linkage attached, servo power OFF, exact ALL_RED traffic, buzzer silent, and no unexpected change. Final read-only check found Mosquitto Running, AC1 broker TCP Established, and backend `/health` healthy. The V4 reversal fixed direction in one supervised linked OPEN→CLOSE cycle; independent position feedback and unattended production safety remain unverified. No additional gate command, application retry, firmware flash, SN1/COM6 action, production incident, unrelated Git/Cloudflare change, commit, push, or merge occurred in this final validation segment.
+## 2026-10-26 22:50 — UI plain language and design consistency shared foundation (Phase B)
+
+**Changed by:** UI Consistency Engineer
+**Branch:** `ui/plain-language-consistency`
+**Commit:** `43a9d5c`
+
+**Requirement / area:**
+- Frontend Plain Language & Design Consistency (Phase B shared foundation)
+
+**Files changed:**
+- `frontend/src/copy/glossary.ts`
+- `frontend/src/components/InfoHint.tsx`
+- `frontend/src/components/InfoHint.css`
+- `frontend/docs/ui-writing-guide.md`
+
+**Previous behavior / value:**
+- No centralized glossary or technical explanation component; pages contained disparate labels and raw backend enum strings.
+
+**New behavior / value:**
+- Created `frontend/src/copy/glossary.ts` extending `humanize.ts` with plain-language status labels and neutral hint texts.
+- Created `frontend/src/components/InfoHint.tsx` and `InfoHint.css` supporting hover, keyboard focus, tap, Escape dismiss, and responsive viewports.
+- Created `frontend/docs/ui-writing-guide.md` one-page writing and component usage standard.
+
+**Why this changed:**
+- UI/UX consistency across frontend workspaces per user specification.
+
+**Source / decision reference:**
+- Approved Phase A audit corrections and frontend implementation specifications.
+
+**Validation performed:**
+- `npm run typecheck`, `npm test` (all 6 regression contracts PASS), `npm run build`.
+
+**Requirement status after change:**
+- PASS
+
+**Impact on teammates:**
+- Import approved plain-language display labels from `src/copy/glossary.ts` and use `InfoHint` / `LabelWithHint` for technical terms.
+
+**Follow-up required:**
+- Proceed with page-by-page Phase C application.
+
+## 2026-10-26 22:55 — Batch C1: LoginPage, IncidentsPage, and shared labels
+
+**Changed by:** UI Consistency Engineer
+**Branch:** `ui/plain-language-consistency`
+**Commit:** `93e8b0c`
+
+**Requirement / area:**
+- Frontend Plain Language & Design Consistency (Batch C1)
+
+**Files changed:**
+- `frontend/src/copy/glossary.ts`
+- `frontend/src/pages/LoginPage.tsx`
+- `frontend/src/pages/IncidentsPage.tsx`
+- `frontend/src/components/AppShell.tsx`
+
+**Previous behavior / value:**
+- `IncidentsPage.tsx`: displayed "Immutable incident decisions and human outcomes.", raw `formatTime` timestamp, unformatted uppercase `projected_outcome`, raw uppercase `automatic_decision_status`.
+- `LoginPage.tsx`: password toggle button lacked `title` attribute for mouse hover tooltip.
+- `AppShell.tsx`: Sign out button lacked `title` attribute for mouse hover tooltip.
+
+**New behavior / value:**
+- `IncidentsPage.tsx`: displays "Permanent records of automatic decisions and operator actions." with `InfoHint` explaining permanent records; formats timestamps with `formatWhen`; displays sentence-case outcome and severity; provides accessible button labels and title.
+- `LoginPage.tsx`: added `title` attribute to password toggle.
+- `AppShell.tsx`: added `title="Sign out"` to topbar action button.
+
+**Why this changed:**
+- Plain language and accessibility consistency per Batch C1 specification.
+
+**Source / decision reference:**
+- Approved Batch C1 plan.
+
+**Validation performed:**
+- `npm run typecheck`, `npm test` (all 6 regression contracts PASS), `npm run build`.
+
+**Requirement status after change:**
+- PASS
+
+**Impact on teammates:**
+- None; no breaking changes, logic alterations, or API changes.
+
+**Follow-up required:**
+- Proceed with Batch C2 (`FirefighterResponsePage.tsx`, `RouteMap.tsx`).
+
+## 2026-10-26 23:15 — Batch C2: FirefighterResponsePage and RouteMap plain language
+
+**Changed by:** UI Consistency Engineer
+**Branch:** `ui/plain-language-consistency`
+**Commit:** `f95ffbf`, `325283e`
+
+**Requirement / area:**
+- Frontend Plain Language & Design Consistency (Batch C2)
+
+**Files changed:**
+- `frontend/src/pages/FirefighterResponsePage.tsx`
+- `frontend/src/components/RouteMap.tsx`
+
+**Previous behavior / value:**
+- `FirefighterResponsePage.tsx`: displayed "Field routing, dispatch lifecycle, and AC1 actuator projection.", "Ordered route edge sequence", "Actuator state unavailable", "ACK history available", raw timestamps, unformatted uppercase route status, raw actuator command strings.
+- `RouteMap.tsx`: legend displayed "Selected backend route" and "Computed alternative".
+
+**New behavior / value:**
+- `FirefighterResponsePage.tsx`: displays "Live route guidance, response stage, and field device status." with `InfoHint` on stage progression; "Ordered road path sequence"; "Field controller" with `TECHNICAL_HINTS.fieldController`; friendly device status ("Device connected", "No confirmation yet"); `formatWhen` timestamps; sentence-case route status; descriptive traffic command explanations; "earlier traffic commands are no longer valid" on invalidations.
+- `RouteMap.tsx`: legend displays "Selected route" and "Alternative route". Retains all locked SVG geometry, contracts, and test strings (`No invalid path is drawn`, `ROUTE IMAGE UNAVAILABLE`, etc.).
+
+**Why this changed:**
+- Plain language and accessibility consistency per Batch C2 specification.
+
+**Source / decision reference:**
+- Approved Batch C2 plan.
+
+**Validation performed:**
+- `npm run typecheck`, `npm test` (all 6 regression contracts PASS), `npm run build`.
+
+**Requirement status after change:**
+- PASS
+
+**Impact on teammates:**
+- None; no breaking changes, logic alterations, or API changes. Teammate locked visualization contracts preserved.
+
+**Follow-up required:**
+- Proceed with Batch C3 (`RiskPlannerPage.tsx`, `SimulationResultsPage.tsx`, `HistoryAuditPage.tsx`).
+
+## 2026-10-26 23:25 — Batch C3: RiskPlannerPage, SimulationResultsPage, and HistoryAuditPage plain language
+
+**Changed by:** UI Consistency Engineer
+**Branch:** `ui/plain-language-consistency`
+**Commit:** `36133d1`, `fb9ca54`, `6fe2f38`
+
+**Requirement / area:**
+- Frontend Plain Language & Design Consistency (Batch C3)
+
+**Files changed:**
+- `frontend/src/pages/RiskPlannerPage.tsx`
+- `frontend/src/pages/SimulationResultsPage.tsx`
+- `frontend/src/pages/HistoryAuditPage.tsx`
+
+**Previous behavior / value:**
+- `RiskPlannerPage.tsx`: displayed "Evaluation window", generic "Component F/R/E/A/M", raw `formatTime` dates, unformatted status strings, generic "Advance" button.
+- `SimulationResultsPage.tsx`: displayed "Software E2E Simulation", uppercase badges ("NO PHYSICAL ACTUATION", "NO SAFE ROUTE", "ROUTE AVAILABLE"), raw "MQTT publications" metric.
+- `HistoryAuditPage.tsx`: displayed raw technical event type keys, raw entity keys, technical headers ("Technical payload"), raw `formatTime` dates.
+
+**New behavior / value:**
+- `RiskPlannerPage.tsx`: displays specification-defined F/R/E/A/M factor names and formulas via `RISK_FACTORS` in `glossary.ts` with interactive `InfoHint`s; "Review timeframe: Past 180 days"; inspection buttons with active action verbs ("Create inspection", "Mark in progress", "Close inspection"); `formatWhen` timestamps; sentence-case status badges.
+- `SimulationResultsPage.tsx`: displays "End-to-end software simulation", sentence-case status badges, "Estimated travel score" with neutral direction hint, "Device messages sent", and preserves all locked simulation test contracts (`read-only demonstration`, `SIMULATED`, `Live AI Observation`, `plan.road_states`).
+- `HistoryAuditPage.tsx`: displays plain-language audit event titles via `auditEventLabel()`; friendly entity names; "Official recorded history"; `formatWhen` timestamps; sentence-case reason codes; "Raw event data".
+
+**Why this changed:**
+- Plain language, design consistency, and neutral descriptive explanations per Batch C3 specification.
+
+**Source / decision reference:**
+- Approved Batch C3 plan.
+
+**Validation performed:**
+- `npm run typecheck`, `npm test` (all 6 regression contracts PASS), `npm run build`.
+
+**Requirement status after change:**
+- PASS
+
+**Impact on teammates:**
+- None; no breaking changes, logic alterations, or API changes. Teammate locked visualization contracts preserved.
+
+**Follow-up required:**
+- Proceed with Batch C4 (`AdminCalibrationPage.tsx`, `AdminUsersPanel.tsx`, `LiveDiagnosticsPanel.tsx`).
+
+## 2026-10-26 23:35 — Batch C4: AdminCalibrationPage, AdminUsersPanel, and LiveDiagnosticsPanel plain language
+
+**Changed by:** UI Consistency Engineer
+**Branch:** `ui/plain-language-consistency`
+**Commit:** `b218542`, `9bd6cbe`, `00ad46c`
+
+**Requirement / area:**
+- Frontend Plain Language & Design Consistency (Batch C4)
+
+**Files changed:**
+- `frontend/src/pages/AdminCalibrationPage.tsx`
+- `frontend/src/pages/AdminUsersPanel.tsx`
+- `frontend/src/pages/LiveDiagnosticsPanel.tsx`
+
+**Previous behavior / value:**
+- `AdminCalibrationPage.tsx`: displayed raw S/T/V/H keys without plain-language channel names; raw "Rollback" verb; raw timestamps; unannotated validation metrics.
+- `AdminUsersPanel.tsx`: displayed raw `formatTime` dates; modal text lacked clear context; buttons had no hover tooltips.
+- `LiveDiagnosticsPanel.tsx`: lacked `InfoHint` explanations for SLA (1000 ms), P95 latency, and DOM paint delay.
+
+**New behavior / value:**
+- `AdminCalibrationPage.tsx`: integrates `CALIBRATION_WEIGHTS` from `glossary.ts` with channel descriptions and hints; "Revert to this version" action verb; Brier score explanation via `InfoHint`; `formatWhen` timestamps; clear confirmation modals.
+- `AdminUsersPanel.tsx`: plain-language user management; accessible button titles and aria-labels; `formatWhen` timestamps; clear modal prompts.
+- `LiveDiagnosticsPanel.tsx`: interactive `InfoHint` components explaining SLA threshold (1000 ms), P95 latency, and client DOM paint delay; plain-language pipeline tags using `auditEventLabel()`; sentence-case status indicators; all latency calculation logic and 100-sample buffer preserved intact.
+
+**Why this changed:**
+- Plain language, design consistency, and neutral descriptive explanations per Batch C4 specification.
+
+**Source / decision reference:**
+- Approved Batch C4 plan.
+
+**Validation performed:**
+- `npm run typecheck`, `npm test` (all 6 regression contracts PASS), `npm run build`.
+
+**Requirement status after change:**
+- PASS
+
+**Impact on teammates:**
+- None; no breaking changes, logic alterations, or API changes. Teammate locked visualization contracts preserved.
+
+**Follow-up required:**
+- Final verification across all modified files, git status check, and submission of the plain-language consistency deliverable.

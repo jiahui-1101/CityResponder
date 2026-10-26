@@ -44,4 +44,19 @@
   --space-8: 32px;
   --transition-fast: 140ms ease;
   --transition-smooth: 160ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  --color-orange-800: #a24c08;
+
+  /* Live Diagnostics Light Theme System Tokens */
+  --diag-callout-bg: #fff4e8;
+  --diag-callout-border: rgba(221, 137, 50, 0.35);
+  --diag-track-bg: #e8e7e3;
+  --diag-track-border: #8f8c85;
+  --diag-fill-orange: #bc691a;
+  --diag-fill-green: #047857;
+  --diag-fill-red: #b91c1c;
+  --diag-tick-text: #4b5563;
+  --diag-tick-sla: #b91c1c;
+  --diag-tick-fast: #047857;
+  --diag-text-muted: #4b5563;
 }
