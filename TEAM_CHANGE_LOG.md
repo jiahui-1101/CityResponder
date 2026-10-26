@@ -2527,6 +2527,49 @@ The preceding aggregate run did not retain first/last values. A repeat capture w
 - None; no breaking changes, logic alterations, or API changes. Teammate locked visualization contracts preserved.
 
 **Follow-up required:**
-- Proceed to Batch C3 (`RiskPlannerPage.tsx`, `SimulationResultsPage.tsx`, `HistoryAuditPage.tsx`).
+- Proceed with Batch C3 (`RiskPlannerPage.tsx`, `SimulationResultsPage.tsx`, `HistoryAuditPage.tsx`).
+
+## 2026-10-26 23:25 — Batch C3: RiskPlannerPage, SimulationResultsPage, and HistoryAuditPage plain language
+
+**Changed by:** UI Consistency Engineer
+**Branch:** `ui/plain-language-consistency`
+**Commit:** `36133d1`, `fb9ca54`, `6fe2f38`
+
+**Requirement / area:**
+- Frontend Plain Language & Design Consistency (Batch C3)
+
+**Files changed:**
+- `frontend/src/pages/RiskPlannerPage.tsx`
+- `frontend/src/pages/SimulationResultsPage.tsx`
+- `frontend/src/pages/HistoryAuditPage.tsx`
+
+**Previous behavior / value:**
+- `RiskPlannerPage.tsx`: displayed "Evaluation window", generic "Component F/R/E/A/M", raw `formatTime` dates, unformatted status strings, generic "Advance" button.
+- `SimulationResultsPage.tsx`: displayed "Software E2E Simulation", uppercase badges ("NO PHYSICAL ACTUATION", "NO SAFE ROUTE", "ROUTE AVAILABLE"), raw "MQTT publications" metric.
+- `HistoryAuditPage.tsx`: displayed raw technical event type keys, raw entity keys, technical headers ("Technical payload"), raw `formatTime` dates.
+
+**New behavior / value:**
+- `RiskPlannerPage.tsx`: displays specification-defined F/R/E/A/M factor names and formulas via `RISK_FACTORS` in `glossary.ts` with interactive `InfoHint`s; "Review timeframe: Past 180 days"; inspection buttons with active action verbs ("Create inspection", "Mark in progress", "Close inspection"); `formatWhen` timestamps; sentence-case status badges.
+- `SimulationResultsPage.tsx`: displays "End-to-end software simulation", sentence-case status badges, "Estimated travel score" with neutral direction hint, "Device messages sent", and preserves all locked simulation test contracts (`read-only demonstration`, `SIMULATED`, `Live AI Observation`, `plan.road_states`).
+- `HistoryAuditPage.tsx`: displays plain-language audit event titles via `auditEventLabel()`; friendly entity names; "Official recorded history"; `formatWhen` timestamps; sentence-case reason codes; "Raw event data".
+
+**Why this changed:**
+- Plain language, design consistency, and neutral descriptive explanations per Batch C3 specification.
+
+**Source / decision reference:**
+- Approved Batch C3 plan.
+
+**Validation performed:**
+- `npm run typecheck`, `npm test` (all 6 regression contracts PASS), `npm run build`.
+
+**Requirement status after change:**
+- PASS
+
+**Impact on teammates:**
+- None; no breaking changes, logic alterations, or API changes. Teammate locked visualization contracts preserved.
+
+**Follow-up required:**
+- Proceed to Batch C4 (`AdminCalibrationPage.tsx`, `AdminUsersPanel.tsx`, `LiveDiagnosticsPanel.tsx`).
+
 
 
