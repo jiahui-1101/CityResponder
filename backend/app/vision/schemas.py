@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from enum import Enum
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -17,6 +18,7 @@ class FrameSourceType(str, Enum):
 class CoordinateSystem(str, Enum):
     RAW_CAMERA = "RAW_CAMERA"
     RAW_BOARD_CROP = "RAW_BOARD_CROP"
+    DISPLAY_MODEL_CROP = "DISPLAY_MODEL_CROP"
 
 
 class FrameMetadata(BaseModel):
@@ -31,6 +33,10 @@ class FrameMetadata(BaseModel):
     parent_frame_id: str | None = None
     crop_origin_x: int = Field(default=0, ge=0)
     crop_origin_y: int = Field(default=0, ge=0)
+    source_width: int | None = Field(default=None, gt=0)
+    source_height: int | None = Field(default=None, gt=0)
+    crop_right_x: int | None = Field(default=None, gt=0)
+    crop_bottom_y: int | None = Field(default=None, gt=0)
 
 
 class ROI(BaseModel):
@@ -78,6 +84,14 @@ class PolygonPoint(BaseModel):
     y: float
 
 
+class PolygonROI(BaseModel):
+    """Named polygon ROI expressed in an explicit frame coordinate system."""
+
+    name: str = Field(min_length=1)
+    points: list[PolygonPoint] = Field(min_length=3)
+    coordinate_system: CoordinateSystem = CoordinateSystem.RAW_BOARD_CROP
+
+
 class SegmentationDetection(BaseModel):
     """One relevant segmentation result."""
 
@@ -100,13 +114,16 @@ class BuildingADetectionResult(BaseModel):
     coordinate_system: CoordinateSystem = CoordinateSystem.RAW_BOARD_CROP
     board_crop: ROI | None = None
     model: FrozenModelIdentity | None = None
+    building_polygon: PolygonROI | None = None
+    hazard_polygon: PolygonROI | None = None
+    person_in_hazard: bool | None = None
 
 
 class PersonHazardResult(BaseModel):
     """Person-in-hazard evaluation for one full-frame detection result."""
 
     frame: FrameMetadata
-    hazard_zone: ROI
+    hazard_zone: ROI | PolygonROI
     person_detections: list[Detection]
     person_in_hazard: bool
     matched_person_indexes: list[int]
@@ -123,6 +140,9 @@ class RoadSegmentationResult(BaseModel):
     processing_timestamp: datetime
     inference_duration_ms: float | None = Field(default=None, ge=0)
     inference_per_second: float | None = Field(default=None, ge=0)
+    road_polygon: PolygonROI | None = None
+    # Internal raster mask; excluded from JSON payloads.
+    valid_road_mask: Any | None = Field(default=None, exclude=True)
 
 
 class OccupancyContribution(BaseModel):
@@ -198,6 +218,7 @@ class RoadVisionEvidence(BaseModel):
     coordinate_system: CoordinateSystem = CoordinateSystem.RAW_BOARD_CROP
     board_crop: ROI | None = None
     model: FrozenModelIdentity | None = None
+    road_polygon: PolygonROI | None = None
 
 
 class VisionDetectionMessage(BaseModel):
@@ -213,6 +234,8 @@ class VisionDetectionMessage(BaseModel):
     coordinate_system: CoordinateSystem = CoordinateSystem.RAW_BOARD_CROP
     board_crop: ROI | None = None
     model: FrozenModelIdentity | None = None
+    building_polygon: PolygonROI | None = None
+    hazard_polygon: PolygonROI | None = None
 
 
 class VisionRoadMessage(BaseModel):
@@ -235,6 +258,7 @@ class VisionRoadMessage(BaseModel):
     coordinate_system: CoordinateSystem = CoordinateSystem.RAW_BOARD_CROP
     board_crop: ROI | None = None
     model: FrozenModelIdentity | None = None
+    road_polygon: PolygonROI | None = None
 
 
 class UnifiedVisionResult(BaseModel):
@@ -256,6 +280,9 @@ class UnifiedVisionResult(BaseModel):
     segmentation_duration_ms: float = Field(ge=0)
     postprocessing_duration_ms: float = Field(ge=0)
     total_duration_ms: float = Field(ge=0)
+    building_polygon: PolygonROI | None = None
+    hazard_polygon: PolygonROI | None = None
+    road_polygons: list[PolygonROI] = Field(default_factory=list)
 
 
 class LatestVisionResponse(BaseModel):

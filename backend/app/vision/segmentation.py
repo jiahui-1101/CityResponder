@@ -5,6 +5,7 @@ from time import perf_counter
 from typing import Any
 
 from app.vision.config import VisionConfig, get_vision_config
+from app.vision.device import resolve_inference_device
 from app.vision.model_contract import (
     ModelContractError,
     resolve_weights_path,
@@ -54,6 +55,7 @@ class YOLOSegmentation:
                 "source": frame,
                 "verbose": False,
                 "imgsz": self.config.inference_size,
+                "device": resolve_inference_device(self.config.inference_device),
             }
             if self.config.segmentation_confidence_threshold is not None:
                 predict_kwargs["conf"] = self.config.segmentation_confidence_threshold

@@ -131,7 +131,7 @@ export function LiveConnectionProvider({ children }: { children: ReactNode }) {
       if (stoppedRef.current) return;
       const token = getStoredAccessToken();
       if (!token) { setStatus("disconnected"); return; }
-      const url = new URL(getApiBaseUrl());
+      const url = new URL(getApiBaseUrl(), window.location.origin);
       url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
       url.pathname = "/ws/live";
       setStatus("connecting");

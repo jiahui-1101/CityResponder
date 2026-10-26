@@ -21,7 +21,26 @@ def calculate_road_occupancy(
     """Calculate union-mask occupancy for one road segmentation result."""
 
     roi = segmentation_result.road_roi
-    roi_pixels = roi.width * roi.height
+    valid_road_mask = segmentation_result.valid_road_mask
+    if valid_road_mask is None:
+        allowed_pixels = np.ones((roi.height, roi.width), dtype=bool)
+    else:
+        supplied_mask = np.asarray(valid_road_mask)
+        if supplied_mask.shape == (roi.height, roi.width):
+            allowed_pixels = supplied_mask != 0
+        elif supplied_mask.ndim == 2 and (
+            roi.y + roi.height <= supplied_mask.shape[0]
+            and roi.x + roi.width <= supplied_mask.shape[1]
+        ):
+            allowed_pixels = (
+                supplied_mask[roi.y : roi.y + roi.height, roi.x : roi.x + roi.width]
+                != 0
+            )
+        else:
+            raise ValueError("valid road mask shape does not match the road ROI frame")
+    roi_pixels = int(np.count_nonzero(allowed_pixels))
+    if roi_pixels == 0:
+        raise ValueError("road ROI has no valid pixels after exclusions")
     occupied_mask = np.zeros((roi.height, roi.width), dtype=np.uint8)
     class_masks = {
         class_name: np.zeros((roi.height, roi.width), dtype=np.uint8)
@@ -42,6 +61,7 @@ def calculate_road_occupancy(
         polygon_mask = np.zeros((roi.height, roi.width), dtype=np.uint8)
         cv2.fillPoly(polygon_mask, [np.rint(polygon).astype(np.int32)], 1)
         polygon_mask &= 1
+        polygon_mask[~allowed_pixels] = 0
         pixels_inside_roi = int(np.count_nonzero(polygon_mask))
         if pixels_inside_roi == 0:
             continue

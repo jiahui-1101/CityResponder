@@ -110,7 +110,11 @@ class SharedVisionFrameService:
                 with self._condition:
                     if monotonic() - self._last_access > self._idle_timeout_seconds:
                         return
-                processed = pipeline.process_one(publish=True)
+                # Live preview can be enabled for diagnosis without allowing
+                # unapproved ROI evidence to enter MQTT consumers.
+                processed = pipeline.process_one(
+                    publish=bool(getattr(pipeline.config, "publish_evidence", False))
+                )
                 jpeg, metadata = pipeline.render_annotated_frame(processed)
                 with self._condition:
                     self._sequence += 1

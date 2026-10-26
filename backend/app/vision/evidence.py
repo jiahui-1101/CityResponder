@@ -63,6 +63,7 @@ class RoadVisionEvidenceService:
                     processing_timestamp=datetime.now(timezone.utc),
                     inference_duration_ms=segmentation.inference_duration_ms,
                     inference_per_second=segmentation.inference_per_second,
+                    road_polygon=segmentation.road_polygon,
                 )
             )
         return evidence
