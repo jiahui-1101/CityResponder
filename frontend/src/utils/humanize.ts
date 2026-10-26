@@ -137,7 +137,7 @@ const HEALTH_STATUS: Record<string, string> = {
 
 export const healthStatusText = (status: string) => HEALTH_STATUS[status] ?? sentenceCase(status);
 
-/* ----------------------------- Field devices (AC1) --------------------------- */
+/* ------------------------------ Field devices -------------------------------- */
 
 const routeName = (corridor: unknown) => {
   const value = upper(corridor);
@@ -151,7 +151,7 @@ const routeName = (corridor: unknown) => {
  * Example: { action_category: "TRAFFIC", action_type: "GREEN_CORRIDOR", parameters: { corridor: "PRIMARY" } }
  *       -> "Traffic light: green for main route"
  */
-export function describeCommand(command: Command): string {
+export function describeCommand(command: Pick<Command, "command_type" | "payload">): string {
   const payload = record(command.payload);
   const parameters = record(payload.parameters);
   const category = upper(payload.action_category);
@@ -160,7 +160,7 @@ export function describeCommand(command: Command): string {
 
   if (output.includes("AMBER")) {
     const ms = Number(parameters.duration_ms);
-    return Number.isFinite(ms) && ms > 0 ? `Amber zone light: on for ${Math.round(ms / 1000)} s` : "Amber zone light: on";
+    return Number.isFinite(ms) && ms > 0 ? `Traffic lights: amber zone on for ${Math.round(ms / 1000)} s` : "Traffic lights: amber zone on";
   }
   if (category === "TRAFFIC") {
     if (action === "GREEN_CORRIDOR") {
@@ -172,14 +172,16 @@ export function describeCommand(command: Command): string {
     if (action === "OFF") return "Traffic lights: off";
   }
   if (category === "GATE") {
-    if (action === "OPEN") return "Barrier gate: open";
-    if (action === "CLOSE") return "Barrier gate: closed";
+    if (action === "OPEN") return "Servo gate: open";
+    if (action === "CLOSE") return "Servo gate: closed";
   }
   if (category === "BUZZER") {
     if (action === "ON") return "Siren: on";
     if (action === "OFF") return "Siren: off";
     if (action === "PULSE_500_MS") return "Siren: short beeps";
   }
+  if (category === "GATE") return `Servo gate: ${sentenceCase(action).toLowerCase()}`;
+  if (category === "TRAFFIC") return `Traffic lights: ${sentenceCase(action).toLowerCase()}`;
   if (category && action) return `${sentenceCase(category)}: ${sentenceCase(action).toLowerCase()}`;
   return sentenceCase(command.command_type);
 }
