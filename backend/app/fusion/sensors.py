@@ -26,9 +26,12 @@ def evaluate_sensor_channel(
     mq2_freshness = _freshness_for("MQ2", fusion_input)
     dht22_freshness = _freshness_for("DHT22", fusion_input)
     reasons: list[str] = []
-    available_sources = (mq2.available, dht22.available)
+    mq2_usable = mq2.available and mq2.quality != "SATURATED"
+    available_sources = (mq2_usable, dht22.available)
     if not mq2.available:
         reasons.append("MQ2 evidence is unavailable")
+    elif not mq2_usable:
+        reasons.append("MQ2 ADC is saturated; raw reading is excluded")
     if not dht22.available:
         reasons.append("DHT22 evidence is unavailable")
 

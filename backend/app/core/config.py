@@ -163,6 +163,9 @@ class Settings(BaseSettings):
     vision_pixel_to_cm_scale: float | None = None
     sensor_mq2_stale_after_seconds: float = 2.0
     sensor_dht22_stale_after_seconds: float = 3.0
+    sensor_digital_stale_after_seconds: float = 2.0
+    sensor_allowed_node_ids: str = "SN1"
+    sensor_mqtt_topic_prefix: str = "city/sensors"
     vision_stale_after_seconds: float = 1.0
     vision_detection_target_fps: float = 5.0
     vision_segmentation_target_fps: float = 2.0

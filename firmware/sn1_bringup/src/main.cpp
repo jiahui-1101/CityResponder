@@ -7,9 +7,14 @@ constexpr uint8_t DHT_DATA_PIN = 4;
 constexpr uint8_t IR1_PIN = 32;
 constexpr uint8_t IR2_PIN = 33;
 constexpr uint8_t BUTTON_PIN = 27;
+constexpr char FIRMWARE_VERSION[] = "sn1-bringup/1.1.0";
 constexpr uint8_t DHT_TYPE = DHT22;
 constexpr unsigned long REPORT_INTERVAL_MS = 1000;
 constexpr unsigned long DHT_INTERVAL_MS = 2000;
+constexpr float DHT_MIN_TEMPERATURE_C = -40.0f;
+constexpr float DHT_MAX_TEMPERATURE_C = 80.0f;
+constexpr float DHT_MIN_HUMIDITY_PCT = 0.0f;
+constexpr float DHT_MAX_HUMIDITY_PCT = 100.0f;
 
 DHT dht(DHT_DATA_PIN, DHT_TYPE);
 unsigned long lastReportMs = 0;
@@ -36,7 +41,11 @@ void readDhtIfDue(unsigned long nowMs) {
   lastDhtReadMs = nowMs;
   const float temperatureC = dht.readTemperature();
   const float humidityPct = dht.readHumidity();
-  lastDhtOk = !isnan(temperatureC) && !isnan(humidityPct);
+  lastDhtOk = !isnan(temperatureC) && !isnan(humidityPct) &&
+              temperatureC >= DHT_MIN_TEMPERATURE_C &&
+              temperatureC <= DHT_MAX_TEMPERATURE_C &&
+              humidityPct >= DHT_MIN_HUMIDITY_PCT &&
+              humidityPct <= DHT_MAX_HUMIDITY_PCT;
   if (lastDhtOk) {
     lastTemperatureC = temperatureC;
     lastHumidityPct = humidityPct;
@@ -69,6 +78,7 @@ void printReport(unsigned long nowMs) {
 
 void setup() {
   Serial.begin(115200);
+  Serial.printf("CityResponder SN1 firmware=%s\n", FIRMWARE_VERSION);
 
   pinMode(MQ2_AO_PIN, INPUT);
   pinMode(DHT_DATA_PIN, INPUT);
@@ -76,6 +86,7 @@ void setup() {
   pinMode(IR2_PIN, INPUT);
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   analogReadResolution(12);
+  analogSetPinAttenuation(MQ2_AO_PIN, ADC_11db);
 
   dht.begin();
 }

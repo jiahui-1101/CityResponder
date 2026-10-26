@@ -9,6 +9,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
 from pathlib import Path
 import unittest
 
@@ -24,7 +25,8 @@ from app.vision.polygon_roi import (
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-ALIGNMENT_DIR = PROJECT_ROOT / "reports" / "debug" / "camera_alignment"
+TEST_DATA_ROOT = Path(os.environ.get("CITYRESPONDER_TEST_DATA_ROOT", PROJECT_ROOT)).expanduser().resolve()
+ALIGNMENT_DIR = TEST_DATA_ROOT / "reports" / "debug" / "camera_alignment"
 SOURCE_ROI = ALIGNMENT_DIR / "roi_calibration_phase_a_draft.json"
 REALIGNED_ROI = ALIGNMENT_DIR / "roi_calibration_phase_a_realigned_draft.json"
 SOURCE_GRAPH = ALIGNMENT_DIR / "road_graph_phase_b1_draft.json"
@@ -329,7 +331,7 @@ class TestCameraRealignmentDraft(unittest.TestCase):
         self.assertEqual(len(manifest["files"]), manifest["file_count"])
         self.assertGreater(manifest["file_count"], 0)
         for item in manifest["files"]:
-            path = PROJECT_ROOT / Path(item["path"])
+            path = TEST_DATA_ROOT / Path(item["path"])
             self.assertTrue(path.is_file(), item["path"])
             self.assertEqual(path.stat().st_size, item["size_bytes"], item["path"])
             self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), item["sha256"], item["path"])

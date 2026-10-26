@@ -73,6 +73,11 @@ export function useOperatorOverview() {
       timestamp,
       node_id: typeof payload.node_id === "string" ? payload.node_id : event.entityId ?? null,
       unit: typeof payload.unit === "string" ? payload.unit : null,
+      humidity_pct: typeof payload.humidity === "number" ? payload.humidity : null,
+      quality: typeof payload.adc_status === "string" ? payload.adc_status : null,
+      firmware_version: typeof payload.firmware_version === "string" ? payload.firmware_version : null,
+      protocol_version: typeof payload.protocol_version === "string" ? payload.protocol_version : null,
+      simulated: payload.simulated === true,
       available: true,
     };
     const freshnessKey = ({ MQ2: "mq2", DHT22: "dht22", BUTTON: "button", IR_A: "ir_a", IR_B: "ir_b" } as const)[sensor_type];
@@ -94,6 +99,7 @@ export function useOperatorOverview() {
           stale: false,
           age_seconds: 0,
           timestamp,
+          stale_after_seconds: current.freshness.data[freshnessKey]?.stale_after_seconds ?? null,
         },
       } : null;
       const health = current.health.data ? {

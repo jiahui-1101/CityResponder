@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import replace
 from datetime import datetime, timezone
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -41,7 +42,8 @@ from app.vision.schemas import (
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-PHASE_A_DRAFT = PROJECT_ROOT / "reports" / "debug" / "camera_alignment" / "roi_calibration_phase_a_draft.json"
+TEST_DATA_ROOT = Path(os.environ.get("CITYRESPONDER_TEST_DATA_ROOT", PROJECT_ROOT)).expanduser().resolve()
+PHASE_A_DRAFT = TEST_DATA_ROOT / "reports" / "debug" / "camera_alignment" / "roi_calibration_phase_a_draft.json"
 
 
 def _captured_frame() -> CapturedFrame:

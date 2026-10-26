@@ -1,6 +1,7 @@
 """Phase 3.5 routing oracle, image geometry and shadow-mode regression tests."""
 
 from datetime import datetime, timezone
+import os
 from pathlib import Path
 
 import cv2
@@ -15,8 +16,9 @@ from app.vision.shadow import evaluate_live_shadow
 
 
 ROOT = Path(__file__).resolve().parents[2]
-GRAPH = ROOT / "reports" / "debug" / "camera_alignment" / "road_graph_phase_b1_final_review_draft.json"
-IMAGE = ROOT / "reports" / "debug" / "camera_alignment" / "camera_alignment_20261025T084211_819245Z_index0_raw.jpg"
+TEST_DATA_ROOT = Path(os.environ.get("CITYRESPONDER_TEST_DATA_ROOT", ROOT)).expanduser().resolve()
+GRAPH = TEST_DATA_ROOT / "reports" / "debug" / "camera_alignment" / "road_graph_phase_b1_final_review_draft.json"
+IMAGE = TEST_DATA_ROOT / "reports" / "debug" / "camera_alignment" / "camera_alignment_20261025T084211_819245Z_index0_raw.jpg"
 
 
 def _projection(edges):

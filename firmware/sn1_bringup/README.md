@@ -10,4 +10,4 @@ Hardware mapping follows `docs/hardware/CityResponder_GPIO_Breadboard_Reference.
 - IR2 OUT → GPIO33
 - Push button → GPIO27 with `INPUT_PULLUP`
 
-The serial monitor is configured for 115200 on COM5. The firmware prints raw MQ-2 ADC and raw digital states; it does not interpret IR polarity or classify sensor readings.
+The serial monitor speed is 115200 with no hard-coded COM port. Identify SN1's actual port only after the board is connected. The firmware prints raw MQ-2 ADC and raw digital states; it does not interpret IR polarity or classify sensor readings.

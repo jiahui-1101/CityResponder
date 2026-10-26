@@ -17,3 +17,14 @@ Important rules:
   buzzer polarity, and servo angles are NOT fixed until measured on the real prototype.
 - Never silently change pin assignments to make code compile.
 - Preserve the two-node architecture.
+
+Current USB serial identification (2026-10-26): the user confirms SN1 is
+disconnected and only AC1 is physically connected. Windows and PlatformIO
+enumerate one USB serial adapter, a CP2102 on COM5 (`VID_10C4:PID_EA60`,
+instance `0001`); COM3/COM4 are Bluetooth and COM7 is absent. COM numbers and
+USB instance suffixes are not permanent node identities. One authorized,
+receive-only COM5 observation produced AC1-specific MQTT logs, confirming
+COM5 as AC1; the installed firmware version remains unknown. Opening the serial port can
+reset an ESP32; verify the current actuator power state and obtain operator
+approval before monitoring if a reset could affect outputs. MQTT status is a
+separate broker/device check.

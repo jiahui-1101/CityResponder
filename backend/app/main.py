@@ -32,6 +32,7 @@ from app.live.service import clear_live_event_loop, set_live_event_loop
 from app.mqtt.client import mqtt_client
 from app.sensors.handlers import handle_sensor_message
 from app.sensors.projection import get_latest_sensor_states
+from app.sensors.registry import active_sensor_mqtt_topics
 from app.sensors.schemas import LatestSensorState
 from app.system.health import SystemHealthResponse, get_system_health
 from app.routing.router import router as routing_router
@@ -77,7 +78,8 @@ async def lifespan(_: FastAPI):
     else:
         logger.info("Development account seeding disabled outside development")
     set_live_event_loop(asyncio.get_running_loop())
-    mqtt_client.subscribe("city/sensors/#", handle_sensor_message)
+    for sensor_topic in active_sensor_mqtt_topics(settings.sensor_mqtt_topic_prefix):
+        mqtt_client.subscribe(sensor_topic, handle_sensor_message)
     mqtt_client.subscribe("city/vision/detection", handle_detection_message)
     mqtt_client.subscribe("city/vision/road", handle_road_message)
     mqtt_client.subscribe("city/acks/#", handle_ack_message)

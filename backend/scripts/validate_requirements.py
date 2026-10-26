@@ -177,7 +177,7 @@ def validate_routing_safety() -> dict[str, Any]:
 
 async def validate_actuator_contract() -> dict[str, Any]:
     command_id = str(uuid4())
-    notify_actuator_ack(command_id, "AC1", {"command_id": command_id, "node_id": "AC1", "status": "ok"}, datetime.now(timezone.utc))
+    notify_actuator_ack(command_id, "AC1", {"command_id": command_id, "node_id": "AC1", "status": "ACK", "stage": "execution_reported"}, datetime.now(timezone.utc))
     acknowledged = await wait_for_actuator_ack(command_id, "AC1")
     timed_out = await wait_for_actuator_ack(str(uuid4()), "AC1")
     source = Path(__file__).resolve().parents[1] / "app" / "physical_actions" / "execution.py"

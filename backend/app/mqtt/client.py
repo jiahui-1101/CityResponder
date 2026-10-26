@@ -23,6 +23,7 @@ class MQTTClient:
         self._port = settings.mqtt_port
         self._username = settings.mqtt_username
         self._password = settings.mqtt_password
+        self._sensor_topic_prefix = settings.sensor_mqtt_topic_prefix.strip("/")
         self._subscriptions: dict[str, list[MessageHandler]] = {}
         self._client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
         self._client.reconnect_delay_set(min_delay=1, max_delay=30)
@@ -107,6 +108,36 @@ class MQTTClient:
             logger.warning("MQTT publish failed for topic %s: rc=%s", topic, result.rc)
             raise RuntimeError(f"MQTT publish failed for topic {topic}: rc={result.rc}")
 
+    def publish_confirmed(
+        self,
+        topic: str,
+        payload: Any,
+        *,
+        qos: int = 1,
+        timeout: float = 2.0,
+    ) -> None:
+        """Wait for broker confirmation of one QoS 1 publication.
+
+        Broker confirmation proves only that the broker accepted the publish;
+        it does not prove the AC1 device received or executed the command.
+        """
+
+        if qos != 1:
+            raise ValueError("confirmed actuator publication requires QoS 1")
+        message = payload
+        if not isinstance(payload, (str, bytes, bytearray)):
+            message = json.dumps(payload)
+
+        info = self._client.publish(topic, message, qos=qos, retain=False)
+        if info.rc != mqtt.MQTT_ERR_SUCCESS:
+            raise RuntimeError(f"MQTT publish failed for topic {topic}: rc={info.rc}")
+        try:
+            info.wait_for_publish(timeout=timeout)
+        except (RuntimeError, ValueError) as exc:
+            raise RuntimeError(f"MQTT broker confirmation failed for topic {topic}") from exc
+        if not info.is_published():
+            raise TimeoutError(f"MQTT broker confirmation timed out for topic {topic}")
+
     def _on_connect(
         self,
         _client: mqtt.Client,
@@ -132,6 +163,12 @@ class MQTTClient:
             logger.warning("MQTT disconnected; retrying automatically: %s", reason_code)
 
     def _on_message(self, _client: mqtt.Client, _userdata: Any, message: Any) -> None:
+        if (
+            getattr(message, "retain", False)
+            and message.topic.startswith(f"{self._sensor_topic_prefix}/")
+        ):
+            logger.warning("Ignoring retained sensor telemetry on %s", message.topic)
+            return
         try:
             payload: Any = json.loads(message.payload.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError):

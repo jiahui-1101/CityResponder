@@ -10,11 +10,11 @@ from app.mqtt.client import mqtt_client
 
 
 DEMO_SENSORS = (
-    ("city/sensors/mq2", "MQ2", 0.0, "raw"),
+    ("city/sensors/mq2", "MQ2", 0, "raw"),
     ("city/sensors/dht22", "DHT22", 25.0, "C"),
     ("city/sensors/button", "BUTTON", False, None),
-    ("city/sensors/ir_a", "IR_A", False, "raw"),
-    ("city/sensors/ir_b", "IR_B", False, "raw"),
+    ("city/sensors/ir_a", "IR_A", False, "blocked"),
+    ("city/sensors/ir_b", "IR_B", False, "blocked"),
 )
 
 
@@ -29,9 +29,19 @@ def build_demo_messages(node_id: str) -> list[tuple[str, dict[str, Any]]]:
             "value": value,
             "timestamp": timestamp,
             "node_id": node_id,
+            "message_id": f"{node_id}-{sensor_type}-{time.time_ns()}",
+            "firmware_version": "sensor-mock/1.0",
+            "protocol_version": "1.1",
+            "simulated": True,
         }
         if unit is not None:
             payload["unit"] = unit
+        if sensor_type == "MQ2":
+            payload["measurement_kind"] = "RAW_ADC"
+        elif sensor_type == "DHT22":
+            payload["humidity"] = 50.0
+            payload["humidity_unit"] = "pct"
+            payload["dht_ok"] = True
         messages.append((topic, payload))
     return messages
 

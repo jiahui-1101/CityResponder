@@ -360,7 +360,7 @@ Record tester, hardware and firmware versions, backend commit, environment, requ
 - User-directed final pre-webcam AC1 validation; physical confirmations during this session.
 
 **Validation performed:**
-- AC1 COM7, `firmware/ac1_mqtt`, Wi-Fi/MQTT broker `172.20.10.12:1883`; no reset, brownout, watchdog, or crash observed.
+- AC1 COM7, `firmware/ac1_mqtt`, Wi-Fi/MQTT broker `<PRIVATE_LAN_IP>:1883`; no reset, brownout, watchdog, or crash observed.
 - Traffic snapshots physically confirmed: ALL_RED and GREEN_CORRIDOR.
 - Gate physical confirmations: OPEN=120°, CLOSED=30°, including repeated cycles and backend commands.
 - Buzzer polarity and backend ON/OFF physical confirmations: ON=LOW/sounding, OFF=HIGH/silent.
@@ -613,8 +613,8 @@ Future changes must not invalidate this baseline without updating validation evi
 - Local `firmware/sn1_mqtt/include/secrets.h` exists, contains a non-empty SSID, and is Git-ignored. Its password was not printed or logged.
 - Wi-Fi scan found the configured SSID: `YES`; nearby networks: 7; configured RSSI: `-49 dBm`; encryption: `WPA2_PSK`.
 - ESP32 initially reported status `6 (DISCONNECTED)`, then associated successfully with status `3 (CONNECTED)`.
-- Assigned ESP32 IP: `172.20.10.2`.
-- MQTT connected successfully to broker `172.20.10.12:1883` after Wi-Fi association.
+- Assigned ESP32 IP: `<PRIVATE_LAN_IP>`.
+- MQTT connected successfully to broker `<PRIVATE_LAN_IP>:1883` after Wi-Fi association.
 - Real serial publish cycles followed with `dht_ok=1`, raw MQ-2 readings, IR states, button state, and `mqtt=CONNECTED`.
 - No reset loop, brownout, watchdog, crash, or Wi-Fi disconnect was observed during the monitored connected period.
 
@@ -658,7 +658,7 @@ Future changes must not invalidate this baseline without updating validation evi
 **Implementation / validation:**
 - Created separate `firmware/sn1_mqtt` project; preserved `firmware/sn1_bringup` unchanged.
 - PlatformIO build passed for `esp32dev` with Arduino ESP32, DHT sensor library, and PubSubClient.
-- Current active laptop Wi-Fi IPv4: `192.168.1.33`.
+- Current active laptop Wi-Fi IPv4: `<PRIVATE_LAN_IP>`.
 - Local broker reachability: `127.0.0.1:1883` TCP check passed.
 - Backend MQTT ingestion is configured for `127.0.0.1:1883` and subscribes to `city/sensors/#`.
 - Wi-Fi credentials were not present locally; upload and real MQTT E2E testing were not performed.
@@ -1463,8 +1463,8 @@ Future changes must not invalidate this baseline without updating validation evi
 - Added an AC1 secrets example and Git-ignore rule; no password was committed.
 
 **Network / firmware evidence:**
-- Active laptop Wi-Fi IPv4: `172.20.10.12`; Mosquitto listened on `0.0.0.0:1883`.
-- AC1 serial: COM7; assigned IP `172.20.10.3`; Wi-Fi RSSI observed at `-82 dBm` after upload; MQTT connected to `172.20.10.12:1883`; NTP synchronized.
+- Active laptop Wi-Fi IPv4: `<PRIVATE_LAN_IP>`; Mosquitto listened on `0.0.0.0:1883`.
+- AC1 serial: COM7; assigned IP `<PRIVATE_LAN_IP>`; Wi-Fi RSSI observed at `-82 dBm` after upload; MQTT connected to `<PRIVATE_LAN_IP>:1883`; NTP synchronized.
 - Build passed and upload to COM7 passed with flash hash verification.
 
 **Real command/ACK evidence (all matching ACKs within backend 500 ms):**
@@ -1513,7 +1513,7 @@ Future changes must not invalidate this baseline without updating validation evi
 **Final-build MQTT evidence:**
 - GATE OPEN command `bccb7982-e39a-4146-bbce-7ddcdc702bc3`: matching ACK, physical OPEN confirmed, latency 584.7 ms (outside the backend 500 ms target).
 - GATE CLOSE command `110a0d4d-3da9-4e31-9773-0f327beb2044`: matching ACK, physical CLOSED confirmed, latency 287.4 ms (within the backend 500 ms target).
-- AC1 reconnected to Wi-Fi/MQTT/NTP after final upload at `172.20.10.3` / broker `172.20.10.12:1883`; a 25-second serial monitor showed no reset loop, brownout, watchdog, crash, or repeated gate command after duplicate protection.
+- AC1 reconnected to Wi-Fi/MQTT/NTP after final upload at `<PRIVATE_LAN_IP>` / broker `<PRIVATE_LAN_IP>:1883`; a 25-second serial monitor showed no reset loop, brownout, watchdog, crash, or repeated gate command after duplicate protection.
 
 **Requirement status after change:**
 - `PARTIAL` — production angles and physical repeatability are verified; final OPEN ACK exceeded the 500 ms target while CLOSE met it. Full backend retry/failsafe E2E remains untested.
@@ -2289,7 +2289,7 @@ The preceding aggregate run did not retain first/last values. A repeat capture w
 - Routing policy, `GREEN_CORRIDOR` meaning, MQTT command/ACK contract, timeout/retry behavior, servo, buzzer, and failsafe logic were not changed.
 - The existing production command vocabulary still has no independent STANDBY-green/reroute action. A true reroute test cannot be claimed through production MQTT without a separately approved contract/behavior change.
 - Production firmware build and COM5 upload: PASS. Pre-upload serial identity confirmed the connected board was AC1, not SN1.
-- Post-upload serial reported `TL1_PRIMARY=14,13,23 TL2_STANDBY=25,26,27`, Wi-Fi connected at `172.20.10.3`, and MQTT subscribed to `city/commands/AC1`; no brownout, watchdog, crash, or reset loop was observed.
+- Post-upload serial reported `TL1_PRIMARY=14,13,23 TL2_STANDBY=25,26,27`, Wi-Fi connected at `<PRIVATE_LAN_IP>`, and MQTT subscribed to `city/commands/AC1`; no brownout, watchdog, crash, or reset loop was observed.
 - `GREEN_CORRIDOR` command `387e2f97-43f9-4a6d-ac00-c094704295dd` received its matching ACK in `181.339 ms`; the user physically confirmed PRIMARY green and STANDBY red.
 - `ALL_RED` transition command `8d1aea14-8580-4dfb-988d-cd4d47328bf9` received its matching ACK in `266.138 ms`; the user physically confirmed both routes red.
 - Failsafe-marked `ALL_RED` command `4a270ea3-5092-459e-a1b5-c5d23a1251d4` received its matching ACK in `240.933 ms`; the user physically confirmed both routes remained red.
@@ -2321,7 +2321,7 @@ The preceding aggregate run did not retain first/last values. A repeat capture w
 - The previous provisional final-disposition statement is superseded by the user's replacement plan. The current servo diagnostic evidence remains preserved for traceability, but it is not a final project limitation or final gate result.
 - All servo/gate validation is now `DEFERRED_PENDING_SERVO_REPLACEMENT`. Existing gate cycle IDs `HW-005`, `HW-006`, and `HW-018` remain in the original evidence and are not renumbered or overwritten.
 - No further servo commands may be sent to the current unit. Its power remains OFF; production firmware starts with the servo unattached.
-- AC1 production MQTT firmware was restored on COM5. Serial confirmed corrected traffic mapping `TL1_PRIMARY=14,13,23` and `TL2_STANDBY=25,26,27`, startup `SERVO_UNATTACHED`, Wi-Fi IP `172.20.10.3`, and MQTT subscription to `city/commands/AC1`.
+- AC1 production MQTT firmware was restored on COM5. Serial confirmed corrected traffic mapping `TL1_PRIMARY=14,13,23` and `TL2_STANDBY=25,26,27`, startup `SERVO_UNATTACHED`, Wi-Fi IP `<PRIVATE_LAN_IP>`, and MQTT subscription to `city/commands/AC1`.
 - Non-servo hardware validation may continue. A failsafe result can validate traffic `ALL_RED` and buzzer `ON`, but physical gate `CLOSED` and the complete failsafe outcome remain deferred.
 - Final hardware validation is **NOT FINALIZED** pending replacement-servo installation and calibration.
 
@@ -2405,3 +2405,272 @@ The preceding aggregate run did not retain first/last values. A repeat capture w
 - The browser computer-use helper was unavailable in this environment, so no interactive console/network PASS was fabricated.
 - Servo/gate remains `DEFERRED_PENDING_SERVO_REPLACEMENT`. PRIMARY green/STANDBY red, ALL_RED, buzzer ON/OFF, and prior stale-route software evidence remain preserved. Current physical STANDBY-green and physical stale-command proof are `NOT_YET_CONFIRMED`; deployment remains `NO_GO` and the local/hybrid topology is retained.
 - No firmware, GPIO, servo, MQ-2 calibration, vision model, or production deployment was changed. No commit or push was performed.
+
+## 2026-10-26 — Phase 4.1 AC1 ACK audit and software repair
+
+**Changed by:** Codex, per user request
+**Branch:** `integration/cityresponder-phase2-phase36`
+**Commit:** not committed yet
+
+**Requirement / area:**
+- AC1 MQTT command/ACK correlation, execution reporting, timeout/retry safety, and dashboard audit state (HW-IOT-03 software readiness)
+
+**Files changed for this ACK task:**
+- `README.md`, `dispatch.md`
+- `backend/app/actuators/ack_waiter.py`, `handlers.py`, `projection.py`, `schemas.py`, `service.py`
+- `backend/app/mqtt/client.py`, `backend/app/physical_actions/execution.py`
+- `backend/scripts/mock_actuator.py`, `backend/scripts/validate_requirements.py`
+- `backend/tests/test_actuator_ack_pipeline.py`
+- `firmware/ac1_mqtt/README.md`, `firmware/ac1_mqtt/src/main.cpp`
+- `frontend/src/api/overview.ts`, `frontend/src/api/routes.ts`, `frontend/src/hooks/useResponseView.ts`, `frontend/src/pages/FirefighterResponsePage.tsx`, `frontend/src/pages/HistoryAuditPage.tsx`, `frontend/src/pages/OperatorOverviewPage.tsx`
+- `reports/validation/ac1_ack_phase41_audit.md`
+
+**Previous behavior / value:**
+- Backend could accept rejection as success, trust ACK payload identity without validating the topic and stored command, lacked a broker publish confirmation stage, and retried actions after timeout without distinguishing idempotent desired-state actions from motion/pulse actions.
+- AC1 acknowledged only after output calls without a separate receipt stage; duplicate-ID memory was limited and ACK publication QoS was documented inaccurately.
+- The test mock used production topic names.
+
+**New behavior / value:**
+- Broker publish confirmation, AC1 receipt, execution report, and physical feedback are represented separately. Only a command-bound terminal ACK completes backend execution; invalid, stale, wrong-device, duplicate, simulated, failed, late, and unknown states are handled distinctly and audited.
+- Automatic same-ID retry is limited to desired-state traffic and buzzer ON/OFF. Gate motion, normal-cycle restart, pulse, and uncertain broker publication are not automatically resent. AC1 validates before execution, reports receipt and output-call result, suppresses recent duplicate IDs, and rejects ID reuse for a different action.
+- Mock traffic uses isolated test topics and simulation markers. Dashboard state does not infer physical position from an ACK.
+
+**Why this changed:**
+- Phase 4.1 ACK audit found gaps between broker acceptance, device receipt, output-call reporting, and independent physical confirmation.
+
+**Source / decision reference:**
+- User-provided Phase 4.1 real hardware ACK audit request; audit details and acceptance block in `reports/validation/ac1_ack_phase41_audit.md`.
+
+**Validation performed:**
+- ACK pipeline tests: 27 passed; full backend suite: 198 passed.
+- Six frontend regression checks passed; TypeScript and production build passed.
+- AC1 PlatformIO compile passed. Firmware was not uploaded.
+- `git diff --check` passed. Tests used in-memory SQLite and an in-memory fake MQTT/AC1 flow; no live broker or actuator was contacted.
+
+**Requirement status after change:**
+- Software ACK pipeline: PASS for compiled firmware contract review and isolated in-memory integration coverage.
+- Real AC1 connection/ACK and physical execution feedback: NOT_VERIFIED / DEFERRED. `HW-IOT-03` and `HW-E2E-*` remain `NOT_RUN_EXTERNAL`; PE07 gate feedback remains deferred pending replacement servo and independent observation.
+- Production safety and simulated ACK isolation: PARTIAL because current runtime lacks MQTT credentials/ACL-backed publisher authentication.
+
+**Impact on teammates:**
+- No deployment, commit, push, merge, or external hardware action was performed. Unrelated pre-existing SN1 and route-visualization edits in the shared working tree were left intact.
+
+**Follow-up required:**
+- Restore authorized firmware secrets and broker identity/ACLs, identify AC1's serial port, then follow the supervised one-command verification procedure in the audit report after explicit operator approval. Do not infer gate position from an ACK.
+
+## 2026-10-26 — Phase 4.1B AC1 connectivity diagnosis and authenticated firmware preparation
+
+**Changed by:** Codex, per user request
+**Branch:** `integration/cityresponder-phase2-phase36`
+**Commit:** not committed yet
+
+**Requirement / area:**
+- Real AC1 broker/USB connectivity, authenticated MQTT client configuration, and real ACK readiness (HW-IOT-03).
+
+**Files changed for this phase:**
+- `firmware/ac1_mqtt/src/main.cpp`, `firmware/ac1_mqtt/include/secrets.example.h`, `firmware/ac1_mqtt/README.md`
+- `reports/validation/ac1_ack_phase41_audit.md`, `reports/validation/ac1_connectivity_phase41b.md`, `TEAM_CHANGE_LOG.md`
+
+**Previous behavior / value:**
+- AC1 firmware could inherit SN1's ignored Wi-Fi/broker secrets and connect to MQTT without a username/password. The installed Mosquitto service was stopped; its config allowed anonymous clients and had no ACL. AC1's configured COM7 was absent.
+
+**New behavior / value:**
+- AC1 firmware requires its own ignored local secrets and authenticated MQTT credentials before attempting a broker connection. Serial startup reports an ACK protocol version and configuration presence without printing credentials. An AC1-specific secrets example documents the required fields. No broker service, firewall, device, or production secret was changed.
+
+**Why this changed:**
+- Phase 4.1B found a stopped broker, insecure anonymous configuration, no distinct AC1 USB device, and no AC1-specific firmware credentials; real ACK verification cannot proceed under those conditions.
+
+**Source / decision reference:**
+- User-provided Phase 4.1B request and `reports/validation/ac1_connectivity_phase41b.md`. The Phase 4.1A report was corrected because the prior source could have inherited SN1 secrets during its compile.
+
+**Validation performed:**
+- Broker service/config, TCP listeners, Wi-Fi address, firewall, USB PnP identities, and ignored-file presence inspected without starting the service or opening a serial port.
+- AC1 PlatformIO compile passed; final compile-check image contains placeholder AC1 credentials and was not uploaded.
+- Isolated ACK tests: 27 passed. Full backend suite: 198 passed using a workspace-local pytest temp base; the default Windows temp root caused setup permission errors on an initial run.
+
+**Requirement status after change:**
+- Firmware compile: PASS; deployable AC1 configuration: BLOCKED pending credentials; real connection/ACK: NOT_VERIFIED / DEFERRED. HW-IOT-03 external acceptance remains `NOT_RUN_EXTERNAL`.
+- Broker authentication and ACL: FAIL in the installed stopped-service config. Production safety: PARTIAL until credentials, ACL, and firewall scope are repaired.
+
+**Impact on teammates:**
+- AC1 will no longer use SN1's local secrets or connect anonymously. SN1 source and secrets were not modified. Pre-existing SN1, routing, frontend, and other shared-tree edits remain intact. No command, flash, service start, database write, commit, push, merge, or deployment was performed.
+
+**Follow-up required:**
+- Provision authorized broker identities/ACL, restrict the broker listener to the private LAN, connect and identify the actual AC1, build with its local secrets, obtain upload approval, verify passive serial/MQTT state, then request approval for one supervised no-retry ALL_RED ACK test as specified in the Phase 4.1B report.
+
+## 2026-10-26 — Phase 4.1B correction: COM5 is the AC1 candidate
+
+**Changed by:** Codex, following the user's physical connection correction
+**Branch:** `integration/cityresponder-phase2-phase36`
+**Commit:** not committed yet
+
+**Requirement / area:**
+- AC1 USB serial identity and safe passive firmware observation (HW-IOT-03).
+
+**Files changed:**
+- `firmware/ac1_mqtt/platformio.ini`, `firmware/ac1_mqtt/README.md`
+- `firmware/ac1_bringup/platformio.ini`, `firmware/ac1_bringup/README.md`
+- `docs/hardware/README.md`, `reports/validation/ac1_connectivity_phase41b.md`, `TEAM_CHANGE_LOG.md`
+
+**Previous behavior / value:**
+- The prior Phase 4.1B audit treated COM5 as SN1 based on an older assignment and concluded no AC1 USB device was present. Both AC1 PlatformIO projects fixed upload and monitor to historical COM7.
+
+**New behavior / value:**
+- The user confirms SN1 is disconnected and AC1 is the only physically connected ESP32. Windows and PlatformIO both enumerate one CP2102 USB serial adapter on COM5 (`VID_10C4:PID_EA60`, instance `0001`); COM3/COM4 are Bluetooth and COM7 is absent. Later 2026-10-04 logs also document AC1 on COM5. One authorized passive COM5 session produced AC1-specific MQTT logs, confirming COM5 as AC1. Both AC1 PlatformIO projects now require explicit per-session port selection and do not hardcode COM5 or COM7.
+
+**Why this changed:**
+- Current physical connection information supersedes the historical COM5-to-SN1 mapping. The earlier inference was incorrect for the present setup.
+
+**Source / decision reference:**
+- User's Phase 4.1B correction; live Windows PnP and `platformio device list --json-output`; 2026-10-04 AC1 COM5 entries above; corrected Phase 4.1B audit report.
+
+**Validation performed:**
+- Read-only Windows/PnP and PlatformIO enumeration, AC1 `esp32dev`/115200 configuration review, serial-process inventory, and startup GPIO/servo source review. No process explicitly named COM5 before monitoring; the later authorized open succeeded.
+- Both AC1 PlatformIO projects compiled successfully after removing fixed COM ports; no upload target was invoked. `git diff --check` passed.
+- Before monitoring, the user confirmed the servo was unpowered or secured, lights/buzzer could safely reset, and explicitly authorized one receive-only COM5 session. At 115200 baud with DTR=0/RTS=0, an 18-second observation produced 235 bytes across seven lines, including repeated `AC1 MQTT connecting broker=<PRIVATE_LAN_IP>:1883` and `AC1 MQTT failed state=-2` (`MQTT_CONNECT_FAILED`). No SN1 marker, startup/version banner, ACK, or actuation-command log appeared. The port closed cleanly. No data was transmitted, and no flash, broker start, or physical command occurred. The user subsequently reported no unexpected gate, traffic-light, or buzzer change during the observation; this is a serial-monitor safety observation, not ACK physical-output validation.
+
+**Requirement status after change:**
+- AC1 serial port/identity: PASS on COM5; installed firmware version: NOT_VERIFIED; Wi-Fi: PARTIAL (MQTT attempts imply a connected Wi-Fi session in the matching source, without a current IP log); MQTT connection: FAIL with state `-2`; real ACK remains DEFERRED. Broker authentication status is unchanged from the Phase 4.1B audit.
+
+**Impact on teammates:**
+- Select the verified AC1 port explicitly before any later approved monitor/upload operation. Historical COM7 logs remain valid for their dates. SN1 source, secrets, and port configuration were not changed.
+
+**Follow-up required:**
+- Provision and start an authenticated broker on the intended private LAN, then prepare AC1-specific credentials and request separate approval before uploading the new image. The current installed firmware version is still unknown. No ACK test may be claimed until a separately approved command produces a correlated real AC1 ACK.
+
+## 2026-10-26 — Phase 4.1D AC1 hardware contract and secure broker staging
+
+**Changed by:** Codex, following the user's Phase 4.1D end-to-end validation request
+**Branch:** `integration/cityresponder-phase2-phase36`
+**Commit:** not committed
+
+**Requirement / area:**
+- AC1 output/ACK test matrix, MQTT broker authentication and ACL, and real-hardware readiness (HW-IOT-03).
+
+**Files changed:**
+- `reports/validation/ac1_hardware_phase41d.md`
+- `TEAM_CHANGE_LOG.md`
+- Ignored local `firmware/ac1_mqtt/include/secrets.h`
+- External runtime `.env`, staged Mosquitto files under `C:\ProgramData\CityResponder\Mosquitto`, and `<LOCAL_USER_PROFILE>\AppData\Local\CityResponder\config\apply_mosquitto_secure_phase41d.ps1`
+
+**New behavior / value:**
+- Recorded the actual AC1 traffic-light, buzzer, and gate command/GPIO/electrical behavior, ACK expectation, physical observation, and safety gate. The matrix calls out the GPIO27 optional-button overlap, dark `TRAFFIC/OFF` state, indefinite normal cycle and buzzer pulse, and unverified buzzer polarity/gate feedback.
+- Generated distinct AC1 and backend MQTT identities, stored hashed broker credentials and a least-privilege topic ACL locally, updated the backend runtime `.env`, and created an ignored AC1 local secrets file with the current private broker address. The operator supplied Wi-Fi values locally; no credential was written to a tracked file or validation report.
+- Staged a Mosquitto configuration with anonymous access disabled, persistence disabled, listeners bound to loopback and current Wi-Fi `<PRIVATE_LAN_IP>`, and role-specific ACLs. The apply script backs up the installed config and scopes Windows Firewall to TCP/1883 from `<PRIVATE_LAN_IP>/28`; it preserves the separate SN1-specific firewall rule.
+
+**Validation performed:**
+- An isolated loopback broker accepted the two authenticated roles, routed test command/ACK messages on test-only topics, rejected anonymous access, and denied out-of-scope read/publish access.
+- A second isolated loopback broker loaded the staged production config and hashed password/ACL files. The generated AC1 and backend identities authenticated; AC1 command-topic read and backend ACK/sensor/vision subscriptions succeeded; anonymous access was rejected. This probe subscribed only and sent no message.
+- Backend ACK suite: 27 passed. Full backend suite: 198 passed with one existing Starlette/httpx deprecation warning. The elevated apply script parsed successfully but was not executed.
+- AC1 PlatformIO `esp32dev` build passed with the local Wi-Fi and AC1 MQTT settings. The 804,112-byte image has SHA-256 `9ADC9CA46FA5E6223CAC6A4C3DD7F70CB5E6D66264A1C77873A77032BEAF051A`, includes `AC1_ACK_V2_AUTH_20261026`, and its actual configured values were verified without printing them. The `.pio` directory and its contents were restricted to the current user, SYSTEM, and Administrators.
+- Confirmed the production service is still stopped, no listener is active on port 1883, Mosquitto has no persisted database, and backend startup only subscribes. Current publishers are non-retained; disconnected backend publishes fail instead of queueing. No production MQTT command or database operation occurred.
+- Current process is not elevated. The installed config is under `Program Files` and Windows Firewall changes require administrator rights. Therefore production service configuration and firewall rules were not changed, the service was not started, and the apply script remains for an elevated operator.
+- The existing API process still has its old in-memory MQTT settings and needs a controlled restart after broker recovery. AC1 final firmware build/upload, live connection, ACK, and physical observations remain pending Wi-Fi values, admin apply, explicit upload approval, and a separately authorized supervised test.
+
+**Requirement status after change:**
+- AC1 command/GPIO contract: PASS (source and wiring review); physical outputs: NOT_VERIFIED.
+- Staged MQTT authentication/ACL: PASS in isolated validation; production broker/service/firewall: BLOCKED pending administrator apply.
+- The existing AC1/backend transport is plain MQTT/TCP; the staged access scope is loopback plus the current `/28` Wi-Fi LAN. TLS is not configured, so do not use this broker on an untrusted LAN.
+- AC1 serial identity: PASS on COM5; installed firmware version: NOT_VERIFIED; built firmware image: PASS but not uploaded; AC1 MQTT: FAIL on the prior passive session; real ACK: DEFERRED.
+- Gate/position feedback: DEFERRED. No physical command, upload, service start, commit, push, or merge occurred.
+
+**Impact on teammates:**
+- SN1 firmware/secrets/configuration were not changed. The SN1-specific firewall rule was left untouched. Existing shared-tree changes remain intact.
+
+**Follow-up required:**
+- The operator should run the staged Mosquitto apply script from an elevated session. Then restart the backend and obtain separate upload approval for the verified AC1 image. After passive post-upload connection checks, request explicit authorization for each supervised non-motion test and collect one physical observation at a time.
+
+## 2026-10-26 — Phase 4.1D final Mosquitto apply-script safety audit
+
+**Changed by:** Codex, following the user's final pre-run audit request
+**Commit:** not committed
+
+**Files changed:**
+- `reports/validation/ac1_hardware_phase41d.md`
+- External local script `<LOCAL_USER_PROFILE>\AppData\Local\CityResponder\config\apply_mosquitto_secure_phase41d.ps1`
+
+**Audit findings and repair:**
+- Read-only firewall enumeration found two enabled Public-profile Mosquitto program rules allowing TCP/UDP from any remote on any local port. The apply script now identifies these by executable path, disables them, confirms no equivalent remains, and verifies its replacement rule is limited to TCP/1883, the broker host address, and the reviewed `/28` LAN.
+- Fixed a NetSecurity parameter-set mismatch in the rule matcher discovered during retest. The old rule matcher now finds both actual broad rules. The TCP/1883 check is scoped to Mosquitto or application-unrestricted rules, avoiding unrelated program-specific Windows rules.
+- The staged config and local files passed read-only validation for anonymous access disabled, password/ACL directives, two hashed user entries matching the local roles, exact topic rules without global patterns, persistence disabled, and no Mosquitto database file. The stopped broker has no active listener; the old broad firewall rules and installed config remain unchanged until an elevated run.
+- `<PRIVATE_LAN_IP>`, the last recorded AC1 address, is within the allowed `<PRIVATE_LAN_IP>/28`; its current Windows neighbor state is stale, so a current DHCP lease is not verified.
+- The script creates a timestamped installed-config backup and its catch path rolls back config, service, and firewall changes. Static review found no publish/client command, Git mutation, or credential-output code. No password or secret was placed in repository files, reports, or the change log.
+
+**Validation performed:**
+- PowerShell parser: PASS; read-only configuration preflight: PASS.
+- Read-only firewall helper retest: PASS; found the two broad Mosquitto rules and one applicable Public any-remote TCP/1883 rule before apply.
+- Service/listener/database check: service Stopped, zero port-1883 listeners, zero candidate Mosquitto persistence databases.
+- Administrator apply remains unexecuted. No production config/firewall change, broker start, MQTT publish, firmware upload, physical command, commit, push, or merge occurred.
+
+**Next step:**
+- Run the reviewed script from Administrator PowerShell. After its success output confirms the secure broker and listeners, perform authenticated non-publishing broker checks, then restart the backend. Keep real ACK and supervised traffic-light tests deferred until the broker and installed AC1 firmware are verified and a separate physical-test authorization is in place.
+
+**Post-audit update:**
+- The first elevated invocation stopped at the backend-username preflight, before any apply action. A value-redacted check found the AC1 username key but no match for the script's original strict `MQTT_USERNAME=` syntax in that elevated view. The script was updated to parse case-insensitive dotenv keys with optional whitespace, `export`, and single/double quoting; it still rejects missing or blank identities and never prints the values.
+- The source and ProgramData script copies now match by SHA-256 and parse with zero errors. A local read-only preflight passes. The elevated `.env` must pass the flexible key-presence check before the operator retries the apply. After the failed attempt, Mosquitto remained stopped, port 1883 had no listener, and both broad Mosquitto firewall rules remained enabled.
+- Preflight was further hardened to require exactly one non-empty backend `MQTT_USERNAME` and `MQTT_PASSWORD`, plus non-empty AC1 MQTT username/password defines. The dotenv parser passed five cases covering plain, quoted, case/spacing, blank, and duplicate entries. The updated script still passes local read-only preflight and contains no publish API or credential-output statement.
+- Added `-PreflightOnly` so the operator can run the complete read-only check in the elevated session before applying. Local simulation reported `SECURE_MOSQUITTO_PREFLIGHT=PASS`, two broad Mosquitto rules to disable, one applicable public TCP/1883 rule before apply, and `APPLY_ACTION=NOT_RUN`. The source and ProgramData copies match and parse cleanly; no production change occurred.
+- The operator's elevated `-PreflightOnly` run still rejects backend `MQTT_USERNAME` as missing, blank, or ambiguous. No apply action occurred. Need inspect assignment counts/key names without reading values; broker remains stopped and the old two broad rules remain enabled.
+- The script's sanitized failure path now reports only assignment counts and MQTT-related key names, which should distinguish absent, blank, duplicate, or differently named settings in the elevated file. The updated ProgramData copy parses cleanly and local preflight simulation passes; no production action occurred.
+
+- Follow-up: elevated preflight found zero backend MQTT username/password assignments and no MQTT/BROKER-related keys in the default runtime file. The apply script now honors an absolute CITYRESPONDER_CONFIG_FILE override and reports the selected path without values. Updated ProgramData copy matches the source, parses cleanly, and passes local preflight simulation; administrator apply remains deferred.
+
+- The Administrator view of the default runtime .env had zero MQTT assignments, while this session's view had one of each. Staged only the existing backend MQTT username/password in a protected ProgramData transfer file; no values were printed or committed. Added an administrator-only helper to verify a protected backup before updating the elevated .env in place, verify protected ACL and one assignment per key, then remove the transfer file. The helper parsed cleanly and has not been run; production broker remains stopped.
+
+- First Administrator backend-config repair returned FAILED_STEP=INPUTS with ROLLBACK=NOT_NEEDED, before any backup or .env change. The previous cleanup removed the transfer file. Re-staged the same two private assignments under protected SYSTEM/Administrators/User ACLs and updated the helper to report per-input existence and retain the transfer on failure. The updated helper parses cleanly; production broker remains stopped.
+
+- Elevated repair reached File.Replace and failed with ArgumentException / Win32 code 87. Target MQTT assignment count stayed zero; rollback was not needed; protected transfer remained. Replaced File.Replace with an in-place FileStream write guarded by verified backup and rollback. A dummy-file write/restore probe and PowerShell syntax parse passed. Broker remains stopped.
+
+- Administrator backend MQTT config repair passed on 2026-10-26: one MQTT_USERNAME and one MQTT_PASSWORD assignment, protected ACL, private backup created, transfer file removed. Follow-up confirmed the backup exists, the transfer is gone, and Mosquitto remains stopped with no port-1883 listener. Elevated secure-broker preflight/apply remain next; no physical action occurred.
+
+- Elevated secure Mosquitto apply failed and rolled back completely. Verified service stopped, no port-1883 listener, restored installed config, old broad rules enabled, and scoped rule absent. Firewall events show the narrow rule was created and removed before any service start; Windows represented the local .12 address as a single-IP range (.12-.12), which the script's old exact-string check rejected. Updated scoped-rule validation for both equivalent single-address forms and added sanitized failure-stage diagnostics; script parses and no publish call was added. Broker/real ACK remain pending.
+
+- A subsequent elevated preflight passed. Apply again stopped at scoped-rule validation and rolled back, this time on the NetSecurity remote-address comparison. Firewall event 2097 confirms the created rule used exactly `<PRIVATE_LAN_IP>/28` for remote addresses. The apply script now checks the live firewall COM rule for that exact remote subnet and retains its other scope checks; remote-address mismatch diagnostics contain LAN addresses only. The source and ProgramData copies match and parse cleanly. Read-only follow-up confirmed service stopped, no TCP/1883 listener, and scoped rule absent. Broker verification and real AC1 ACK remain pending; no firmware or physical command was sent.
+
+- The next elevated apply's sanitized diagnostic showed both NetSecurity and COM store the scoped remote subnet as `<PRIVATE_LAN_IP>/255.255.255.240`, equivalent to the reviewed `/28`. It rolled back completely. Tightened the validator to accept only that dotted-mask form or `<PRIVATE_LAN_IP>/28` in both firewall views; four acceptance/rejection cases and PowerShell parsing passed. Updated the Administrator copy (SHA-256 `61843153F3DDDD205F4EB9CE7C9E85CE43B6C0C9781680D06B29B89D40804079`). Service remains stopped, port 1883 has no listener, scoped rule is absent, and both old broad rules were restored by rollback. Broker apply and real ACK remain pending; no MQTT command or physical action occurred.
+
+- Administrator secure Mosquitto apply subsequently passed. Read-only live checks confirmed Running service, loopback and Wi-Fi listeners, exact `/28` remote scope in dotted-mask form, zero enabled old broad rules, and installed config matching staged config. Anonymous connection was rejected; clean-session backend and staged AC1 credential checks authenticated without publishing. Backend was restarted because its prior process predated runtime credential repair; `/health` is healthy and one localhost MQTT connection is established. AC1 is reachable in the Wi-Fi neighbor cache but has no broker connection. COM5 remains the CP210x device and the previously built firmware hash is unchanged. Installed AC1 firmware remains unknown; no upload or physical command occurred. Real ACK and traffic-light tests remain deferred pending explicit hardware upload/test authorization.
+
+- The operator approved one COM5 firmware upload and passive observation with the gate servo secured and lights/buzzer safe to reset. COM5 identity and the reviewed image hash were rechecked; a fresh build produced the same SHA-256 `9ADC9CA46FA5E6223CAC6A4C3DD7F70CB5E6D66264A1C77873A77032BEAF051A`. PlatformIO uploaded once, verified flash data, and reset the board. A 20-second 115200 receive-only session kept DTR/RTS low and sent no data, but its large stream was unreadable and yielded no runtime marker; serial version proof remains partial. The operator reported no unexpected physical output change. Passive socket observation then confirmed AC1 connected to the secure broker from `<PRIVATE_LAN_IP>` alongside the backend localhost connection. No actuator command was published. Correlated real ACK and traffic-light tests remain deferred pending a separately authorized supervised session.
+
+- The operator then authorized exactly one supervised `TRAFFIC/ALL_RED` test. The backend service published one QoS 1 non-retained command with ID `cd484c8c-984a-4468-b62b-ea295c7a4238`; broker confirmation passed. The running backend accepted AC1 `RECEIVED/received` and `ACK/execution_reported` messages from `city/acks/AC1`, correlated to that command and action, without ACK rejection or simulation flag. Command-to-terminal ACK took 3,780 ms. The operator saw both reds on, all yellow/green lights off, and no gate or buzzer change. Real ACK and `ALL_RED` physical output are verified; other traffic states, buzzer, and gate remain untested. No retry or other command was sent.
+
+- With separate authorization, the backend sent `TRAFFIC/GREEN_CORRIDOR` for `PRIMARY` once (ID `2e6ca21e-e629-4a9c-9082-10db5979fffc`), then only after the operator confirmed MAIN green and STANDBY red, sent `TRAFFIC/ALL_RED` restore once (ID `609ba305-5f58-457c-90e4-95b6a5489aa4`). Each was broker-confirmed and produced correlated real `RECEIVED` and `ACK/execution_reported` events with no rejection; terminal latencies were 726 ms and 566 ms. The operator confirmed both reds on and all yellow/green off after restore, with no gate or buzzer change at either step. No retries or other commands occurred. Standby green remains untested pending GPIO27 button/wiring confirmation and separate authorization; buzzer and gate remain untested.
+
+- The operator confirmed the optional GPIO27 button was disconnected or not pressed/shorting TL2 green and authorized the standby-route test plus all-red restore. The backend sent `TRAFFIC/GREEN_CORRIDOR` for `STANDBY` once (ID `3e114521-c71b-4d37-b70c-3dd8ad31f139`); broker confirmation and real matching `RECEIVED`/`ACK` stages passed in 397 ms to terminal. The operator observed MAIN red, STANDBY green, all other traffic colors off, and no gate/buzzer change. The backend then sent `TRAFFIC/ALL_RED` once (ID `10fe8b3c-7351-44f4-9e8e-5584cda82f47`); broker confirmation and both ACK stages passed in 363 ms, and the operator observed both reds on and all yellow/green off, with no gate/buzzer change. No application retries or other commands occurred. Static primary, standby, and all-red states are now physically verified; normal cycle, traffic off, buzzer, and gate remain untested.
+
+## 2026-10-26 — Phase 4.1E remaining AC1 tabletop validation
+
+**Changed by:** Codex, under separate operator authorization for each bounded physical test
+
+- Inspected AC1 firmware: normal cycling has nominal 4-second primary green, 1-second primary yellow, 4-second standby green, and 1-second standby yellow phases with no programmed all-red dwell. A source-level sequential-write check found no dual-green intermediate state and a brief both-red intermediate state at one route transition. Firmware logs do not record individual phases; actual timing cannot be established from logs. `TRAFFIC/OFF` leaves every light dark. `BUZZER/ON` stays active until `BUZZER/OFF`; `PULSE_500_MS` repeats indefinitely and was not used. Gate remains deferred.
+- Bounded `NORMAL_CYCLE` (`ca7b069f-f991-40d5-8fe3-1d342db93eff`) and timed `ALL_RED` stop (`76e195e7-9aae-42b8-b9b1-b295c77fd80b`) were each broker-confirmed with matching real `RECEIVED` and `ACK/execution_reported` stages and no rejection. The stop was attempted 12.5 seconds after cycle attempt. Operator saw generally normal transitions and no simultaneous greens, then separately confirmed final all red. Exact phase timing was not measured; simultaneous reds were observed at some point during cycling but their duration could not be recalled. Cycle outcome remains partial.
+- Bounded tabletop `TRAFFIC/OFF` (`d530072e-96e6-4e00-b98e-ad2a863afa79`) and 3-second `ALL_RED` restore (`3b7a0e85-dbe2-4617-8a35-3b82c87888dd`) both had broker confirmation and real two-stage ACKs. Operator observed all lights dark, then exact all red, with no gate/buzzer change. OFF behavior and safe restoration passed.
+- Brief `BUZZER/ON` (`e54e639d-2d1d-4193-b120-86bb45c884dd`) and 1.5-second `BUZZER/OFF` (`d20505ab-6d8b-4056-b445-98453138be39`) both had broker confirmation and real two-stage ACKs. Operator heard sound during ON and silence after OFF, with no traffic/gate change. Final operator check confirmed both reds on, all yellow/green off, buzzer silent, gate unchanged. No application retry or other physical command occurred.
+- Final read-only check found Mosquitto Running, AC1 and backend MQTT connections established, and backend healthy. Full AC1 demo remains unapproved because gate/servo feedback and precise cycle timing are unverified. See `reports/validation/ac1_hardware_phase41e.md`. No firmware flash, SN1 interference, production incident, YOLO evidence publish, unrelated Git action, or Cloudflare change occurred in this phase.
+
+## 2026-10-26 — Phase 4.1F AC1 servo/gate audit and staged source repair
+
+**Changed by:** Codex, under the operator's Phase 4.1F audit request. **Commit:** not committed.
+
+- Operator identifies the installed replacement as an SG90, powered from AC1's USB-fed VIN/5V rail with common ground and signal alone on GPIO18. Operator reports the rail stable under load, gate currently CLOSED, attached horn/linkage, power cutoff available, and feasible safe linkage disconnection. The 30°/120° targets are uncalibrated. No gate command or firmware upload was authorized or performed in this phase.
+- Audited ESP32Servo control, startup, GPIO map, MQTT ACK contract, backend timeout/retry path, and absent independent gate-position feedback. The installed V2 source's default 544–2400 µs attach range maps CLOSED near 853 µs. Staged V3 source sets 50 Hz and nominal 1000–2000 µs bounds, rejects arbitrary gate parameters, reports attach failure, and retains terminal failure for duplicate IDs. Backend gate specifications reject caller-supplied position values. OPEN/CLOSE angles remain provisional; the V3 image is not installed.
+- Native gate-contract check passed, focused isolated backend ACK suite passed 32 tests, and PlatformIO `esp32dev` compile passed. No broker or physical hardware was contacted by the tests. S05 firmware duplicate callback, S09 AC1 reconnect, and S10 V3 startup remain partially verified because they were reviewed statically without running the unflashed image.
+- Gate motion and production use remain BLOCKED pending unloaded calibration, separate COM5 upload approval, and separate authorization and observation for each physical movement. See `reports/validation/ac1_servo_phase41f.md`. No SN1, YOLO, routing, Cloudflare, production incident, Git commit/push/merge, or physical output change was made here.
+- Operator subsequently confirmed the gate travel path clear/free and direct observation possible, then disconnected the SG90 horn/linkage with servo power off while keeping the gate secured CLOSED. COM5 still enumerates as the previously identified CP210x AC1 adapter. Upload and movement remain unapproved and unperformed.
+- Operator then separately authorized one V3 upload to COM5 while SG90 power was disconnected and linkage unloaded. PlatformIO/esptool completed one upload and verified flash hashes. A single receive-only 20-second 115200 baud observation with DTR/RTS low showed `AC1_ACK_V3_SG90_SAFE_20261026`, `SERVO_UNATTACHED`, Wi-Fi `<PRIVATE_LAN_IP>`, and MQTT subscription to `city/commands/AC1`. The operator reported no unexpected change. Mosquitto remained Running with an established AC1 broker connection. No gate command has been published and the servo remains unpowered.
+- Under a separate unloaded power-on check, the operator reconnected SG90 power with linkage detached and gate secured CLOSED; no unexpected behavior occurred. Separately authorized one-command `GATE/CLOSE` (`3eb838fa-f41c-479e-99ac-587b9f4bf182`) and `GATE/OPEN` (`408711c7-cc49-46ae-9695-16dd4a62d384`) tests each had broker confirmation and real matching AC1 `RECEIVED` plus `ACK/execution_reported` with `TARGET_COMMANDED`. Operator saw the detached horn move and settle to each target, gate remained CLOSED, and no issue occurred. No retry or linked gate movement occurred. Servo is powered at unloaded OPEN target; mechanical endpoint alignment remains uncalibrated.
+- Operator then disconnected SG90 power without moving the detached horn, which remained at the OPEN target. Gate remains secured CLOSED. A manual, unpowered gate endpoint alignment check is pending feasibility confirmation; no further command was sent.
+- Operator confirmed the gate can be secured OPEN, then separately authorized a manual unpowered move from CLOSED to the OPEN stop with linkage detached. They secured it OPEN and reported the stationary servo horn at the OPEN target aligns naturally with the detached linkage, without binding or unexpected behavior. This is a static fit check, not a servo-driven gate OPEN result. No MQTT command was sent for this step.
+- Operator separately authorized manual return of detached gate to CLOSED, confirmed it secured without binding, then authorized an unloaded SG90 power-on check with no unexpected change. A further separately authorized V3 `GATE/CLOSE` (`a8a4806e-bc79-47f4-956a-7491f4868dbf`) was broker-confirmed and received real matching `RECEIVED` and `ACK/execution_reported` with `TARGET_COMMANDED`; the detached horn moved and settled normally. An initial interpretation labeled 30° as physical CLOSED, but the operator later explicitly corrected this: 30° corresponds to physical OPEN. The earlier CLOSED alignment claim is invalid. Gate remained separately secured CLOSED, linkage detached, SG90 power off.
+- Operator reattached the linkage freely at CLOSED and performed a separately authorized stationary power-on check with no issue. One separately authorized linked `GATE/OPEN` (`6164387c-f388-454c-97ba-c12f3d1b9a34`) was broker-confirmed and returned real matching AC1 `RECEIVED` and `ACK/execution_reported`, `TARGET_COMMANDED`. The operator saw the gate move **down**, whereas expected OPEN movement was **up**. Physical OPEN test FAILED. Codex immediately stopped testing and instructed servo power cutoff, without a blind CLOSE or retry. Operator confirmed SG90 power OFF, gate CLOSED, no strain. Target/linkage direction must be diagnosed with power off; no further gate commands or firmware flash are authorized.
+- Operator clarified the gate moved downward into another position, then they manually returned it to CLOSED after cutting SG90 power. OPEN is physically the raised position. Linkage isolation with servo power off is the next safety step; restoring servo power while the linkage remains attached could repeat the wrong-direction motion.
+- Operator then detached the linkage freely while SG90 power remained OFF and gate secured CLOSED. No gate command, upload, or retry followed the failed linked OPEN test.
+- Operator observed all traffic LEDs dark after the V3 reset, with buzzer silent. Under separate authorization, one `TRAFFIC/ALL_RED` restore (`12269cf9-a247-46ef-86ea-71b16767ac78`) was broker-confirmed and received real matching AC1 `RECEIVED` plus `ACK/execution_reported`, `OUTPUT_SET`. Operator confirmed both reds on, yellow/green off, buzzer silent, gate CLOSED, servo power OFF, linkage detached, and no unexpected behavior. Further gate motion is blocked pending read-only mechanism direction diagnosis; a side-view photo was requested.
+- The operator then explicitly requested a minimal reversed-angle hypothesis in source: OPEN=30°, CLOSE=120°. Updated only the gate target constants, their static bounds/tests, the AC1 startup mapping print, protocol marker, and gate documentation. Native gate-contract test passed; 32 isolated backend ACK tests passed; PlatformIO `esp32dev` build passed. V4 image SHA-256 is `1953E25BB3C5A8EC0084CC240E2EC89156D52CB866879AA16053FD586E4F73E9`. At that point V4 was unflashed; separate flash and movement approvals were required. The later operator correction establishes 30° as physical OPEN; linked V4 range still needs verification.
+- The operator separately authorized one V4 COM5 upload while SG90 power was OFF and linkage detached. PlatformIO/esptool reported successful upload and flash-hash verification. A single receive-only 20-second serial observation showed `AC1_ACK_V4_REVERSED_GATE_20261026`, `SERVO_UNATTACHED`, Wi-Fi `<PRIVATE_LAN_IP>`, and MQTT subscription to `city/commands/AC1`. The operator reported no unexpected change and confirmed SG90 power still OFF, linkage detached, gate secured CLOSED. No command was published in this upload stage. Unloaded movement needed separate approval; linked V4 range remained unverified.
+- With separate approval, the operator powered the detached SG90 with gate secured CLOSED and reported no power-on issue; horn started at prior 120° target. One V4 unloaded `GATE/OPEN` (`74741c74-1a74-42ab-b6ef-2eef55cbbe29`) was broker-confirmed and received real AC1 `RECEIVED` and `ACK/execution_reported`, `TARGET_COMMANDED`, with no retry. Operator observed opposite horn rotation and no issue. After cutting SG90 power, the operator explicitly corrected the physical interpretation: **30° corresponds to physical OPEN**, not CLOSED. The gate was separately secured CLOSED throughout the unloaded test. The V4 reversal is plausible; V4 CLOSE=120° and linked travel are not yet verified. No linked V4 command was sent. Gate remains secured CLOSED, SG90 power OFF, linkage detached.
+- After V4 reset the traffic LEDs to OFF, the operator separately authorized one `TRAFFIC/ALL_RED` restore (`68106dcc-2c93-4f8a-8fe7-8b42120f0431`). Broker confirmation and real correlated `RECEIVED/received` plus `ACK/execution_reported`, `OUTPUT_SET` passed. Operator confirmed exact ALL_RED, buzzer silent, gate secured CLOSED, SG90 power OFF, linkage detached, and no unexpected change. No gate or other physical command followed.
+- The operator then authorized only an unloaded SG90 power-on precheck, reporting the horn stable at 30° with linkage detached and gate secured CLOSED. Under separate authorization, one V4 unloaded `GATE/CLOSE` (`ab347054-8ed4-4c7d-bef2-4d08aba2564d`) was broker-confirmed and received real matching AC1 `RECEIVED/received` and `ACK/execution_reported`, `TARGET_COMMANDED`, with no retry. The horn moved to 120° and settled; the separately secured gate stayed CLOSED without unexpected change. After cutting SG90 power, the operator confirmed the horn did not shift and the detached linkage naturally meets the 120° horn at physical CLOSED, without forcing or preload. Both V4 endpoints now have operator-supported static alignment; linked travel remains unverified. SG90 power OFF, linkage detached, gate secured CLOSED.
+- With separate approval, the operator reattached the linkage at 120° CLOSE without force/preload and confirmed physical gate CLOSED. A separately authorized stationary power-on check left the gate CLOSED without issue; the operator confirmed it was free to rise. One separately authorized linked V4 `GATE/OPEN` (`17a881c8-7f6d-47a4-9426-0f28e2ac45b5`) was broker-confirmed, received matching real AC1 `RECEIVED/received` and `ACK/execution_reported`, `TARGET_COMMANDED`, and the operator saw the gate rise smoothly to fully OPEN without unexpected change. No retry or automatic CLOSE occurred.
+- Under a further separate approval, one linked V4 `GATE/CLOSE` (`0494ec4e-5e65-4b26-89d1-562ab299fcc7`) was broker-confirmed, received matching real AC1 two-stage ACKs, and the operator saw a smooth return to fully CLOSED without issue. The operator separately authorized SG90 power-off and confirmed gate fully CLOSED with linkage attached, servo power OFF, exact ALL_RED traffic, buzzer silent, and no unexpected change. Final read-only check found Mosquitto Running, AC1 broker TCP Established, and backend `/health` healthy. The V4 reversal fixed direction in one supervised linked OPEN→CLOSE cycle; independent position feedback and unattended production safety remain unverified. No additional gate command, application retry, firmware flash, SN1/COM6 action, production incident, unrelated Git/Cloudflare change, commit, push, or merge occurred in this final validation segment.

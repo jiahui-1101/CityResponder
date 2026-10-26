@@ -18,6 +18,9 @@ def get_perception_freshness(db: Session) -> PerceptionFreshnessResponse:
     thresholds = {
         "MQ2": settings.sensor_mq2_stale_after_seconds,
         "DHT22": settings.sensor_dht22_stale_after_seconds,
+        "BUTTON": settings.sensor_digital_stale_after_seconds,
+        "IR_A": settings.sensor_digital_stale_after_seconds,
+        "IR_B": settings.sensor_digital_stale_after_seconds,
     }
     sensor_states = {
         state.sensor_type: state for state in get_latest_sensor_states(db)
@@ -78,6 +81,7 @@ def _freshness_item(
             stale=None,
             age_seconds=None,
             timestamp=None,
+            stale_after_seconds=threshold_seconds,
         )
     timestamp_utc = _as_utc(timestamp)
     age_seconds = max(0.0, (now - timestamp_utc).total_seconds())
@@ -88,6 +92,7 @@ def _freshness_item(
         stale=(age_seconds > threshold_seconds if threshold_seconds is not None else None),
         age_seconds=age_seconds,
         timestamp=timestamp_utc,
+        stale_after_seconds=threshold_seconds,
     )
 
 

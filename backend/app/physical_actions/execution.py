@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.actuators.service import publish_actuator_command
 from app.actuators.ack_waiter import wait_for_actuator_ack
+from app.events.repository import append_event
 from app.physical_actions.schemas import PhysicalActionCommandSpec
 from app.physical_actions.schemas import ActionCategory, ActionType
 from app.physical_actions.sequence import PhysicalCommandSequence, SequencePhase
@@ -222,6 +223,17 @@ async def execute_ack_gated_sequence(
                     started_clock,
                     ["stale traffic command was not published"],
                 )
+            if result.status == "execution_unknown":
+                return _sequence_result(
+                    sequence,
+                    "execution_unknown",
+                    results,
+                    started_at,
+                    started_clock,
+                    [
+                        "device ACK timed out for a non-retry-safe action; execution needs verification"
+                    ],
+                )
             if result.status != "ack_timeout_exhausted":
                 return _sequence_result(
                     sequence,
@@ -342,8 +354,24 @@ async def _execute_normal_with_ack(
                 publish_status="published",
                 ack_status=ack.status,
                 ack_latency_ms=ack.latency_ms,
-                error=None if ack.ack_received else "actuator ACK timeout",
-                reason="matching actuator ACK received" if ack.ack_received else "ACTUATOR_ACK_TIMEOUT",
+                error=(
+                    None
+                    if ack.status in {"acknowledged", "late_acknowledged"}
+                    else ack.ack_payload.get("reason", "AC1 reported command failure")
+                    if ack.status in {"failed", "late_failed"} and ack.ack_payload
+                    else "actuator ACK timeout"
+                    if ack.status == "timeout"
+                    else "actuator ACK state is unknown"
+                ),
+                reason=(
+                    "AC1 execution report received"
+                    if ack.status == "acknowledged"
+                    else "late AC1 execution report received"
+                    if ack.status == "late_acknowledged"
+                    else "AC1 reported command failure"
+                    if ack.status in {"failed", "late_failed"}
+                    else "ACTUATOR_ACK_TIMEOUT"
+                ),
                 started_at=attempt_started,
                 completed_at=ack.completed_at,
                 route_validity_status=(route_check.status if route_check else None),
@@ -352,7 +380,7 @@ async def _execute_normal_with_ack(
                 ),
             )
             attempts.append(attempt)
-            if ack.ack_received:
+            if ack.status in {"acknowledged", "late_acknowledged"}:
                 return PhysicalCommandExecutionResult(
                     phase=phase,
                     spec_id=spec.spec_id,
@@ -364,7 +392,7 @@ async def _execute_normal_with_ack(
                     command_id=command_id,
                     status=(
                         "acknowledged_after_retry"
-                        if attempt_number == 2
+                        if attempt_number == 2 or ack.status == "late_acknowledged"
                         else "acknowledged"
                     ),
                     safe_default=False,
@@ -374,18 +402,74 @@ async def _execute_normal_with_ack(
                         route_check.latest_route_version if route_check else None
                     ),
                 )
+            if ack.status in {"failed", "late_failed"}:
+                return PhysicalCommandExecutionResult(
+                    phase=phase,
+                    spec_id=spec.spec_id,
+                    action_category=spec.action_category.value,
+                    action_type=spec.action_type.value,
+                    target_node_id=spec.target_node_id,
+                    route_id=spec.route_id,
+                    route_version=spec.route_version,
+                    command_id=command_id,
+                    status="execution_failed",
+                    error=(
+                        ack.ack_payload.get("reason", "AC1 reported command failure")
+                        if ack.ack_payload
+                        else "AC1 reported command failure"
+                    ),
+                    attempts=attempts,
+                )
+            if ack.status == "timeout" and not _is_retry_safe(spec):
+                _record_ack_timeout(
+                    db,
+                    command_id=command_id,
+                    node_id=spec.target_node_id,
+                    attempt_number=attempt_number,
+                    retry_decision="no_retry_execution_unknown",
+                )
+                return PhysicalCommandExecutionResult(
+                    phase=phase,
+                    spec_id=spec.spec_id,
+                    action_category=spec.action_category.value,
+                    action_type=spec.action_type.value,
+                    target_node_id=spec.target_node_id,
+                    route_id=spec.route_id,
+                    route_version=spec.route_version,
+                    command_id=command_id,
+                    status="execution_unknown",
+                    error="ACK timed out; action may have executed and will not be resent",
+                    attempts=attempts,
+                )
+            if ack.status == "timeout":
+                _record_ack_timeout(
+                    db,
+                    command_id=command_id,
+                    node_id=spec.target_node_id,
+                    attempt_number=attempt_number,
+                    retry_decision=(
+                        "retry_same_command_id"
+                        if attempt_number == 1
+                        else "retry_limit_reached"
+                    ),
+                )
         except Exception as exc:
+            publish_uncertain = isinstance(exc, TimeoutError)
             attempts.append(
                 PhysicalCommandAttemptResult(
                     phase=phase,
                     spec_id=spec.spec_id,
                     attempt_number=attempt_number,
                     command_id=last_command_id,
-                    publish_status="failed",
+                    publish_status="unknown" if publish_uncertain else "failed",
                     ack_status="not_waited",
                     ack_latency_ms=None,
                     error=str(exc),
-                    reason="publish failure; retry is not attempted",
+                    reason=(
+                        "broker confirmation timed out; command may have reached AC1; no resend"
+                        if publish_uncertain
+                        else "publish failure; retry is not attempted"
+                    ),
                     started_at=attempt_started,
                     completed_at=datetime.now(timezone.utc),
                 )
@@ -399,7 +483,7 @@ async def _execute_normal_with_ack(
                 route_id=spec.route_id,
                 route_version=spec.route_version,
                 command_id=last_command_id,
-                status="execution_failed",
+                status="execution_unknown" if publish_uncertain else "execution_failed",
                 error=str(exc),
                 attempts=attempts,
             )
@@ -415,6 +499,63 @@ async def _execute_normal_with_ack(
         status="ack_timeout_exhausted",
         error="no actuator ACK after two attempts",
         attempts=attempts,
+    )
+
+
+def _is_retry_safe(spec: PhysicalActionCommandSpec) -> bool:
+    """Only repeat desired-state traffic and buzzer outputs with the same ID."""
+
+    if spec.action_category is ActionCategory.TRAFFIC:
+        return spec.action_type in {
+            ActionType.ALL_RED,
+            ActionType.GREEN_CORRIDOR,
+            ActionType.OFF,
+        }
+    if spec.action_category is ActionCategory.BUZZER:
+        return spec.action_type in {ActionType.ON, ActionType.OFF}
+    # Gate motion, normal-cycle restarts, and timed buzzer pulses are not
+    # automatically repeated when their completion ACK is missing.
+    return False
+
+
+def _record_ack_timeout(
+    db: Session,
+    *,
+    command_id: str,
+    node_id: str,
+    attempt_number: int,
+    retry_decision: str,
+) -> None:
+    """Persist timeout evidence separately from the command publish event."""
+
+    if db is None:
+        return
+    event = append_event(
+        db,
+        event_type="actuator_ack_timeout",
+        entity_type="command",
+        entity_id=command_id,
+        reason_code="ACTUATOR_ACK_TIMEOUT",
+        human_readable_reason="No correlated terminal AC1 ACK arrived within 500 ms",
+        payload={
+            "command_id": command_id,
+            "node_id": node_id,
+            "timeout_ms": 500,
+            "attempt_number": attempt_number,
+            "retry_decision": retry_decision,
+        },
+    )
+    from app.live.service import publish_live_update_from_thread
+
+    publish_live_update_from_thread(
+        {
+            "event_type": event.event_type,
+            "event_id": event.id,
+            "entity_type": event.entity_type,
+            "entity_id": event.entity_id,
+            "backend_event_at": event.created_at.isoformat(),
+            "payload": event.payload,
+        }
     )
 
 
@@ -546,6 +687,7 @@ async def _execute_safe_default_once(
         )
         command_id = command.get("command_id")
         ack = await wait_for_actuator_ack(command_id, spec.target_node_id)
+        ack_succeeded = ack.status in {"acknowledged", "late_acknowledged"}
         attempt = PhysicalCommandAttemptResult(
             phase=phase,
             spec_id=spec.spec_id,
@@ -554,8 +696,20 @@ async def _execute_safe_default_once(
             publish_status="published",
             ack_status=ack.status,
             ack_latency_ms=ack.latency_ms,
-            error=None if ack.ack_received else "safe-default ACK timeout",
-            reason="safe default; no retry permitted",
+            error=(
+                None
+                if ack_succeeded
+                else ack.ack_payload.get("reason", "AC1 reported command failure")
+                if ack.status in {"failed", "late_failed"} and ack.ack_payload
+                else "safe-default ACK timeout"
+                if ack.status == "timeout"
+                else "safe-default ACK state is unknown"
+            ),
+            reason=(
+                "safe default execution report received"
+                if ack_succeeded
+                else "safe default; no retry permitted"
+            ),
             started_at=started,
             completed_at=ack.completed_at,
             safe_default=True,
@@ -569,7 +723,7 @@ async def _execute_safe_default_once(
             route_id=spec.route_id,
             route_version=spec.route_version,
             command_id=command_id,
-            status="acknowledged" if ack.ack_received else "failed",
+            status="acknowledged" if ack_succeeded else "failed",
             error=attempt.error,
             safe_default=True,
             attempts=[attempt],

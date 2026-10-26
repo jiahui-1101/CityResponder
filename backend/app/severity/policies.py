@@ -52,7 +52,8 @@ HazardZone = ROI | PolygonROI
 # ---------------------------------------------------------------------------
 # TBD-SEV-02: Smoke Score (S) — Pure MQ-2
 # ---------------------------------------------------------------------------
-# Normalize using: normal_baseline = 500, alarm_baseline = 2000.
+# Normalize raw MQ-2 ADC counts using normal_baseline = 500 and
+# alarm_baseline = 2000. These are provisional count thresholds, not ppm.
 # S_severity = (reading - normal) / (alarm - normal), clamped [0.0, 1.0].
 # This is the PURE MQ-2 value.  It is NOT the fusion S = max(smoke, heat).
 # ---------------------------------------------------------------------------
@@ -348,11 +349,21 @@ class SeverityComponentPolicyProvider:
         mq2_state = next(
             (s for s in snapshot.sensors if s.sensor_type == "MQ2"), None
         )
-        if mq2_state is not None and mq2_state.available and mq2_state.value is not None:
+        if (
+            mq2_state is not None
+            and mq2_state.available
+            and mq2_state.value is not None
+            and mq2_state.quality != "SATURATED"
+        ):
             s_score = normalize_smoke_score(float(mq2_state.value))
         else:
             s_score = None
-            reasons.append("TBD-SEV-02: MQ-2 sensor unavailable for severity S")
+            reason = (
+                "MQ-2 reading is saturated and excluded from severity S"
+                if mq2_state is not None and mq2_state.quality == "SATURATED"
+                else "TBD-SEV-02: MQ-2 sensor unavailable for severity S"
+            )
+            reasons.append(reason)
 
         # --- T_heat: pure DHT22 (TBD-SEV-03) ---
         dht22_state = next(

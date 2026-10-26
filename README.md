@@ -311,9 +311,9 @@ The AC1 Actuator Node controls physical infrastructure on the smart city tableto
 - **Low Incidents:** Dispatches responder units on dashboard screens only; physical traffic remains unaffected.
 - **Medium Incidents:** Uses the selected route-aware `GREEN_CORRIDOR`, pulses the buzzer, keeps the gate closed/default, and shows the affected-zone indicator where mapped.
 - **500 ms ACK Watchdog & Safe-Default Failsafe:**
-  - AC1 has a 500 ms ACK target; historical hardware samples include values above that target.
-  - If unacknowledged, exactly one retry is dispatched.
-  - On second timeout or `NO_SAFE_ROUTE`, AC1 triggers the **Safe Default**: Traffic Lights turn **ALL_RED**, Barrier Gate **CLOSES**, and Buzzer turns **ON**.
+  - The backend waits 500 ms for a correlated terminal device ACK after broker confirmation.
+  - It retries at most once, with the same command ID, only for desired-state traffic and buzzer ON/OFF. Gate motion, traffic normal-cycle restarts, and timed buzzer pulses are not retried after an ACK timeout; their execution is marked unknown.
+  - After both attempts time out for a retry-safe command, the existing safe-default path is invoked once. This is an application command policy, not independent physical feedback.
   - A mandatory 1000 ms transition interval is enforced during signal switching to ensure safety clearance.
 
 ### 5. Immutable Event Sourcing & Audit Ledger
@@ -489,12 +489,24 @@ CityResponder physically decouples sensing from actuation across two distinct ES
 ### 3. MQTT Wire Protocol
 
 ```text
-city/sensors/sn1/telemetry      SN1 -> Backend: {"smoke_raw": 1420, "temperature_c": 52.4, "ir_a": 0, "ir_b": 1, "button": 0}
+city/sensors/dht22              SN1 -> Backend: {"sensor_type":"DHT22", "value":31.8, "unit":"C", "humidity":73.8, "humidity_unit":"pct", "node_id":"SN1", "timestamp":"<UTC ISO-8601>"}
+city/sensors/ir_a               SN1 -> Backend: {"sensor_type":"IR_A", "value":true, "unit":"blocked", "raw":"LOW", "node_id":"SN1", "timestamp":"<UTC ISO-8601>"}
+city/sensors/ir_b               SN1 -> Backend: {"sensor_type":"IR_B", "value":false, "unit":"blocked", "raw":"HIGH", "node_id":"SN1", "timestamp":"<UTC ISO-8601>"}
 city/vision/detection           Cam -> Backend: {"timestamp": 1775304000.12, "fire": 0.88, "smoke": 0.65, "person_in_hazard": 1}
 city/vision/road                Cam -> Backend: {"timestamp": 1775304000.15, "road_a_occupancy": 0.12, "road_b_occupancy": 0.85}
-city/commands/AC1               Backend -> AC1: {"command_id": "cmd_912", "version": 4, "action": "TRAFFIC", "parameters": {"corridor": "PRIMARY"}}
-city/acks/AC1                   AC1 -> Backend: {"command_id": "cmd_912", "status": "ACK", "execution_ms": 14}
+city/commands/AC1               Backend -> AC1 QoS 1: {"command_id":"<uuid>","node_id":"AC1","command_type":"PHYSICAL_ACTION","payload":{"action_category":"TRAFFIC","action_type":"GREEN_CORRIDOR","parameters":{"corridor":"PRIMARY"},"spec_id":"<spec>","source_recommendation_id":null,"attempt_number":1,"safe_default":false},"timestamp":"<UTC ISO-8601>"}
+city/acks/AC1                   AC1 -> Backend QoS 0: {"command_id":"<same uuid>","node_id":"AC1","status":"RECEIVED","stage":"received","timestamp":"<UTC ISO-8601>"}
+city/acks/AC1                   AC1 -> Backend QoS 0: {"command_id":"<same uuid>","node_id":"AC1","status":"ACK","stage":"execution_reported","action_category":"TRAFFIC","action_type":"GREEN_CORRIDOR","result":"OUTPUT_SET","timestamp":"<UTC ISO-8601>"}
 ```
+
+SN1's current network build publishes only DHT22, IR_A, and IR_B. IR messages
+provide the device heartbeat; MQ2 and button telemetry are disabled. No
+separate status topic or AC1 command publisher exists in the SN1 firmware.
+
+The backend's QoS 1 publish confirmation means the broker accepted the
+command; it does not mean AC1 received it. The AC1 execution report follows
+the output call but does not confirm physical relay/servo state. The current
+firmware has no PE07 position feedback or passive online heartbeat.
 
 ---
 
@@ -662,18 +674,25 @@ In `development` only, a fresh local database can be seeded with four role accou
 
 ## Controlled Simulation & Testing
 
-To test the complete system without requiring physical ESP32 breadboards connected, CityResponder includes built-in mock harnesses and verification suites:
+CityResponder includes software-only simulation suites and an isolated ACK contract harness. These do not connect to an ESP32 or publish to the production `city/...` actuator topics.
 
-### 1. Run Mock Actuator Node (AC1 Emulator)
-
-In a separate terminal, keep the mock actuator running to simulate physical ACKs:
+### 1. Run the isolated ACK contract suite
 
 ```powershell
 Push-Location backend
-..\.venv\Scripts\python.exe -m scripts.mock_actuator
+..\.venv\Scripts\python.exe -m pytest tests/test_actuator_ack_pipeline.py -q
 ```
 
-### 2. Simulate Sensor & Vision Telemetry
+### 2. Run Mock Actuator Node on an isolated test prefix
+
+The mock listens and replies only below a `cityresponder/test/...` topic prefix. The application backend subscribes to `city/acks/#`, so this mock cannot satisfy a production ACK wait.
+
+```powershell
+Push-Location backend
+..\.venv\Scripts\python.exe -m scripts.mock_actuator --topic-prefix cityresponder/test/demo
+```
+
+### 3. Simulate Sensor & Vision Telemetry
 
 Publish a simulated fire incident and inspect event ingestion:
 

@@ -78,4 +78,6 @@ class PhysicalActionCommandSpec(BaseModel):
                     "GREEN_CORRIDOR requires parameters.corridor "
                     "to be PRIMARY or STANDBY"
                 )
+        if self.action_category is ActionCategory.GATE and self.parameters:
+            raise ValueError("GATE uses configured OPEN/CLOSE targets; position parameters are unsupported")
         return self

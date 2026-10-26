@@ -3,6 +3,7 @@
 from sqlalchemy.orm import Session
 
 from app.events.repository import get_recent_events
+from app.sensors.registry import allowed_sensor_node_ids
 from app.sensors.schemas import LatestSensorState, sensor_message_adapter
 
 
@@ -17,6 +18,7 @@ def get_latest_sensor_states(db: Session) -> list[LatestSensorState]:
         sensor_type: LatestSensorState(sensor_type=sensor_type)
         for sensor_type in SUPPORTED_SENSOR_TYPES
     }
+    allowed_nodes = allowed_sensor_node_ids()
 
     skip = 0
     while True:
@@ -31,6 +33,8 @@ def get_latest_sensor_states(db: Session) -> list[LatestSensorState]:
                 sensor = sensor_message_adapter.validate_python(event.payload)
             except Exception:
                 continue
+            if sensor.node_id not in allowed_nodes:
+                continue
 
             state = latest[sensor.sensor_type]
             if state.available:
@@ -42,6 +46,11 @@ def get_latest_sensor_states(db: Session) -> list[LatestSensorState]:
                 timestamp=sensor.timestamp,
                 node_id=sensor.node_id,
                 unit=event.payload.get("unit"),
+                humidity_pct=getattr(sensor, "humidity", None),
+                quality=getattr(sensor, "adc_status", None),
+                firmware_version=sensor.firmware_version,
+                protocol_version=sensor.protocol_version,
+                simulated=sensor.simulated,
                 available=True,
             )
         if all(state.available for state in latest.values()):

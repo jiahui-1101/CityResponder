@@ -7,6 +7,7 @@ actuator services.
 
 from datetime import datetime, timezone
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -29,8 +30,9 @@ from scripts.road_vision_scenario_test import SCENARIOS, associate_polygon_to_re
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+TEST_DATA_ROOT = Path(os.environ.get("CITYRESPONDER_TEST_DATA_ROOT", PROJECT_ROOT)).expanduser().resolve()
 PHASE_A_DRAFT = (
-    PROJECT_ROOT
+    TEST_DATA_ROOT
     / "reports"
     / "debug"
     / "camera_alignment"

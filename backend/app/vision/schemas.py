@@ -302,6 +302,7 @@ class FreshnessItem(BaseModel):
     stale: bool | None
     age_seconds: float | None
     timestamp: datetime | None
+    stale_after_seconds: float | None = None
 
 
 class PerceptionFreshnessResponse(BaseModel):

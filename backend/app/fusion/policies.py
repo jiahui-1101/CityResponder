@@ -37,7 +37,8 @@ from app.vision.schemas import Detection, FreshnessItem
 # TBD-FUSION-01: Sensor Normalization (S)
 # ---------------------------------------------------------------------------
 # DHT22 (Temperature): normal = 30 °C, alarm = 40 °C.
-# MQ-2 (Smoke):        normal = 500,    alarm = 2000.
+# MQ-2 raw ADC counts: normal = 500, alarm = 2000. These are the project's
+# configured provisional count breakpoints, not calibrated concentration/ppm.
 # Normalize = (reading − normal) / (alarm − normal), clamp [0.0, 1.0].
 # S = max(s_smoke, s_heat).
 # Stale check: MQ-2 stale after 2.0 s; DHT22 stale after 3.0 s.
@@ -98,7 +99,9 @@ class FireSensorNormalizationPolicy:
             *score* is ``None`` when both sensors are stale/unavailable.
             *status* is one of ``"available"``, ``"stale"``, ``"unavailable"``.
         """
-        mq2_stale = _is_sensor_stale(mq2_freshness, MQ2_STALE_SECONDS)
+        mq2_stale = _is_sensor_stale(mq2_freshness, MQ2_STALE_SECONDS) or (
+            mq2.quality == "SATURATED"
+        )
         dht22_stale = _is_sensor_stale(dht22_freshness, DHT22_STALE_SECONDS)
 
         # --- TBD-FUSION-01: "If both are stale, S is unavailable" ---
@@ -561,6 +564,8 @@ class FireFusionEngine:
         )
         if s_score is None:
             reasons.append(f"TBD-FUSION-01: S unavailable ({s_status}), C cannot be calculated")
+        if mq2.quality == "SATURATED":
+            reasons.append("MQ2 ADC is saturated; raw reading is excluded")
 
         # --- V channel (TBD-FUSION-03) ---
         # Check camera stale first (TBD-FUSION-03)
@@ -595,7 +600,9 @@ class FireFusionEngine:
 
         # --- Compute individual sensor scores for supporting channels ---
         # TBD-FUSION-01: individual normalized scores for MQ-2 and DHT22
-        mq2_stale = _is_sensor_stale(mq2_freshness, MQ2_STALE_SECONDS)
+        mq2_stale = _is_sensor_stale(mq2_freshness, MQ2_STALE_SECONDS) or (
+            mq2.quality == "SATURATED"
+        )
         dht22_stale = _is_sensor_stale(dht22_freshness, DHT22_STALE_SECONDS)
 
         mq2_score: float | None = None
